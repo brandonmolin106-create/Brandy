@@ -25,8 +25,16 @@ FX_TEXT = {
 
 TRANSITION = {
     "fade": "dissolve", "fadeblack": "dip to black", "fadewhite": "white flash",
-    "hblur": "blur dissolve", "zoomin": "zoom-in", None: "-",
+    "hblur": "blur dissolve", "zoomin": "zoom-in",
 }
+
+
+def describe(s):
+    if s["clip"] == "BLACK":
+        return "hard cut to black"
+    how = "opening shot" if s["tf"] == 0 else TRANSITION.get(s["tr"], s["tr"])
+    slow = f", slow-mo x{1 / s['speed']:.1f}" if s["speed"] != 1 else ""
+    return f"{s['clip']} from {s['src_in']:.1f}s ({how}{slow})"
 
 
 def tc(t):
@@ -44,11 +52,10 @@ def main():
 
     rows = []
     for ln in lines:
-        mine = [s for s in shots if ln["start"] - 0.6 <= s["cut"] < (
-            lines[ln["i"] + 1]["start"] - 0.6 if ln["i"] + 1 < len(lines) else 1e9)]
-        shot_txt = "<br>".join(
-            f"{s['clip']} from {s['src_in']:.1f}s ({TRANSITION.get(s['tr'], s['tr'])}"
-            f"{', slow-mo x' + format(1 / s['speed'], '.1f') if s['speed'] != 1 else ''})" for s in mine) or "(continues)"
+        lo = ln["start"] - 0.6 if ln["i"] else -1.0
+        hi = lines[ln["i"] + 1]["start"] - 0.6 if ln["i"] + 1 < len(lines) else 1e9
+        mine = [s for s in shots if lo <= s["cut"] < hi]
+        shot_txt = "<br>".join(describe(s) for s in mine) or "(continues)"
         rows.append(f"| {tc(ln['start'])} | {ln['text']} | {FX_TEXT[ln['fx']]} | {shot_txt} | "
                      f"{'<br>'.join(cues_by_line.get(ln['i'], [])) or ''} |")
 

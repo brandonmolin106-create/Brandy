@@ -138,22 +138,25 @@ def chain(items, out):
 
 
 def finishing_filter(tl):
-    lines = tl["lines"]
     cues = tl["cues"]
     impacts = [c["t"] for c in cues if c["kind"] == "impact"]
     booms = [c["t"] for c in cues if c["kind"] in ("softboom", "rumble")]
     glitches = [c["t"] for c in cues if c["kind"] == "glitch"]
     glows = [c["t"] for c in cues if c["kind"] == "glow"]
 
+    # max(t-T,0) keeps exp() from overflowing to inf before a cue (inf*0 = NaN = black frame)
     def decay(times, amp, rate, dur):
-        return "+".join(f"{amp}*exp(-(t-{t:.3f})*{rate})*between(t,{t:.3f},{t + dur:.3f})" for t in times) or "0"
+        return "+".join(f"{amp}*exp(-max(t-{t:.3f},0)*{rate})*between(t,{t:.3f},{t + dur:.3f})" for t in times) or "0"
+
+    def wobble(hits, freq, phase):
+        return "+".join(f"{a:.2f}*exp(-max(t-{t:.3f},0)*5)*sin(max(t-{t:.3f},0)*{freq}+{phase})"
+                        f"*between(t,{t:.3f},{t + 1.2:.3f})" for t, a in hits) or "0"
 
     shake = [(t, 14) for t in impacts] + [(t, 6) for t in booms]
-    sx = "+".join(f"{a}*exp(-(t-{t:.3f})*5)*sin((t-{t:.3f})*67)*between(t,{t:.3f},{t + 1.2:.3f})" for t, a in shake)
-    sy = "+".join(f"{a * 0.6}*exp(-(t-{t:.3f})*5)*sin((t-{t:.3f})*53+1)*between(t,{t:.3f},{t + 1.2:.3f})" for t, a in shake)
+    sx, sy = wobble(shake, 67, 0), wobble([(t, a * 0.6) for t, a in shake], 53, 1)
     cw, ch = W - 48, H - 27
     flash = decay(impacts, 0.22, 7, 0.8)
-    glitch_on = "+".join(f"between(t,{t:.3f},{t + 0.35:.3f})" for t in glitches)
+    glitch_on = "+".join(f"between(t,{t:.3f},{t + 0.35:.3f})" for t in glitches) or "0"
 
     f = []
     f.append(f"[0:v]crop=w={cw}:h={ch}:x='24+({sx})':y='13+({sy})',scale={W}:{H}:flags=bicubic,"

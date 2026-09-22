@@ -14,9 +14,9 @@ CapCut project.
 | File | What it is | Where it goes in CapCut |
 |---|---|---|
 | `endless_destiny_narration_match.mp4` | The finished edit: picture + mixed audio, 1920x1080, 24 fps, 7:16 | Main video track |
-| `narration_fx.wav` | Narrator only, with all voice effects baked in | Audio track 1 (if you want to rebalance) |
-| `score_sfx.wav` | Music + sound design only | Audio track 2 |
-| `full_mix.wav` | Both together, mastered (-14 LUFS, -1.2 dBTP) | Already inside the MP4 |
+| `narration_fx.wav` / `.m4a` | Narrator only, with all voice effects baked in (`.m4a` = small copy for phones) | Audio track 1 (if you want to rebalance) |
+| `score_sfx.wav` / `.m4a` | Music + sound design only | Audio track 2 |
+| `full_mix.wav` | Both together, mastered (-14 LUFS, true peak under -1 dB) | Already inside the MP4 |
 | `captions.srt` | Captions timed to the new edit | Captions → import local captions (`.srt`) |
 | `timeline.json` | Where every line and cue landed | Used by the scripts |
 
