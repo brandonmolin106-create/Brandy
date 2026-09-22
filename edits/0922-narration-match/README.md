@@ -30,6 +30,15 @@ CapCut project.
    Played together at 100% they equal the master mix.
 5. Captions: import `captions.srt`, or use CapCut's auto-captions (not both).
 
+Sending over chat is capped at 30 MB, so the 1080p master also comes as
+`out/share/`:
+- **Seven video-only parts.** Put part 1 through part 7 back-to-back from
+  00:00. They're cut from one encode, so they join frame-exact.
+- **`endless_destiny_full_mix.m4a`.** One continuous audio file for under
+  the parts, so there are no audio seams.
+- **`endless_destiny_preview_720p.mp4`.** The whole edit as one small file,
+  just for watching.
+
 [`CUESHEET.md`](CUESHEET.md) lists every line with its timecode, voice
 effect, shot, transition and sound cue.
 
