@@ -1,0 +1,139 @@
+{
+  "variants": {
+    "facing=north,slices=0": {
+      "model": "turtlepower:block/pizza_box_empty"
+    },
+    "facing=north,slices=1": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=2": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=3": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=4": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=5": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=6": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=7": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=north,slices=8": {
+      "model": "turtlepower:block/pizza_box"
+    },
+    "facing=east,slices=0": {
+      "model": "turtlepower:block/pizza_box_empty",
+      "y": 90
+    },
+    "facing=east,slices=1": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=2": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=3": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=4": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=5": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=6": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=7": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=east,slices=8": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 90
+    },
+    "facing=south,slices=0": {
+      "model": "turtlepower:block/pizza_box_empty",
+      "y": 180
+    },
+    "facing=south,slices=1": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=2": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=3": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=4": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=5": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=6": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=7": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=south,slices=8": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 180
+    },
+    "facing=west,slices=0": {
+      "model": "turtlepower:block/pizza_box_empty",
+      "y": 270
+    },
+    "facing=west,slices=1": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=2": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=3": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=4": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=5": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=6": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=7": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    },
+    "facing=west,slices=8": {
+      "model": "turtlepower:block/pizza_box",
+      "y": 270
+    }
+  }
+}
