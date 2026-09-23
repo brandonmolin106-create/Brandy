@@ -7,23 +7,27 @@ echo.
 pause
 exit /b
 ##PS
-# TMNT Turtle Power: Story Mode - one-click installer for Minecraft Java (Windows).
+# TMNT Turtle Power: Story Mode - double-click to install and play (Minecraft Java, Windows).
 #
 # Puts the mod in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
 # "TMNT Story Mode" profile to the Minecraft Launcher that opens the world as soon as you press Play.
 #
-# Forge asks people not to auto-download it (their download page ads pay for Forge), so this
-# script does not download Forge. If Forge 1.20.1 isn't installed yet it opens the official Forge
-# page; you click "Installer", and next time this script finds that file in Downloads and installs
-# it for you.
+# It downloads and installs NeoForge 1.20.1 (the mod loader) by itself, and a Java runtime from
+# Adoptium if the computer doesn't have one, so there is nothing else to download by hand.
+# (Regular Forge asks people not to automate its download, so we use NeoForge, which runs Forge
+# 1.20.1 mods.)
 #
 # The mod + world are glued to the end of the .bat file (base64) so everything is in one file.
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'   # makes downloads much faster in Windows PowerShell
+try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
 $WorldName = 'TMNT Story Mode'
 $ProfileId = 'tmnt-story-mode'
 $VersionId = 'TMNT-Story-Mode'
-$ForgePage = 'https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html'
+$NeoVersion = '1.20.1-47.1.106'
+$NeoUrl = "https://maven.neoforged.net/releases/net/neoforged/forge/$NeoVersion/forge-$NeoVersion-installer.jar"
+$JreUrl = 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jre/hotspot/normal/eclipse'
 
 function Say([string]$text, [string]$color = 'White') { Write-Host $text -ForegroundColor $color }
 # Join-Path that just gives $null when the base folder variable doesn't exist on this PC.
@@ -48,11 +52,11 @@ if (-not (Test-Path $profilesFile)) {
 Say "Found Minecraft: $mc" 'Gray'
 
 # --- 2. Find Java (the Minecraft Launcher brings its own) ----------------------------------------
-$java = $null
-$cmd = Get-Command java -ErrorAction SilentlyContinue
-if ($cmd) { $java = $cmd.Source }
-if (-not $java) {
+function Find-Java {
+    $cmd = Get-Command java -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
     $roots = @(
+        (J $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'),
         (J $mc 'runtime'),
         (J $env:LOCALAPPDATA 'Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime'),
         (J ${env:ProgramFiles(x86)} 'Minecraft Launcher\runtime'),
@@ -61,49 +65,53 @@ if (-not $java) {
     )
     foreach ($r in $roots) {
         if ($r -and (Test-Path $r)) {
-            $j = Get-ChildItem $r -Recurse -Filter 'java.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($j) { $java = $j.FullName; break }
+            $j = Get-ChildItem $r -Recurse -Include 'java.exe', 'java' -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.Directory.Name -eq 'bin' } | Select-Object -First 1
+            if ($j) { return $j.FullName }
         }
     }
+    return $null
 }
 
-# --- 3. Forge 1.20.1 ----------------------------------------------------------------------------
+# --- 3. Mod loader: NeoForge 1.20.1 (downloaded for you) -----------------------------------------
+# NeoForge is the community version of Forge; Forge 1.20.1 mods run on it. Unlike Forge it doesn't
+# ask people not to automate installs, so this downloads it from the official NeoForged server.
 $versions = Join-Path $mc 'versions'
-$forge = $null
+$loader = $null
 if (Test-Path $versions) {
-    $forge = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' -ErrorAction SilentlyContinue |
+    $loader = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' -ErrorAction SilentlyContinue |
         Sort-Object Name -Descending | Select-Object -First 1
 }
-if (-not $forge) {
-    $downloads = J $env:USERPROFILE 'Downloads'
-    $here = Split-Path -Parent $env:TMNT_SELF
-    $installer = @($downloads, $here) | Where-Object { $_ -and (Test-Path $_) } | ForEach-Object {
-        Get-ChildItem $_ -File -Filter 'forge-1.20.1-47.*-installer.jar' -ErrorAction SilentlyContinue
-    } | Sort-Object Name -Descending | Select-Object -First 1
-
-    if (-not $installer) {
-        Say 'Step 1 of 2: you need Forge 1.20.1 (the thing that lets Minecraft load mods).' 'Cyan'
-        Say 'I am opening the official Forge page for you now.' 'Cyan'
-        Say ''
-        Say '  1. Click the "Installer" button under "Download Recommended".'
-        Say '  2. The ad page will show a "SKIP" button at the top right after a few seconds - click it.'
-        Say '  3. Save the file (it goes to your Downloads folder). You do NOT need to open it.'
-        Say '  4. Double-click this installer again. I will do the rest.'
-        try { Start-Process $ForgePage } catch { Say "Open this in your browser: $ForgePage" 'Yellow' }
-        exit 0
-    }
+if (-not $loader) {
+    $java = Find-Java
     if (-not $java) {
-        Quit "I found the Forge installer but no Java to run it.`nStart Minecraft once from the launcher (normal 1.20.1, no mods), close it, then run me again."
+        Say 'Getting Java (needed once to set up the mod loader, about 45 MB)...' 'Cyan'
+        $jreZip = Join-Path $env:TEMP 'tmnt-jre.zip'
+        $jreDir = Join-Path $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'
+        Invoke-WebRequest -UseBasicParsing -Uri $JreUrl -OutFile $jreZip
+        if (Test-Path $jreDir) { Remove-Item $jreDir -Recurse -Force }
+        Expand-Archive -Path $jreZip -DestinationPath $jreDir -Force
+        Remove-Item $jreZip -Force -ErrorAction SilentlyContinue
+        $java = Find-Java
+        if (-not $java) { Quit "Couldn't set up Java. Check your internet and run me again." }
     }
-    Say "Installing Forge from $($installer.Name) (this takes a minute or two)..." 'Cyan'
-    & $java -jar $installer.FullName --installClient $mc | Out-Host
-    if ($LASTEXITCODE -ne 0) {
-        Quit "Forge didn't install. Try double-clicking the Forge file in Downloads and choosing 'Install client', then run me again."
+    Say "Downloading NeoForge $NeoVersion (the mod loader)..." 'Cyan'
+    $installerJar = Join-Path $env:TEMP "neoforge-$NeoVersion-installer.jar"
+    Invoke-WebRequest -UseBasicParsing -Uri $NeoUrl -OutFile $installerJar
+    Say 'Installing NeoForge... this takes a minute or two, please wait.' 'Cyan'
+    $log = Join-Path $env:TEMP 'tmnt-neoforge-install.log'
+    $proc = Start-Process -FilePath $java -WorkingDirectory $env:TEMP -Wait -PassThru -NoNewWindow `
+        -ArgumentList @('-jar', "`"$installerJar`"", '--installClient', "`"$mc`"") `
+        -RedirectStandardOutput $log -RedirectStandardError "$log.err"
+    Remove-Item $installerJar -Force -ErrorAction SilentlyContinue
+    if ($proc.ExitCode -ne 0) {
+        Get-Content $log -Tail 15 -ErrorAction SilentlyContinue | Out-Host
+        Quit "The mod loader didn't install (details above). Check your internet and run me again."
     }
-    $forge = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' | Sort-Object Name -Descending | Select-Object -First 1
-    if (-not $forge) { Quit "Forge didn't install. Try double-clicking the Forge file in Downloads and choosing 'Install client'." }
+    $loader = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' | Sort-Object Name -Descending | Select-Object -First 1
+    if (-not $loader) { Quit "The mod loader didn't install. Check your internet and run me again." }
 }
-Say "Forge is ready: $($forge.Name)" 'Green'
+Say "Mod loader is ready: $($loader.Name)" 'Green'
 
 # --- 4. Unpack the mod and the world ------------------------------------------------------------
 Say 'Unpacking the TMNT mod and the New York world...' 'Cyan'
@@ -135,17 +143,17 @@ if (Test-Path $world) {
 Remove-Item $zip, $unpack -Recurse -Force -ErrorAction SilentlyContinue
 
 # --- 5. A launcher version that opens the world straight away -----------------------------------
-$forgeJson = Get-Content (Join-Path $forge.FullName "$($forge.Name).json") -Raw | ConvertFrom-Json
+$loaderJson = Get-Content (Join-Path $loader.FullName "$($loader.Name).json") -Raw | ConvertFrom-Json
 $vdir = Join-Path $versions $VersionId
 New-Item -ItemType Directory -Force -Path $vdir | Out-Null
 $now = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'")
 $version = [ordered]@{
     id           = $VersionId
-    inheritsFrom = $forge.Name
+    inheritsFrom = $loader.Name
     type         = 'release'
     time         = $now
     releaseTime  = $now
-    mainClass    = $forgeJson.mainClass
+    mainClass    = $loaderJson.mainClass
     libraries    = @()
     arguments    = [ordered]@{ game = @('--quickPlaySingleplayer', $WorldName); jvm = @() }
 }
@@ -169,7 +177,7 @@ try {
     [IO.File]::WriteAllText($profilesFile, ($lp | ConvertTo-Json -Depth 64), $utf8)
     Say "  added 'TMNT Story Mode' to the Minecraft Launcher" 'Gray'
 } catch {
-    Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to Play instead.)" 'Yellow'
+    Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to PLAY instead.)" 'Yellow'
 }
 
 # --- 7. Done! -----------------------------------------------------------------------------------
@@ -177,8 +185,9 @@ Say ''
 Say 'ALL DONE! COWABUNGA!' 'Green'
 Say ''
 Say 'Opening the Minecraft Launcher...' 'Cyan'
-Say "Make sure 'TMNT Story Mode' is picked next to the big green PLAY button, then press PLAY."
-Say 'Minecraft will load straight into the lair. You are Raphael!'
+Say "Press the big green PLAY button ('TMNT Story Mode' should already be picked next to it)."
+Say 'Minecraft loads straight into the lair. You are Raphael!'
+Say 'Next time you can just open the Minecraft Launcher and press PLAY, or double-click me again.' 'Gray'
 $launched = $false
 foreach ($exe in @((J ${env:ProgramFiles(x86)} 'Minecraft Launcher\MinecraftLauncher.exe'),
                    (J $env:ProgramFiles 'Minecraft Launcher\MinecraftLauncher.exe'))) {
@@ -5503,7 +5512,7 @@ WQgTFz9s4ZB+HHcklcxhAyJswNAh5o96xyGVGayQcSq1ThSCesb8McD43bHHNrND3jxDnjTC/MFC
 Pvui9bOU043Zb6ccedxCBT/bWEqqGya1RkTK8thc9h2nemua9LNLyRtezY8Pxqf72Co5ALNTjaVs
 8MBseNCKsHpfqfSxUQNPUHTkNS5+/+tSSUHiRGKySc0PnsVvab/NIIudAst+M0ebU1LSbL5gfowq
 nsuksquLXj8imB+N6oIRHp92MD+c1aJNzU4YxE8BLKp2oJ6jmhjv2Bb9vA7+Lk/kuOxz8FHu/1BL
-AwQUAAAACAALCDdd2zJpygmSAAD6kQAAHwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9sZXZlbC5k
+AwQUAAAACABSCjdd2zJpygmSAAD6kQAAHwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9sZXZlbC5k
 YXQAdECLvx+LCAgsGLNqAv9sZXZlbC5kYXQAlF0HoCRF0d7IcUe6gwvkjCR5ZBBMIKIkkYwkl9nd
 ebvDm91ZZmbfu3dGgpgQVFBBDKgoCmZMYMQsilnMOeec/fXvntQVumYW/1+8Y7/qqaqurq6u7q5e
 VautqjXnR/7K2tanBU7fGw+eEPRP86J4Va1Wa25eW6X+ep4bRl4wrm126Nxhh8wdunmtrf7lyf3a
@@ -6160,12 +6169,12 @@ TnYkcmZbkWsYCyYjqETQUSCtNkGQUa6VSW0zG4PaM2dYdblMRs4pVu3MzLmE85a7hpz5mZTwG8Hp
 QtvJ9T3PGV4lzFZ1yoUIqHzsvqu2XTvkLNJURDmmI/dOG8x2FqwRimBd8Oec8TpKmM1XSumqsBHU
 1Pkc6ip3mqDZVcFEECm5smDt6uPX7rhGkuWOgjSECjtcCq9cZInFlWr4Kfno510qZIL8y4kyKdps
 Z9aKlKnUU2V4aLQvvWOznZkr4+LPcvbCAowiX4j9pH4YUSCd2fIParAC+P8qd3+o4sUCAFBLAwQU
-AAAACAALCDddz5bp/y8AAAAwAAAAMQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9ESU0tMS9kYXRh
+AAAACABSCjddz5bp/y8AAAAwAAAAMQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9ESU0tMS9kYXRh
 L2NhcGFiaWxpdGllcy5kYXST7+ZgAIP/j5MSHiQleHrqeKYkpD0oY7yUuNL16MyflTw8e+byMJwV
-1YqTAyoDAFBLAwQUAAAACAALCDddO5xIIVoAAABZAAAAKgAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
+1YqTAyoDAFBLAwQUAAAACABSCjddO5xIIVoAAABZAAAAKgAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
 ZS9ESU0tMS9kYXRhL3JhaWRzLmRhdJPv5mAAg/+PkxIeJCV4eup4PklJ4PU646OZxsCYxla3/0qX
 0PFNR87MObJkToi/+AIFZWNmb4+0IrMJS3lCDr5luiI6LSpkzsz5xw8cuH2SgYFpXeI5H6B5AFBL
-AwQUAAAACAALCDddEQ7fZzQGAAAA4AAAJAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4w
+AwQUAAAACABSCjddEQ7fZzQGAAAA4AAAJAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4w
 Li0xLm1jYe3da1SMeRwH8KlUygyji9DNGLd0m5GSpAvpMt3cVrpgGqHUooQSwlTrNs3uTJGaVCdd
 FFJUCqnppowSUu052tYmIQdtOSRmh+PsHmv3HG+Yc8b3c87v/fP/vvs+z+95HgIBAAAAAAAAvg/y
 cgTCCMmMlMwoyahKRklO2lf17ShIzqooGRXJkCRDlIzyd3R+AAAAAAAA+B5sPK85/F8j7ev6Vr73
@@ -6194,7 +6203,7 @@ z2mNpbj4bqy8c25ZsmtR7NbfE7a+WxliRdk8caHn26Bl/hkFB9vn3782qeJ2tV3BjkYzF8/Xnnec
 CioyRA/GtVe8UKwfS22SdgYAAAAAAAAAsi7mQ/+njxbSyCPaZh3osrvhlDsjt7fXjqHt/XKqwLnv
 WkXc9OfeFUxirXO+blAbQelGqmALscNOV/Nuamp7vrHFnDD6ax+FvNjVrLMuXk2JwQYPMgu11ZaY
 9p2YYstRMow0jqkW7fMrYgum6emrWR7Zfeidbcvq0+3xS89++AFA5U1qnrRDAAAAAAAAAJBlfwFQ
-SwMEFAAAAAgACwg3XcGLVvvlBgAAANAAACQAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcG9pL3Iu
+SwMEFAAAAAgAUgo3XcGLVvvlBgAAANAAACQAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcG9pL3Iu
 LTEuMC5tY2Ht3Hs01HkfB/BhmMmtFEWGZZA4FTN72iKEJ1bC5OliSa65tlmXxnRxyW0SdrDjfslD
 h9hmPbJSphJNdCNic0vFEt1URtm1m9qlc/Y5zzn98fz1nN85s+/XOZ+/P5/f+/fX53y/vx+J9Hcj
 LUUiycyX7HxRpIibQ57A3uT53ovmi0rgDAvkCO6vSHB/AAAAAAAA+H/ZX7987r+LwDneE9ib8Of/
@@ -6226,7 +6235,7 @@ q4drzZXkF8UYjX/VVHMxetI+IK6gVW1ozyUK7V3Ht2Mey+wruzuzLXJ3GdYcZKt9/tw9/6ic5pVZ
 MvMUvY3oAAAAAAAAAAD+Bvjz+39shrP8/P7P9f7Wr/gMzWT0fsPqqSqP1Geq1KEK/cHDMmEvlNjy
 iY0RPoczN17OZMbbROjkm836l22Qr7/PeVC97I2lUJm2cPpvmazPava3dRzMvn6KZ/uk49WXRywE
 0j/FaC8SlFoKg4cuNx0vnSIfjiPdsIqfUbsrXnX/Zl9m1C7z4lBn5q2ulumEjaqs9WSiIwEAAAAA
-AACQLH8CUEsDBBQAAAAIAAsIN12sHYVehAsAAABAAQAjAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2Rl
+AACQLH8CUEsDBBQAAAAIAFIKN12sHYVehAsAAABAAQAjAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2Rl
 L3BvaS9yLjAuMC5tY2Ht3Wk4lesaB/CMayNDWWXIEBkyZJ4qEYnSQCUZWrEMmXWoJCVJxDZmRRFC
 hgbDMlfmsUzJUEhJKpVKaKLxLKfdvvbZH/ZH65z6/67rvt6P9/vc3/7P+77PO2cOvTEyfL8y064c
 tGKnFSvD7N7Db7R+82e55w9MtL7zaMVLK05azaUVYRbvhYvWi4VWbHRaPzetLw+degMAAAAAAMBs
@@ -6279,7 +6288,7 @@ Fd7d1hLRMWWbuSWOx91f0L9Gr5vJZvs2CqPMinMOfX47Mkyj2Z14K4sTRoeHgyK4E3IC34jElig6
 GBt8SM97tqzWUSQ0y739mJbOZa7NB4ukdubmLOHdd7PD5oH7CNHU7p64H1M9a1P7yQKJ9rqpCfLE
 2X3r3txdfU0n1tv6N+dMUoLKhY6gS9o+Gk5O990FD5snO92T7QhU+ai4Ns/URF39Umxj/deXWYJu
 cqEa9YJnKbHtpGKeymJPP6r0drUvB4zmdR7qzZEmsk+PrQ4IFy7MLqqn99QBAAAAAAAAZtG/AVBL
-AwQUAAAACAALCDddXXJv0ncGAAAAwAAAJQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4t
+AwQUAAAACABSCjddXXJv0ncGAAAAwAAAJQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4t
 MS4tMS5tY2Ht3WtU03UYB/CxcVE2UCYMBLG46EAExsWUg9qmA2IDcigCBjoWQqKhzBAQs9BAGF4I
 mZlcSgRMU7l4ST0oMBEBxyYKhZA6c0AlcHACInGgkS/yTS/qnFzS93PO8+L/6v//fd895/f8z0Mg
 AAAAAAAAAPwbdLQIBG116alLV0vTX/PqkdRnJqprqrrIGjy/vvrdU/6H+QMAAAAAAMCrEHPWZPTl
@@ -6309,12 +6318,12 @@ cou2rPGBjCqpF7kuufnuGI3LLLx7MOpxeM70jSmXV0Z3ZM4s8by9dCDJoMXxZPONxUH2xcGyIFlC
 6qWpbL0LI+zR0167p67zlgjL9n+0Im1hXZ1NKstj1E5u3XglXWVX+ONYkMqj/bSglZf+3KT6J9G0
 z3pS92s6FgAAAAAAAIBJpfJv3P+Xvbj/J4VKx9Wm/oMBgAcn+HXR8w4/+UI/akfRrplV6sdglZRQ
 ouX9/iwjebpRSBdzZMHsP2YBiuYeIjjayZ0bdUOvVUure7NDss0OrVlF8dtMoVTmUwhNU2QFmg4P
-AAAAAAAA4HXwO1BLAwQUAAAACAALCDddz5bp/y8AAAAwAAAAKwAAAHNhdmVzL1RNTlQgU3Rvcnkg
+AAAAAAAA4HXwO1BLAwQUAAAACABSCjddz5bp/y8AAAAwAAAAKwAAAHNhdmVzL1RNTlQgU3Rvcnkg
 TW9kZS9kYXRhL2NhcGFiaWxpdGllcy5kYXST7+ZgAIP/j5MSHiQleHrqeKYkpD0oY7yUuNL16Myf
-lTw8e+byMJwV1YqTAyoDAFBLAwQUAAAACAALCDddO5xIIVoAAABZAAAAJAAAAHNhdmVzL1RNTlQg
+lTw8e+byMJwV1YqTAyoDAFBLAwQUAAAACABSCjddO5xIIVoAAABZAAAAJAAAAHNhdmVzL1RNTlQg
 U3RvcnkgTW9kZS9kYXRhL3JhaWRzLmRhdJPv5mAAg/+PkxIeJCV4eup4PklJ4PU646OZxsCYxla3
 /0qX0PFNR87MObJkToi/+AIFZWNmb4+0IrMJS3lCDr5luiI6LSpkzsz5xw8cuH2SgYFpXeI5H6B5
-AFBLAwQUAAAACAALCDddpHnr9ZkCAACUAgAAMAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9kYXRh
+AFBLAwQUAAAACABSCjddpHnr9ZkCAACUAgAAMAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9kYXRh
 L3R1cnRsZXBvd2VyX3N0b3J5LmRhdAGUAmv9H4sIAAAAAAAA/41Wv28TMRh1moQml4QfgqESGQoI
 xMDQAcHAAFSRWEAtEkIUIVnOndu48Z0P21FL/wP+H0bExMAQiR0xMiEGJCoQYgifE7tKnXN0WSzr
 e+/5Pcf32RFCEaolRJMIndmSbI9lVVR5gRBqwLgD41UYX5o5ABvbgj1mSqsm6gwlIdkejiXRVEUA
@@ -6327,10 +6336,10 @@ LyQDmKKxpBrTQ6Y9mNvB68YWJ0ziAeHc2mp7WhvGlso5yzSVVuiXh7kHmConfStxpUCiTnLJeFEs
 mP87MeLczl0Al63KWQCdn7t4cEpm92Hh9RKhzkww05JkMfVEnbUbZmUdS4YTIaQF9Tx7X05AfaFU
 ADQG0AVFD+gsBOYkSahTXPOytMwfNFXMhdSEBzQ/AqxtYmJ7vwW7XIRWh0zHA+peCOteUHO6ajmR
 7siMvR3rmYyS5AMshUgDZ+Hp9D0i9oUV+b1w7oyRbU7eUKngi0StHjxensOEiQyhzlv0H+/vwPTT
-CAAAUEsDBBQAAAAIAAsIN11z4XNIOQAAADsAAAAlAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2Rh
+CAAAUEsDBBQAAAAIAFIKN11z4XNIOQAAADsAAAAlAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2Rh
 dGEvY2h1bmtzLmRhdJPv5mAAg/+PkxIeJCV4eup4PklMKD6t7+Xnm8jAmMaWJ74gISIrsDCtTo6Z
-OV+dmSFS+nONNlAHAFBLAwQUAAAACAALCDddAAAAAAIAAAAAAAAAKQAAAHNhdmVzL1RNTlQgU3Rv
-cnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhAwBQSwMEFAAAAAgACwg3Xfy+NlQ6CgAAAHAAACkA
+OV+dmSFS+nONNlAHAFBLAwQUAAAACABSCjddAAAAAAIAAAAAAAAAKQAAAHNhdmVzL1RNTlQgU3Rv
+cnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhAwBQSwMEFAAAAAgAUgo3Xfy+NlQ6CgAAAHAAACkA
 AABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZW50aXRpZXMvci4tMS4wLm1jYe3Z+TcU6gPHcXuWyDJm
 ZIlmkH0d2fc1W0KEqTCWrNcaxhZGtlIoNESukbFNYwmVEcKEIZRwmbgRIfsSRX3v/Ru+53z7nnuf
 1znPz59fnueH93no6IB/J0Z6OjoG+l+3z/TXNssv3AcAAAAAAAAAAACAfz7/RijH3+ffug8AAAAA
@@ -6377,7 +6386,7 @@ xcx7CFQpX6Gcq11uWtUytwpLDd7Yl76xoRZ+UxNvJn52txCaFt2PtpE5O54dROHiJGcna66gs5/b
 QyEJAYLjWAaZqkwDpGnrdSNGdL5t6GRL+Tke2IPPrOUp+uT2Gun792ETHGN12bzSCpFHDgOYJ58+
 IE/LcL6jP4hDxgUdWkTJ6yzX8gyfkRDV1u5nXR6kaWEsvt/Akw2qYQM/kGijXqF+09PbLOLPjexH
 m0ynKO75C5mfqKhnGvSxIzeF3M63z1v26E9sTKpfimvJP09r3NyY+mzx8SXn10zOUr3WvZif7zTb
-Q5cu/nBfwmxdJXn4/flkirudMX77++1f/a4AAAAAAAAAAAD+v/wHUEsDBBQAAAAIAAsIN12rTdzf
+Q5cu/nBfwmxdJXn4/flkirudMX77++1f/a4AAAAAAAAAAAD+v/wHUEsDBBQAAAAIAFIKN12rTdzf
 4wIAAABAAAAoAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2VudGl0aWVzL3IuMC4wLm1jYe3X6S8b
 ABzG8WJmdLZm7bDGMUcwGWJzLCaqOsOaOVYbcRXFoq455wi1KjZbGubslOiGmDi2lobMHJ0jMeJe
 qxE3HatjiyMNlr3dP7BJtt/nL3hePG++CAT4vynInfQCAAAAAAAAAAAA/FlUnhrypDcAAAAAAAAA
@@ -6392,7 +6401,7 @@ VzJH3dwJ9fbWzZwNxkFiBmeZZ2V246a3yAlzRRXb7U8YP61doD8kCJQGl5EkxBemTY+F2QvPAnlX
 J1drtNzSetBtYS7tghIkb5BwwXb2HMckvC9gGluaJ8V5HrGMeVoOU5qroVOhelSjJIHQi9yAG1lB
 fYt1NE747lr2+bnT+1U/8nx3+/EHfudeQrzZk/lw/CDFpqF5hYzNXKS+i8HYtqiQ1UXCZun59Jlc
 i0TdLr9qxS3cMLuqPzlfTEPcIkoEJ/1sAAAAAAAAAAC/g/6H/of+BwAAAAAAAIB/3S9QSwMEFAAA
-AAgACwg3XUHeqp5DAwAAAEAAACoAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZW50aXRpZXMvci4t
+AAgAUgo3XUHeqp5DAwAAAEAAACoAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZW50aXRpZXMvci4t
 MS4tMS5tY2Ht1/9TywEcx/FpqSxT11a0jL5bM+sLik2xrfQF1xSavjGWEh+nsk7pGzXiYtW1K7aM
 UgvlXJ9OqimjczqtLuubvuyuL5RE7ZA03/4K53Tvx1/w+uX1wxODAQAAAAAAAAAAwOKGXfKvFwAA
 AAAAAAAAAODviketTDEYg8cGZ2XC0D1xBBYxQ7o9ub4GORpMtbDnicq0OVn9PzYhFdvtPP18ec5v
@@ -6407,7 +6416,7 @@ O4MnhHSLUu7SRvhPL1GCHM279Zz8zvIIm85DfS0t/U28J6kTY0LTRGmkg/r8I41gNfkdKo/WNsmm
 0fwIzmhbRsUt/qBNv4Qkn+LiXsdQ85yw7cgjKjGqj6tFEq2/210o3VZefQftdVookIQsxD2gFZX+
 PnIjsMRZY9jEMHH65jBCJxOZQ2NlPOo1bkT5431F8zvupR8k0E+6nrL7ekVMC7g/Y5XAjM5j0YrX
 +n9I8NEqbEPDhm3EX+u7uBmqV632akoBqQ7tw3luKaZquzPpvW05DZc/1hWQt+LMqweZ6gNCRU+k
-++FfXpNRpBDELku+9wV5x7/+DwAAAAAAAAD8X6D/of+h/wEAAAAAAABgsfsDUEsDBBQAAAAIAAsI
+++FfXpNRpBDELku+9wV5x7/+DwAAAAAAAAD8X6D/of+h/wEAAAAAAABgsfsDUEsDBBQAAAAIAFIK
 N12abHc8GAMAAOUGAAA0AAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3NlcnZlcmNvbmZpZy9mb3Jn
 ZS1zZXJ2ZXIudG9tbNVVTXPbNhQ8W7/iTXJoeuEoh14y44NkMYlnFNkj2vUkmU4HBB5FNCCgAUDZ
 zKG/vQuQtN1pmubaEynifezu2wctXlbsT+xJOtvoQ+9F1M5S4Bi1PYTF55CPf1ucITBSbHWg6Cj6
@@ -6423,7 +6432,7 @@ g6+oh2+jmvEk+D8Opx6eAVn+gtgb1Dqy73TIE8apMnAu5qSoHp6Z+VHy7BoMHy2mCf0+Z+kGswUH
 drXDrmrYO7ssY9ORQps07o/JhqnAB/TWRyMG5AbpmS2JProOFzKqmAHg5568mZuNl/eN2+LOOM8Q
 v4/a6FMCzPOK4gTKAw53YZROTX8BIe3WsqC3+gFxNecLJZWYUsqBc0hpYft06XDCY4Y0xNaZvLXK
 3Y/cUkLdx+iwkxsdUp087XnjREiKSNcbNbourS9GJuQIJSMbQaIlP2Ce2YNOBciC6pc4u0PQZkL/
-ib17XMXFX1BLAwQUAAAACAALCDddZQHC5WexAwAAwB8AJwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
+ib17XMXFX1BLAwQUAAAACABSCjddZQHC5WexAwAAwB8AJwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
 ZS9yZWdpb24vci4wLi0xLm1jYey6BVhVX7vou5YoKKkIgqRISat0CwgoSAkSUoKI0t2xFKS7RKQb
 pASkSyQWId3d3bmIFWfw/3/fPfvue859PPfu/Xx33+M7n98aa805xnhHvDEmCoH8kT/yR/7I/66i
 AIVANAHvAO8BsQA/wDOAHSAUYAzwAMQDXgJeA+QALgB9QDDgCyAMoAOwBDyB/p5+N1AvHBACeANQ
@@ -10670,7 +10679,7 @@ pCc3jkbR9yL/rzEgPpkfkf9XatU427MgMxRwZ3TlzbrqCxr6yqgI5jtGeYzH/gbPEHc/U1gOeey4
 k2JcYi8xOzCWz+BwH7OVEMJUUFNI4ADv1EQ+punMe7043KW0ACn0r1R+FSD6qjyyInHq4tmW9Uxu
 r3ahfIV1a/51/h/XN5X8i/y/CET+Hz6vKkN66zfEhwEtefh7Zcc5FX87GLodLAGynARZfuxYYrTy
 Rg4zOzXWQegJjuPxAMH5y4XFau50+r/k/3kPIPL/+HKzkRbdEfl/5Yj8v+3k5TJ5cw15x3xE/p/f
-rln3716IAAAAAAAAAAAAwC/0/wBQSwMEFAAAAAgACwg3XT9t1buZcAQAAPAmACcAAABzYXZlcy9U
+rln3716IAAAAAAAAAAAAwC/0/wBQSwMEFAAAAAgAUgo3XT9t1buZcAQAAPAmACcAAABzYXZlcy9U
 TU5UIFN0b3J5IE1vZGUvcmVnaW9uL3IuLTEuMC5tY2HstwdQVN236NndqKAkERGQJFlECUoGAQFB
 RHLOouQMklNLUDIoUSSD5BxFUpNzUiRLlhybnLp7dn/fm6o7r97M+1s19/6n5n6L+rFP2H3WWXuv
 dCCQf1Fg16EQSB8UAi0DCEEhMFEwcgJIwfFDMNqAEYsumKcGUAQ8B4C5kPsAWsBNAAHgCgAH0AD9
@@ -15776,7 +15785,7 @@ JdseGtKyl8JMgYXcAIhmqCiyX170YS2r85J8RszNUWMnJosKBqBy5XDYWHuqJ+XQ+akm1SBo56Ln
 xmFNNHEGvLWuc/2AhkPTXwfNp5+kJmkTkwtxj+EyDz5y+F+SApMrc+d2Af6aH4+lmiV7D3L/fwK1
 /2+uVruhzoTa/78zh4wAQB4AmEUdAPhD+n/zHDIFADJTUJLWOuewPtVYHEWiHEavxtZmQhRrE+sF
 LUq0tGL1rYiqqiv23MA8Yh4Lu28Y+H35bmAl7ufyTw8p1J0eez3ifMo1fmXBRbtNyJZgmWCJpnfo
-pF85AAAAAAAAAACAE/D/AFBLAwQUAAAACAALCDddCRdcWMAuBQAA0CgAJgAAAHNhdmVzL1RNTlQg
+pF85AAAAAAAAAACAE/D/AFBLAwQUAAAACABSCjddCRdcWMAuBQAA0CgAJgAAAHNhdmVzL1RNTlQg
 U3RvcnkgTW9kZS9yZWdpb24vci4wLjAubWNh7LkFWJTRu+g7M4AgCCiIgMSIEgLS0iUgII2IoHRK
 l3SnhJSS0ikgkgLSndLdPaR0N3PX/P/73Hv2fc4+j+c8e599zr2+Pr9Z33yzZr3fetdbIxBILxQC
 QQNgAm4B7gIoAQwAPoA4QBqgAHgNhcB8AXaAd1AI1AKAGncBK+AeLhiJAFcAHzD/TwQG5qEDsADg
@@ -21736,7 +21745,7 @@ XKHsavSzbHe23I5pM7Y4yUx9Hgsv+wDtcCPABwDUoVd3AgD84vgeI6rsMT99CwBAx2G4UZLhiCO1
 qRzgE3+eNeMoX6UxcdiG0JqgONVkba+fQwAAAAAAAAAAAODH+if6/xKg////cv9/f63JzF4/hgAA
 AAAAAAAAAMAPRjS/t/f/ZWkUM499PMdOy8j+JkyGAGp4lJaFigSmbWuujFnRj+X1ZttnMUAIwxQt
 YL0bOL1vLqqw45prWo9EPw6sohAK9x+2L3qnI7u0GjOZbnrUwEsovwas/4P1/79e/x/zim3a6/cN
-AAAAAAAAAABgb/wfUEsDBBQAAAAIAAsIN12ZR0hpC5UCAABgHgAoAAAAc2F2ZXMvVE1OVCBTdG9y
+AAAAAAAAAABgb/wfUEsDBBQAAAAIAFIKN12ZR0hpC5UCAABgHgAoAAAAc2F2ZXMvVE1OVCBTdG9y
 eSBNb2RlL3JlZ2lvbi9yLi0xLi0xLm1jYey6B1BUTbfvPSMqKkpOEkWQKBnJQUQyCig5gwQl5wyD
 KEFyjiIoSREcguQw5CBZcg5DzkFgCDNzm/c956vvO3XvrfNU3XPeuvU9PfWb3rN37167u/9rrd4o
 BPJ3+bv8Xf4uf5f/fVGAQiA2ADNAOEADoAeIAzwHuABSAB8AVoCXgDcANYAdQAXwDpAAcAMkAjSh
@@ -24706,44 +24715,44 @@ rmI7lEK13bpLvuW81sXsLRfeYdfICBFS/2f9/9KdCxVX3a3P+/8Nln+1/38g+7f6/3v+qv8/FCkJ
 WRTjT/3/D367/38aJXXr9OKv9f+X7k7z/mP/PzMO9HT19/T/h3zr/38jOCRy1hUj/9v9/4R/0//f
 8Q/9//XXa8U65WsFf/ZeBAAAAAAAAAAA+JH+8/l/0u/B/L//rvl/q7k29T97HQIAAAAAAAAAAAA/
 1u/P/+ME+X8g/+////w/kdbaGz97MwIAAAAAAAAAAPxA//n5P+X4/+L8/8EfeP5vC87//9jz/7Vl
-m8qfvQ4BAAAAAAAAAACAH+n/AVBLAwQUAAAACAALCDddz5bp/y8AAAAwAAAAMAAAAHNhdmVzL1RN
+m8qfvQ4BAAAAAAAAAACAH+n/AVBLAwQUAAAACABSCjddz5bp/y8AAAAwAAAAMAAAAHNhdmVzL1RN
 TlQgU3RvcnkgTW9kZS9ESU0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdJPv5mAAg/+PkxIeJCV4eup4
-piSkPShjvJS40vXozJ+VPDx75vIwnBXVipMDKgMAUEsDBBQAAAAIAAsIN107nEghWgAAAFkAAAAt
+piSkPShjvJS40vXozJ+VPDx75vIwnBXVipMDKgMAUEsDBBQAAAAIAFIKN107nEghWgAAAFkAAAAt
 AAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL0RJTTEvZGF0YS9yYWlkc19lbmQuZGF0k+/mYACD/4+T
 Eh4kJXh66ng+SUng9Trjo5nGwJjGVrf/SpfQ8U1Hzsw5smROiL/4AgVlY2Zvj7QiswlLeUIOvmW6
 IjotKmTOzPnHDxy4fZKBgWld4jkfoHkAUEsBAhQDFAAAAAgA5AA3Xa9wN2MUngQACx4FABoAAAAA
-AAAAAAAAAKSBAAAAAG1vZHMvdHVydGxlcG93ZXItMS4wLjAuamFyUEsBAhQDFAAAAAgACwg3Xdsy
+AAAAAAAAAKSBAAAAAG1vZHMvdHVydGxlcG93ZXItMS4wLjAuamFyUEsBAhQDFAAAAAgAUgo3Xdsy
 acoJkgAA+pEAAB8AAAAAAAAAAAAAAIABTJ4EAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9sZXZlbC5k
-YXRQSwECFAMUAAAACAALCDddz5bp/y8AAAAwAAAAMQAAAAAAAAAAAAAAgAGSMAUAc2F2ZXMvVE1O
-VCBTdG9yeSBNb2RlL0RJTS0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAAsIN107
+YXRQSwECFAMUAAAACABSCjddz5bp/y8AAAAwAAAAMQAAAAAAAAAAAAAAgAGSMAUAc2F2ZXMvVE1O
+VCBTdG9yeSBNb2RlL0RJTS0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAFIKN107
 nEghWgAAAFkAAAAqAAAAAAAAAAAAAACAARAxBQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvRElNLTEv
-ZGF0YS9yYWlkcy5kYXRQSwECFAMUAAAACAALCDddEQ7fZzQGAAAA4AAAJAAAAAAAAAAAAAAAgAGy
-MQUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3BvaS9yLjAuLTEubWNhUEsBAhQDFAAAAAgACwg3XcGL
+ZGF0YS9yYWlkcy5kYXRQSwECFAMUAAAACABSCjddEQ7fZzQGAAAA4AAAJAAAAAAAAAAAAAAAgAGy
+MQUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3BvaS9yLjAuLTEubWNhUEsBAhQDFAAAAAgAUgo3XcGL
 VvvlBgAAANAAACQAAAAAAAAAAAAAAIABKDgFAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4t
-MS4wLm1jYVBLAQIUAxQAAAAIAAsIN12sHYVehAsAAABAAQAjAAAAAAAAAAAAAACAAU8/BQBzYXZl
-cy9UTU5UIFN0b3J5IE1vZGUvcG9pL3IuMC4wLm1jYVBLAQIUAxQAAAAIAAsIN11dcm/SdwYAAADA
+MS4wLm1jYVBLAQIUAxQAAAAIAFIKN12sHYVehAsAAABAAQAjAAAAAAAAAAAAAACAAU8/BQBzYXZl
+cy9UTU5UIFN0b3J5IE1vZGUvcG9pL3IuMC4wLm1jYVBLAQIUAxQAAAAIAFIKN11dcm/SdwYAAADA
 AAAlAAAAAAAAAAAAAACAARRLBQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcG9pL3IuLTEuLTEubWNh
-UEsBAhQDFAAAAAgACwg3Xc+W6f8vAAAAMAAAACsAAAAAAAAAAAAAAIABzlEFAHNhdmVzL1RNTlQg
-U3RvcnkgTW9kZS9kYXRhL2NhcGFiaWxpdGllcy5kYXRQSwECFAMUAAAACAALCDddO5xIIVoAAABZ
+UEsBAhQDFAAAAAgAUgo3Xc+W6f8vAAAAMAAAACsAAAAAAAAAAAAAAIABzlEFAHNhdmVzL1RNTlQg
+U3RvcnkgTW9kZS9kYXRhL2NhcGFiaWxpdGllcy5kYXRQSwECFAMUAAAACABSCjddO5xIIVoAAABZ
 AAAAJAAAAAAAAAAAAAAAgAFGUgUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2RhdGEvcmFpZHMuZGF0
-UEsBAhQDFAAAAAgACwg3XaR56/WZAgAAlAIAADAAAAAAAAAAAAAAAIAB4lIFAHNhdmVzL1RNTlQg
-U3RvcnkgTW9kZS9kYXRhL3R1cnRsZXBvd2VyX3N0b3J5LmRhdFBLAQIUAxQAAAAIAAsIN11z4XNI
+UEsBAhQDFAAAAAgAUgo3XaR56/WZAgAAlAIAADAAAAAAAAAAAAAAAIAB4lIFAHNhdmVzL1RNTlQg
+U3RvcnkgTW9kZS9kYXRhL3R1cnRsZXBvd2VyX3N0b3J5LmRhdFBLAQIUAxQAAAAIAFIKN11z4XNI
 OQAAADsAAAAlAAAAAAAAAAAAAACAAclVBQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZGF0YS9jaHVu
-a3MuZGF0UEsBAhQDFAAAAAgACwg3XQAAAAACAAAAAAAAACkAAAAAAAAAAAAAAIABRVYFAHNhdmVz
-L1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhUEsBAhQDFAAAAAgACwg3Xfy+NlQ6
+a3MuZGF0UEsBAhQDFAAAAAgAUgo3XQAAAAACAAAAAAAAACkAAAAAAAAAAAAAAIABRVYFAHNhdmVz
+L1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhUEsBAhQDFAAAAAgAUgo3Xfy+NlQ6
 CgAAAHAAACkAAAAAAAAAAAAAAIABjlYFAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9y
-Li0xLjAubWNhUEsBAhQDFAAAAAgACwg3XatN3N/jAgAAAEAAACgAAAAAAAAAAAAAAIABD2EFAHNh
-dmVzL1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuMC5tY2FQSwECFAMUAAAACAALCDddQd6q
+Li0xLjAubWNhUEsBAhQDFAAAAAgAUgo3XatN3N/jAgAAAEAAACgAAAAAAAAAAAAAAIABD2EFAHNh
+dmVzL1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuMC5tY2FQSwECFAMUAAAACABSCjddQd6q
 nkMDAAAAQAAAKgAAAAAAAAAAAAAAgAE4ZAUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2VudGl0aWVz
-L3IuLTEuLTEubWNhUEsBAhQDFAAAAAgACwg3XZpsdzwYAwAA5QYAADQAAAAAAAAAAAAAAIABw2cF
+L3IuLTEuLTEubWNhUEsBAhQDFAAAAAgAUgo3XZpsdzwYAwAA5QYAADQAAAAAAAAAAAAAAIABw2cF
 AHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9zZXJ2ZXJjb25maWcvZm9yZ2Utc2VydmVyLnRvbWxQSwEC
-FAMUAAAACAALCDddZQHC5WexAwAAwB8AJwAAAAAAAAAAAAAAgAEtawUAc2F2ZXMvVE1OVCBTdG9y
-eSBNb2RlL3JlZ2lvbi9yLjAuLTEubWNhUEsBAhQDFAAAAAgACwg3XT9t1buZcAQAAPAmACcAAAAA
+FAMUAAAACABSCjddZQHC5WexAwAAwB8AJwAAAAAAAAAAAAAAgAEtawUAc2F2ZXMvVE1OVCBTdG9y
+eSBNb2RlL3JlZ2lvbi9yLjAuLTEubWNhUEsBAhQDFAAAAAgAUgo3XT9t1buZcAQAAPAmACcAAAAA
 AAAAAAAAAIAB2RwJAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9yZWdpb24vci4tMS4wLm1jYVBLAQIU
-AxQAAAAIAAsIN10JF1xYwC4FAADQKAAmAAAAAAAAAAAAAACAAbeNDQBzYXZlcy9UTU5UIFN0b3J5
-IE1vZGUvcmVnaW9uL3IuMC4wLm1jYVBLAQIUAxQAAAAIAAsIN12ZR0hpC5UCAABgHgAoAAAAAAAA
+AxQAAAAIAFIKN10JF1xYwC4FAADQKAAmAAAAAAAAAAAAAACAAbeNDQBzYXZlcy9UTU5UIFN0b3J5
+IE1vZGUvcmVnaW9uL3IuMC4wLm1jYVBLAQIUAxQAAAAIAFIKN12ZR0hpC5UCAABgHgAoAAAAAAAA
 AAAAAACAAbu8EgBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcmVnaW9uL3IuLTEuLTEubWNhUEsBAhQD
-FAAAAAgACwg3Xc+W6f8vAAAAMAAAADAAAAAAAAAAAAAAAIABDFIVAHNhdmVzL1RNTlQgU3Rvcnkg
-TW9kZS9ESU0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAAsIN107nEghWgAAAFkA
+FAAAAAgAUgo3Xc+W6f8vAAAAMAAAADAAAAAAAAAAAAAAAIABDFIVAHNhdmVzL1RNTlQgU3Rvcnkg
+TW9kZS9ESU0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAFIKN107nEghWgAAAFkA
 AAAtAAAAAAAAAAAAAACAAYlSFQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvRElNMS9kYXRhL3JhaWRz
 X2VuZC5kYXRQSwUGAAAAABcAFwC7BwAALlMVAAAA

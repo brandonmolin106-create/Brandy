@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Builds download/TMNT-Install-Windows.bat: a single double-click installer.
+Builds download/Play-TMNT-Story-Mode.bat: a single double-click installer.
 
 The .bat is three parts glued together:
   1. a few lines of batch that start PowerShell and run part 2
@@ -20,7 +20,7 @@ JAR = os.path.join(DOWNLOAD, "turtlepower-1.0.0.jar")
 WORLD_ZIP = os.path.join(DOWNLOAD, "TMNT-Story-Mode-World.zip")
 LOGO = os.path.join(ROOT, "tmnt-story-mode", "src", "main", "resources", "turtlepower_logo.png")
 PS1 = os.path.join(ROOT, "installer", "install.ps1")
-OUT = os.path.join(DOWNLOAD, "TMNT-Install-Windows.bat")
+OUT = os.path.join(DOWNLOAD, "Play-TMNT-Story-Mode.bat")
 
 HEADER = r"""@echo off
 setlocal

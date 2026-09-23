@@ -1,20 +1,24 @@
-# TMNT Turtle Power: Story Mode - one-click installer for Minecraft Java (Windows).
+# TMNT Turtle Power: Story Mode - double-click to install and play (Minecraft Java, Windows).
 #
 # Puts the mod in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
 # "TMNT Story Mode" profile to the Minecraft Launcher that opens the world as soon as you press Play.
 #
-# Forge asks people not to auto-download it (their download page ads pay for Forge), so this
-# script does not download Forge. If Forge 1.20.1 isn't installed yet it opens the official Forge
-# page; you click "Installer", and next time this script finds that file in Downloads and installs
-# it for you.
+# It downloads and installs NeoForge 1.20.1 (the mod loader) by itself, and a Java runtime from
+# Adoptium if the computer doesn't have one, so there is nothing else to download by hand.
+# (Regular Forge asks people not to automate its download, so we use NeoForge, which runs Forge
+# 1.20.1 mods.)
 #
 # The mod + world are glued to the end of the .bat file (base64) so everything is in one file.
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'   # makes downloads much faster in Windows PowerShell
+try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
 $WorldName = 'TMNT Story Mode'
 $ProfileId = 'tmnt-story-mode'
 $VersionId = 'TMNT-Story-Mode'
-$ForgePage = 'https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html'
+$NeoVersion = '1.20.1-47.1.106'
+$NeoUrl = "https://maven.neoforged.net/releases/net/neoforged/forge/$NeoVersion/forge-$NeoVersion-installer.jar"
+$JreUrl = 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jre/hotspot/normal/eclipse'
 
 function Say([string]$text, [string]$color = 'White') { Write-Host $text -ForegroundColor $color }
 # Join-Path that just gives $null when the base folder variable doesn't exist on this PC.
@@ -39,11 +43,11 @@ if (-not (Test-Path $profilesFile)) {
 Say "Found Minecraft: $mc" 'Gray'
 
 # --- 2. Find Java (the Minecraft Launcher brings its own) ----------------------------------------
-$java = $null
-$cmd = Get-Command java -ErrorAction SilentlyContinue
-if ($cmd) { $java = $cmd.Source }
-if (-not $java) {
+function Find-Java {
+    $cmd = Get-Command java -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
     $roots = @(
+        (J $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'),
         (J $mc 'runtime'),
         (J $env:LOCALAPPDATA 'Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime'),
         (J ${env:ProgramFiles(x86)} 'Minecraft Launcher\runtime'),
@@ -52,49 +56,53 @@ if (-not $java) {
     )
     foreach ($r in $roots) {
         if ($r -and (Test-Path $r)) {
-            $j = Get-ChildItem $r -Recurse -Filter 'java.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($j) { $java = $j.FullName; break }
+            $j = Get-ChildItem $r -Recurse -Include 'java.exe', 'java' -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.Directory.Name -eq 'bin' } | Select-Object -First 1
+            if ($j) { return $j.FullName }
         }
     }
+    return $null
 }
 
-# --- 3. Forge 1.20.1 ----------------------------------------------------------------------------
+# --- 3. Mod loader: NeoForge 1.20.1 (downloaded for you) -----------------------------------------
+# NeoForge is the community version of Forge; Forge 1.20.1 mods run on it. Unlike Forge it doesn't
+# ask people not to automate installs, so this downloads it from the official NeoForged server.
 $versions = Join-Path $mc 'versions'
-$forge = $null
+$loader = $null
 if (Test-Path $versions) {
-    $forge = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' -ErrorAction SilentlyContinue |
+    $loader = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' -ErrorAction SilentlyContinue |
         Sort-Object Name -Descending | Select-Object -First 1
 }
-if (-not $forge) {
-    $downloads = J $env:USERPROFILE 'Downloads'
-    $here = Split-Path -Parent $env:TMNT_SELF
-    $installer = @($downloads, $here) | Where-Object { $_ -and (Test-Path $_) } | ForEach-Object {
-        Get-ChildItem $_ -File -Filter 'forge-1.20.1-47.*-installer.jar' -ErrorAction SilentlyContinue
-    } | Sort-Object Name -Descending | Select-Object -First 1
-
-    if (-not $installer) {
-        Say 'Step 1 of 2: you need Forge 1.20.1 (the thing that lets Minecraft load mods).' 'Cyan'
-        Say 'I am opening the official Forge page for you now.' 'Cyan'
-        Say ''
-        Say '  1. Click the "Installer" button under "Download Recommended".'
-        Say '  2. The ad page will show a "SKIP" button at the top right after a few seconds - click it.'
-        Say '  3. Save the file (it goes to your Downloads folder). You do NOT need to open it.'
-        Say '  4. Double-click this installer again. I will do the rest.'
-        try { Start-Process $ForgePage } catch { Say "Open this in your browser: $ForgePage" 'Yellow' }
-        exit 0
-    }
+if (-not $loader) {
+    $java = Find-Java
     if (-not $java) {
-        Quit "I found the Forge installer but no Java to run it.`nStart Minecraft once from the launcher (normal 1.20.1, no mods), close it, then run me again."
+        Say 'Getting Java (needed once to set up the mod loader, about 45 MB)...' 'Cyan'
+        $jreZip = Join-Path $env:TEMP 'tmnt-jre.zip'
+        $jreDir = Join-Path $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'
+        Invoke-WebRequest -UseBasicParsing -Uri $JreUrl -OutFile $jreZip
+        if (Test-Path $jreDir) { Remove-Item $jreDir -Recurse -Force }
+        Expand-Archive -Path $jreZip -DestinationPath $jreDir -Force
+        Remove-Item $jreZip -Force -ErrorAction SilentlyContinue
+        $java = Find-Java
+        if (-not $java) { Quit "Couldn't set up Java. Check your internet and run me again." }
     }
-    Say "Installing Forge from $($installer.Name) (this takes a minute or two)..." 'Cyan'
-    & $java -jar $installer.FullName --installClient $mc | Out-Host
-    if ($LASTEXITCODE -ne 0) {
-        Quit "Forge didn't install. Try double-clicking the Forge file in Downloads and choosing 'Install client', then run me again."
+    Say "Downloading NeoForge $NeoVersion (the mod loader)..." 'Cyan'
+    $installerJar = Join-Path $env:TEMP "neoforge-$NeoVersion-installer.jar"
+    Invoke-WebRequest -UseBasicParsing -Uri $NeoUrl -OutFile $installerJar
+    Say 'Installing NeoForge... this takes a minute or two, please wait.' 'Cyan'
+    $log = Join-Path $env:TEMP 'tmnt-neoforge-install.log'
+    $proc = Start-Process -FilePath $java -WorkingDirectory $env:TEMP -Wait -PassThru -NoNewWindow `
+        -ArgumentList @('-jar', "`"$installerJar`"", '--installClient', "`"$mc`"") `
+        -RedirectStandardOutput $log -RedirectStandardError "$log.err"
+    Remove-Item $installerJar -Force -ErrorAction SilentlyContinue
+    if ($proc.ExitCode -ne 0) {
+        Get-Content $log -Tail 15 -ErrorAction SilentlyContinue | Out-Host
+        Quit "The mod loader didn't install (details above). Check your internet and run me again."
     }
-    $forge = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' | Sort-Object Name -Descending | Select-Object -First 1
-    if (-not $forge) { Quit "Forge didn't install. Try double-clicking the Forge file in Downloads and choosing 'Install client'." }
+    $loader = Get-ChildItem $versions -Directory -Filter '1.20.1-forge-47.*' | Sort-Object Name -Descending | Select-Object -First 1
+    if (-not $loader) { Quit "The mod loader didn't install. Check your internet and run me again." }
 }
-Say "Forge is ready: $($forge.Name)" 'Green'
+Say "Mod loader is ready: $($loader.Name)" 'Green'
 
 # --- 4. Unpack the mod and the world ------------------------------------------------------------
 Say 'Unpacking the TMNT mod and the New York world...' 'Cyan'
@@ -126,17 +134,17 @@ if (Test-Path $world) {
 Remove-Item $zip, $unpack -Recurse -Force -ErrorAction SilentlyContinue
 
 # --- 5. A launcher version that opens the world straight away -----------------------------------
-$forgeJson = Get-Content (Join-Path $forge.FullName "$($forge.Name).json") -Raw | ConvertFrom-Json
+$loaderJson = Get-Content (Join-Path $loader.FullName "$($loader.Name).json") -Raw | ConvertFrom-Json
 $vdir = Join-Path $versions $VersionId
 New-Item -ItemType Directory -Force -Path $vdir | Out-Null
 $now = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'")
 $version = [ordered]@{
     id           = $VersionId
-    inheritsFrom = $forge.Name
+    inheritsFrom = $loader.Name
     type         = 'release'
     time         = $now
     releaseTime  = $now
-    mainClass    = $forgeJson.mainClass
+    mainClass    = $loaderJson.mainClass
     libraries    = @()
     arguments    = [ordered]@{ game = @('--quickPlaySingleplayer', $WorldName); jvm = @() }
 }
@@ -160,7 +168,7 @@ try {
     [IO.File]::WriteAllText($profilesFile, ($lp | ConvertTo-Json -Depth 64), $utf8)
     Say "  added 'TMNT Story Mode' to the Minecraft Launcher" 'Gray'
 } catch {
-    Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to Play instead.)" 'Yellow'
+    Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to PLAY instead.)" 'Yellow'
 }
 
 # --- 7. Done! -----------------------------------------------------------------------------------
@@ -168,8 +176,9 @@ Say ''
 Say 'ALL DONE! COWABUNGA!' 'Green'
 Say ''
 Say 'Opening the Minecraft Launcher...' 'Cyan'
-Say "Make sure 'TMNT Story Mode' is picked next to the big green PLAY button, then press PLAY."
-Say 'Minecraft will load straight into the lair. You are Raphael!'
+Say "Press the big green PLAY button ('TMNT Story Mode' should already be picked next to it)."
+Say 'Minecraft loads straight into the lair. You are Raphael!'
+Say 'Next time you can just open the Minecraft Launcher and press PLAY, or double-click me again.' 'Gray'
 $launched = $false
 foreach ($exe in @((J ${env:ProgramFiles(x86)} 'Minecraft Launcher\MinecraftLauncher.exe'),
                    (J $env:ProgramFiles 'Minecraft Launcher\MinecraftLauncher.exe'))) {
