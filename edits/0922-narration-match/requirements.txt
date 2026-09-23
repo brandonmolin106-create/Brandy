@@ -1,0 +1,7 @@
+numpy
+scipy
+soundfile
+pyloudnorm
+pedalboard
+faster-whisper  # only for analyze.py
+# plus ffmpeg + ffprobe on PATH

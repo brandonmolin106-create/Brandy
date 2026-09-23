@@ -1,0 +1,5 @@
+# rendered media and downloaded source assets stay local (this repo is public)
+edits/*/work/
+edits/*/out/
+*.local.*
+__pycache__/
