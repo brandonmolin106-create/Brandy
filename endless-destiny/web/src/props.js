@@ -18,11 +18,23 @@ const TYPES = {
   tree: { file: 'dead_quiver_trunk', size: [2.6, 5.2], sink: 0.02, upright: true, maxSlope: 22 },
 };
 
+// Some hosts only serve web media types, so a packed build ships each .glb as base64 inside JSON.
+async function loadModel(loader, name) {
+  if (!window.ED_PACKED) return loader.loadAsync(`assets/models/${name}.glb`);
+  const res = await fetch(`assets/models/${name}.glb.json`);
+  if (!res.ok) throw new Error(`Could not load ${name} (${res.status})`);
+  const { b64 } = await res.json();
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Promise((resolve, reject) => loader.parse(bytes.buffer, 'assets/models/', resolve, reject));
+}
+
 export async function loadProps(loader, field, quality) {
   const files = [...new Set(Object.values(TYPES).map((t) => t.file))];
   const loaded = {};
   await Promise.all(files.map(async (f) => {
-    const gltf = await loader.loadAsync(`assets/models/${f}.glb`);
+    const gltf = await loadModel(loader, f);
     let mesh = null;
     gltf.scene.traverse((o) => { if (o.isMesh && !mesh) mesh = o; });
     mesh.updateWorldMatrix(true, false);
@@ -151,8 +163,9 @@ export async function loadProps(loader, field, quality) {
     }
   }
   // The rock the torchbearer sits on at the start.
-  placements.pebble5.push({ x: PATH[0][0] + 0.15, z: PATH[0][1] + 0.35, h: field.sample(PATH[0][0], PATH[0][1]), size: 1.25, rotY: 0.8, tilt: 0, seed: 0.5, fixed: true });
-  placements.pebble5.push({ x: PATH[16][0] - 0.1, z: PATH[16][1] + 0.3, h: field.sample(PATH[16][0], PATH[16][1]), size: 1.25, rotY: 2.1, tilt: 0, seed: 0.3, fixed: true });
+  // Stones beside the two sitting places (to the side, so they never block the view from behind).
+  placements.pebble5.push({ x: PATH[0][0] - 1.2, z: PATH[0][1] + 0.3, h: field.sample(PATH[0][0] - 1.2, PATH[0][1] + 0.3), size: 1.1, rotY: 0.8, tilt: 0, seed: 0.5, fixed: true });
+  placements.pebble5.push({ x: PATH[16][0] + 1.1, z: PATH[16][1] + 0.6, h: field.sample(PATH[16][0] + 1.1, PATH[16][1] + 0.6), size: 1.1, rotY: 2.1, tilt: 0, seed: 0.3, fixed: true });
 
   // Build chunked instanced meshes so culling (and the torch shadow) only touch nearby rocks.
   const group = new THREE.Group();
