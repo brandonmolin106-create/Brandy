@@ -23,8 +23,22 @@ Run `endless_destiny.py` in Blender and it builds everything:
   finds the tempo, the beats, the kicks and the sections, and moves each act onto the
   song's real drops and breakdowns.
 
-Works in **Blender 4.2 LTS, 4.5 LTS and 5.0**, with **Cycles** or **EEVEE**. The same
-script was built, saved and re-opened on all three versions.
+Works in **Blender 4.2 LTS, 4.5 LTS and 5.0**, with **EEVEE** (the default) or **Cycles**.
+The same script was built, saved and re-opened on all three versions.
+
+## Gallery
+
+Test frames from one run on a synthetic 3:40 song at 128 BPM, rendered in EEVEE at
+960×540 with the full 1.2 million stars.
+
+| | |
+|---|---|
+| ![](previews/01_echo-in-the-dark.jpg)<br>**1 · Echo in the Dark** | ![](previews/02_nursery-of-stars.jpg)<br>**2 · Nursery of Stars** |
+| ![](previews/03_the-pull.jpg)<br>**3 · The Pull** | ![](previews/04_destiny-revealed.jpg)<br>**4 · Destiny Revealed** |
+| ![](previews/05_riding-the-arms.jpg)<br>**5 · Riding the Arms** | ![](previews/07_written-in-the-stars.jpg)<br>**7 · Written in the Stars** |
+| ![](previews/08_heart-of-the-galaxy.jpg)<br>**8 · Heart of the Galaxy** | ![](previews/09_the-heart-ignites.jpg)<br>**9 · The Heart Ignites** |
+| ![](previews/09b_blast-back.jpg)<br>**9 · Blasting back out** | ![](previews/10_endless.jpg)<br>**10 · Endless** |
+| ![](previews/00_first-frame.jpg)<br>**First frame** | ![](previews/10b_last-frame.jpg)<br>**Last frame**, the same single point of light, so the video loops |
 
 ---
 
@@ -70,6 +84,7 @@ blender -b -P endless_destiny.py -- --audio "Endless Destiny.mp3" --render
 | `--still SECONDS` | render one still at that moment in the song (repeatable) |
 | `--save FILE.blend` | save the built scene |
 | `--video` | join the rendered PNG frames and the song into `ENDLESS_DESTINY.mp4` |
+| `--benchmark` | render three typical frames and estimate the time for the whole video |
 
 ---
 
@@ -123,29 +138,43 @@ Python scripts switched off.
 
 ## Rendering
 
-| Preset | Stars | Cycles samples | EEVEE samples | Resolution |
+| Preset | Stars | EEVEE samples | Cycles samples | Resolution |
 |---|---|---|---|---|
-| `PREVIEW` | 250,000 | 24 | 16 | 50 % |
+| `PREVIEW` | 250,000 | 16 | 24 | 50 % |
 | `HIGH` | 1.2 million | 64 | 64 | 100 % |
-| `ULTRA` | 3 million | 160 | 128 | 100 % |
+| `ULTRA` | 3 million | 128 | 160 | 100 % |
 
-**Plan for the render time.** A 3:20 song at 30 fps is 6,000 frames. The test frames in
-`previews/` were rendered on a 4-core CPU with no GPU, at 480×270 and 8 samples. They took
-13 to 95 seconds each, with the flight through the nebula the slowest. A 1080p frame has
-16 times the pixels and HIGH uses 8 times the samples, so rendering on a CPU is not
-practical. Use a GPU. The script switches Cycles to the first GPU it finds (OptiX, CUDA,
-HIP, Metal or oneAPI).
+**Time your own computer first.** A 3:20 song at 30 fps is 6,000 frames. Run
 
-- Render a few `--still` frames at `HIGH` first to time your own machine, then multiply
-  by the frame count.
-- **EEVEE** is much faster and renders the same scene. Cycles gives cleaner gas and dust.
-- 24 fps instead of 30 cuts the frame count by 20 %.
+```bash
+blender -b -P endless_destiny.py -- --audio "Endless Destiny.mp3" --benchmark
+```
+
+It renders three typical frames (the reveal, the nebula and the black hole) and prints the
+average time per frame and the estimate for the whole video.
+
+What the test machine showed (4 CPU cores, **no graphics card**, so EEVEE ran on software
+OpenGL):
+
+- **EEVEE** (the default): about 5 seconds per frame at 480×270 with 250,000 stars, and
+  30 to 60 seconds at 960×540 with the full 1.2 million stars. That was on software
+  OpenGL with no graphics card, so a real GPU is much faster.
+- **Cycles:** 13 to 120 seconds per frame at 480×270 with 8 samples. The nebula and
+  black-hole shots are the slowest. At 1080p and 64 samples that would be days of rendering
+  on a CPU, so use Cycles only with a GPU, or for single frames like thumbnails. The
+  script switches Cycles to the first GPU it finds (OptiX, CUDA, HIP, Metal or oneAPI).
+
+Tips:
+
+- Rendering at 24 fps instead of 30 cuts the frame count by 20 %.
 - The default output is numbered PNG frames in `render/frames/`. If a render stops, start
   it again and it carries on from where it stopped. Several computers can share one
   render too, because each frame is claimed with a placeholder file.
 - When all the frames are done, run
   `blender -b -P endless_destiny.py -- --audio "Endless Destiny.mp3" --video`
   to join them with the song into `render/ENDLESS_DESTINY.mp4`.
+- Brightness is set shot by shot by a built-in light meter (auto-exposure), so a shot
+  inside the glowing disk doesn't blow out and the reveal from outside isn't too dark.
 
 ---
 
@@ -153,6 +182,9 @@ HIP, Metal or oneAPI).
 
 The settings at the top of `endless_destiny.py` cover the audio, the engine, the quality,
 fps, resolution, output, the seed and the title text. Deeper changes:
+
+- **Exposure per act:** the `bias` table in `auto_exposure` brightens or darkens whole
+  acts, in stops.
 
 - **Spiral shape:** `PITCH` (how open the arms are) and `R0` (where the arms leave the
   bar).

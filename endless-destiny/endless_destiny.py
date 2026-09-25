@@ -83,7 +83,7 @@ CONFIG = {
     "ACT_STARTS": None,
 
     # ---- rendering ---------------------------------------------------------
-    "ENGINE": "CYCLES",          # "CYCLES" (best looking) or "EEVEE" (fast)
+    "ENGINE": "EEVEE",           # "EEVEE" (fast, the default) or "CYCLES" (slower, cleanest gas)
     "QUALITY": "HIGH",           # "PREVIEW", "HIGH" or "ULTRA"
     "FPS": 30,
     "RESOLUTION": (1920, 1080),
@@ -1389,7 +1389,7 @@ def add_star_sizer(ob, group, camera, material, min_px=0.9, max_px=5.0):
     mod[ids["Material"]] = material
     mod[ids["Min Pixels"]] = float(min_px)
     mod[ids["Max Pixels"]] = float(max_px)
-    scene = bpy.context.scene
+    scene = camera.users_scene[0] if camera.users_scene else bpy.context.scene
     drive(ob, f'modifiers["{mod.name}"]["{ids["Pixel Angle"]}"]', "sw/(lens*rx*pct*0.01)",
           {"sw": (camera.data, "sensor_width"), "lens": (camera.data, "lens"),
            "rx": (scene, "render.resolution_x"), "pct": (scene, "render.resolution_percentage")})
@@ -1840,7 +1840,8 @@ def mat_accretion(director):
     tang = nb.combine(nb.ex("-wy/l", wy=wy, l=wl), nb.ex("wx/l", wx=wx, l=wl), 0.0)
     dop = nb.ex("pow(1.0 + 0.5*d, 3.0)", d=nb.vmath("DOT_PRODUCT", tang, geo.outputs["Incoming"]))
     gain = channel_value(nb, director, "u*h*(1+0.5*b)", "black hole", u="universe", h="bh", b="bass")
-    finish_additive(nb, bb, nb.ex("prof * (0.35 + 1.3*s) * dop * g * 26.0", prof=prof, s=streak, dop=dop, g=gain))
+    finish_additive(nb, bb, nb.ex("prof * (0.12 + 1.9*smoothstep(0.35, 0.75, s)) * dop * g * 40.0",
+                                  prof=prof, s=streak, dop=dop, g=gain))
     return m
 
 
@@ -1886,7 +1887,7 @@ def mat_jet(director):
     lw = nb.node("ShaderNodeLayerWeight", {"Blend": 0.5})
     core = nb.ex("pow(1.0 - f, 2.5)", f=lw.outputs["Facing"])
     gain = channel_value(nb, director, "u*j*(1+0.6*b)", "jets", u="universe", j="jets", b="bass")
-    strength = nb.ex("exp(-s*2.4) * (0.25 + 1.2*smoothstep(0.4, 0.7, f)) * c * g * 7.0 * smoothstep(0.0, 0.01, s)",
+    strength = nb.ex("exp(-s*3.5) * (0.15 + 1.4*smoothstep(0.45, 0.72, f)) * c * g * 3.0 * smoothstep(0.0, 0.01, s)",
                      s=s, f=flow, c=core, g=gain)
     finish_additive(nb, (0.55, 0.75, 1.0, 1.0), strength)
     return m
@@ -2296,6 +2297,10 @@ def auto_exposure(song, path, spin, kp, aspect):
     meter = np.array([light_meter(path.pos[i], path.tgt[i], path.lens[i], spin[i], kp, aspect) for i in idx])
     meter = np.interp(np.arange(song.n_frames), idx, meter)
     ev = np.clip(-0.78 * np.log2((meter + 1e-4) / ref), -5.0, 0.4)
+    # a touch of artistic exposure per act on top of the meter (in stops)
+    bias = {"INTRO": 0.5, "VERSE1": 1.6, "BUILD1": 0.3, "CHORUS1": 0.0, "VERSE2": 0.3, "BUILD2": 0.0,
+            "CHORUS2": 0.0, "BRIDGE": 0.8, "FINALE": 0.0, "OUTRO": 0.0}
+    ev = ev + np.array([bias[ACT_KEYS[k]] for k in song.act_index])
     ev = _moving_avg(ev, song.fps * 0.8)
     u = song.act_u
     ev = np.where(song.act_index == 0, ev * smoothstep(0.1, 0.7, u), ev)
@@ -2344,8 +2349,13 @@ def story_channels(song, director, kick, beat):
 
     director.set("star_gain", per_act({"INTRO": 1.0, "VERSE1": 1.0, "BUILD1": 1.1, "CHORUS1": 1.25, "VERSE2": 1.0,
                                        "BUILD2": 1.05, "CHORUS2": 1.15, "BRIDGE": 0.9, "FINALE": 1.3, "OUTRO": 1.0}))
-    director.set("galaxy_gain", per_act({"INTRO": 0.4, "VERSE1": 0.55, "BUILD1": 0.95, "CHORUS1": 1.15, "VERSE2": 1.0,
-                                         "BUILD2": 1.0, "CHORUS2": 1.0, "BRIDGE": 0.85, "FINALE": 1.2, "OUTRO": 1.1}))
+    # the gas dims near the black hole so the accretion disk can shine, then floods
+    # back as the camera blasts out in the finale
+    gg = np.array([{"INTRO": 0.4, "VERSE1": 0.55, "BUILD1": 0.95, "CHORUS1": 1.15, "VERSE2": 1.0, "BUILD2": 1.0,
+                    "CHORUS2": 1.0, "BRIDGE": 0.3, "FINALE": 1.2, "OUTRO": 1.1}[ACT_KEYS[k]] for k in ai], dtype=float)
+    gg = np.where(is_("BRIDGE"), mix(0.9, 0.3, smoothstep(0.0, 0.45, u)), gg)
+    gg = np.where(is_("FINALE"), mix(0.3, 1.2, smoothstep(0.08, 0.5, u)), gg)
+    director.set("galaxy_gain", _moving_avg(gg, fps * 1.0))
     director.set("nebula_gain", per_act({k: 1.0 for k in ACT_KEYS}))
     bh = per_act({"INTRO": 0.3, "VERSE1": 0.3, "BUILD1": 0.3, "CHORUS1": 0.35, "VERSE2": 0.35, "BUILD2": 0.4,
                   "CHORUS2": 0.45, "BRIDGE": 1.0, "FINALE": 1.2, "OUTRO": 0.8}, 3.0)
@@ -2584,6 +2594,16 @@ def build(cfg, song):
             scene.sync_mode = "AUDIO_SYNC"
         except RuntimeError as e:  # only the pip "bpy" module lacks audio support
             log(f"Could not add the song to the timeline ({e}). The animation is still synced to it.")
+
+    # In the solid viewport, show volumes as boxes and glow cards as wireframes so
+    # they don't hide the stars. None of this changes the render.
+    for ob in root.all_objects:
+        base = ob.name[len(PREFIX):]
+        if base in ("GalaxyGas", "BulgeGlow", "DestinyNebula"):
+            ob.display_type = "BOUNDS"
+        elif ob.type == "MESH" and not base.startswith(("Stars", "Constellation", "DestinyStar", "Beacon",
+                                                          "PulsarStar", "NebulaPuffs", "EventHorizon")):
+            ob.display_type = "WIRE"
 
     setup_render(scene, cfg, q, path, director)
     log(f"Built in {time.time() - t_start:.1f} s")
@@ -3066,7 +3086,8 @@ def assemble_video(cfg, song):
     if song.has_audio:
         strips.new_sound(PREFIX + "Song", song.audio_path, 2, 1)
     first = bpy.data.images.load(os.path.join(frames_dir, files[0]))
-    sc.render.resolution_x, sc.render.resolution_y = first.size
+    w, h = first.size
+    sc.render.resolution_x, sc.render.resolution_y = w - w % 2, h - h % 2   # H.264 needs even sizes
     sc.render.resolution_percentage = 100
     sc.render.fps = song.fps
     sc.frame_start, sc.frame_end = 1, len(files)
@@ -3085,9 +3106,39 @@ def assemble_video(cfg, song):
 #  16. MAIN
 # ============================================================================
 
+def benchmark(scene, song, cfg):
+    """Time three typical frames (a wide shot, the nebula, the black hole) and
+    estimate how long the whole video takes on this computer."""
+    picks = [("the galaxy reveal", "CHORUS1", 0.5), ("inside the nebula", "VERSE1", 0.5),
+             ("the black hole", "BRIDGE", 0.8)]
+    out = os.path.join(output_dir(cfg), "benchmark")
+    os.makedirs(out, exist_ok=True)
+    ims = scene.render.image_settings
+    if hasattr(ims, "media_type"):
+        ims.media_type = "IMAGE"
+    ims.file_format = "PNG"
+    times = []
+    for label, key, frac in picks:
+        f0, f1 = song.frames_of(key)
+        f = int(f0 + frac * (f1 - f0)) + 1
+        scene.frame_set(f)
+        scene.render.filepath = os.path.join(out, f"bench_{key.lower()}.png")
+        t0 = time.time()
+        bpy.ops.render.render(write_still=True, scene=scene.name)
+        dt = time.time() - t0
+        times.append(dt)
+        log(f"  {label:<18} frame {f:>5}: {dt:6.1f} s")
+    avg = sum(times) / len(times)
+    total_h = avg * song.n_frames / 3600.0
+    log(f"About {avg:.0f} s per frame -> roughly {total_h:.1f} hours for all {song.n_frames} frames "
+        f"({cfg['ENGINE']}, {cfg['QUALITY']}, {scene.render.resolution_x}x{scene.render.resolution_y} "
+        f"at {scene.render.resolution_percentage}%).")
+    set_output(scene, cfg)
+
+
 def parse_args(cfg):
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    opts = dict(render=False, stills=[], save=None, frames=None, video=False)
+    opts = dict(render=False, stills=[], save=None, frames=None, video=False, benchmark=False)
     i = 0
     while i < len(argv):
         a = argv[i]
@@ -3126,6 +3177,8 @@ def parse_args(cfg):
             a0, a1 = nxt.split("-"); opts["frames"] = (int(a0), int(a1)); i += 1
         elif a == "--video":
             opts["video"] = True
+        elif a == "--benchmark":
+            opts["benchmark"] = True
         else:
             log(f"unknown option {a}")
         i += 1
@@ -3148,8 +3201,10 @@ def main():
             if area.type == "VIEW_3D":
                 for space in area.spaces:
                     if space.type == "VIEW_3D":
-                        space.clip_end = 1e6
+                        space.clip_start, space.clip_end = 0.01, 1e6
                         space.region_3d.view_perspective = "CAMERA"
+                        space.shading.background_type = "VIEWPORT"
+                        space.shading.background_color = (0.0, 0.0, 0.0)
     scene.frame_set(1)
     if opts["save"]:
         target = os.path.abspath(opts["save"])
@@ -3169,6 +3224,8 @@ def main():
         log(f"Still written: {out}")
     if opts["stills"]:
         set_output(scene, cfg)
+    if opts["benchmark"]:
+        benchmark(scene, song, cfg)
     if opts["render"]:
         if opts["frames"]:
             scene.frame_start, scene.frame_end = opts["frames"]
