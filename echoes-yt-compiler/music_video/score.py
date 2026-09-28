@@ -282,7 +282,7 @@ def drone(length):
     n = ns(length)
     t = np.arange(n) / SR
     body = np.zeros((n, 2))
-    for k, (cents, pan) in enumerate(((-6, -0.4), (0, 0.0), (6, 0.4))):
+    for k, (cents, pan) in enumerate(((-3, -0.4), (0, 0.0), (3, 0.4))):
         body += pan_st(osc('fifths', hz(38) * 2 ** (cents / 1200), n, phase=k / 3), pan)
     fc = 240 * 2 ** (0.85 * np.sin(2 * np.pi * t / 9.6) + 0.3 * np.sin(2 * np.pi * t / 25.7 + 1.3))
     body = sweep_lowpass(body, fc, top=4000)
@@ -498,7 +498,7 @@ def taiko(size, hard, seed):
     stick = bandpass(rng.standard_normal(n), 600, 5000) * np.exp(-t / 0.007)
     skin = lowpass(rng.standard_normal(n), 1100) * np.exp(-t / 0.035)
     x += (0.55 if hard else 0.25) * stick / np.abs(stick).max() + 0.35 * skin / np.abs(skin).max()
-    x = np.tanh((2.2 if hard else 1.2) * x / np.abs(x).max()) * asr(n, 0.0005, 0.01)
+    x = np.tanh((3.0 if hard else 1.3) * x / np.abs(x).max()) * asr(n, 0.0005, 0.01)
     return x / np.abs(x).max()
 
 
@@ -680,8 +680,8 @@ def track_piano(mix):
     """Felt piano: one note per bar in the intro and time, the string top line in the hole, the hope
     motif with a left-hand pulse in 'everything', a few sustained notes in the outro."""
     i, tm, h, e, o = (BAR0[k] for k in ('intro', 'time', 'hole', 'everything', 'outro'))
-    ev = [(i, 2, 'D4', .5, 5), (i + 1, 0, 'A4', .45, 5), (i + 2, 0, 'F4', .5, 5), (i + 3, 0, 'E4', .5, 5),
-          (i + 4, 0, 'D4', .45, 3), (i + 4, 2, 'C#4', .45, 4)]
+    ev = [(i + 1, 0, 'D4', .45, 5), (i + 2, 0, 'A4', .45, 5), (i + 3, 0, 'F4', .5, 5), (i + 4, 0, 'E4', .5, 3),
+          (i + 4, 2, 'C#4', .45, 4)]                                  # ...resolving to D4 on 'time'
     ev += [(tm + k, 0, n, .42, 5) for k, n in enumerate('D4 F4 E4 A3 Bb3 A3'.split())]
     ev += [(h + k, 0, n, .32, 4) for k, n in enumerate('A4 Bb4 A4 G4 A4 Bb4 A4 G4 A4 Bb4'.split())]
     melody = 'D5 C5 C5 A4 G4 E4 F4 A4 D5 F5 E5 C5 D5 E5'.split()
@@ -748,16 +748,15 @@ def track_strings(mix):
         if t0 >= T(r0 + 4) - 1e-6:
             note(t0, mid(top), d, 'top', -31 + 7 * p, 0.4, 0.8)
     t0, d = T(r1), T(DROP_BAR) - T(r1)                                # riser: C chord, 32nd tremolo
-    trem = lambda t: (0.35 + 0.65 * rise(t, 0, d - 0.4)) * (0.7 + 0.3 * np.cos(2 * np.pi * 8 / BEAT * t))
-    note(t0, mid('C2 C3'), d, 'low', -25, 0.3, 0.3, trem)
-    note(t0, mid('G3 C4 E4'), d, 'mid', -28, 0.3, 0.3, trem)
-    note(t0, mid('G4'), d, 'top', -29, 0.3, 0.3, trem)
+    trem = lambda t: (0.6 + 0.4 * rise(t, 0, d - 0.4)) * (0.7 + 0.3 * np.cos(2 * np.pi * 8 / BEAT * t))
+    note(t0, mid('C2 C3'), d, 'low', -23, 0.3, 0.3, trem)
+    note(t0, mid('G3 C4 E4'), d, 'mid', -26, 0.3, 0.3, trem)
+    note(t0, mid('G4'), d, 'top', -27, 0.3, 0.3, trem)
     c0, c1 = BAR0['chains'], BAR0['everything']                       # chains: the full section
     for t0, d, ch in chord_events(c0, c1, merge=False):
         low, mv, _ = STR[ch]
-        lift = 1.0 if t0 >= T(c1 - 4) - 1e-6 else 0.0                # full power once the voice is done
-        note(t0, mid(low), d, 'low', -20 + lift, 0.06, 0.6)
-        note(t0, mid(mv), d, 'mid', -24 + lift, 0.06, 0.6)
+        note(t0, mid(low), d, 'low', -20, 0.06, 0.6)                 # (the last four bars get louder by
+        note(t0, mid(mv), d, 'mid', -24, 0.06, 0.6)                  #  losing the duck, not by a fader)
     climax = dict(zip(range(c1 - 4, c1), ('A4 C5', 'G4 E4', 'F4 A4', 'D5 C#5')))
     for b in range(c0, c1):
         if b in climax:                                               # last four bars: the big line
@@ -871,9 +870,10 @@ def track_taiko(mix):
                 hit(t, 'big' if s == 0 else 'mid', 0.5 + 0.45 * (bt + s) / 8, -6)
     for i, b in enumerate(range(c0, c1)):                             # chains
         full, last = b >= c1 - 4, b == c1 - 1
-        g = -1.5 if full else -3.5
+        g = -2.5 if full else -3.5
         hit(T(b), 'big', 1.0, g)
-        hit(T(b), 'mid', 0.75, g - (5 if full else 3))
+        if not full:
+            hit(T(b), 'mid', 0.75, g - 3)
         if last:
             beats = np.arange(1.0, 4.0, 0.25)
         else:
@@ -907,7 +907,7 @@ def track_ostinato(mix):
             if t < T(DROP_BAR):
                 g = -26 - 26 * (1 - min(1.0, (t - T(b0)) / (T(r1) - T(b0)))) + 2 * max(0.0, (t - T(r1)) / (2 * BAR))
             else:
-                g = -22 if t >= T(c1 - 4) else -24
+                g = -23 if t >= T(c1 - 4) else -24
             m = cell[k % 4]
             mix.add('music', t, pluck(m, vel), gain_db=g, pan=0.25 if k % 2 else -0.25, track='ostinato',
                     room=0.2, hall=0.15)
@@ -1258,7 +1258,7 @@ def main():
     loud = lufs(y)
     print(f'wrote {out}: {len(y) / SR:.3f}s, {loud:.2f} LUFS, true peak {tp:.2f} dBTP, '
           f'sample peak {20 * np.log10(np.abs(y).max()):.2f} dBFS, limiter max GR {gr.max():.2f} dB, '
-          f'{int((np.abs(y) >= 32767 / 32768).sum())} full-scale samples  ({time.time() - t_start:.0f}s)')
+          f'{int((np.abs(y) >= 32767 / 32768).sum())} full-scale samples, master gain {gain:+.1f} dB  ({time.time() - t_start:.0f}s)')
     hot = np.flatnonzero(gr > 1.5)
     if hot.size:
         groups = np.split(hot, np.flatnonzero(np.diff(hot) > SR // 4) + 1)
