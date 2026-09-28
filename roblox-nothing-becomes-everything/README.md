@@ -208,6 +208,23 @@ in chat. The game has none, and the validator checks that.
 
 ---
 
+## Publishing from the command line (optional, no Studio needed after the first time)
+
+`tools/publish_open_cloud.py` uploads the three audio packs, writes their IDs into `Config`,
+rebuilds the place and publishes it through Roblox Open Cloud
+([place publishing](https://create.roblox.com/docs/cloud/guides/usage-place-publishing),
+[assets](https://create.roblox.com/docs/cloud/guides/usage-assets)). The experience has to exist first
+(publish it once from Studio). Set these environment variables, never in code:
+
+| Variable | What it is |
+|---|---|
+| `ROBLOX_API_KEY` | Open Cloud API key (create.roblox.com → Open Cloud → API Keys) with **Assets: Read + Write** and **universe-places: Write** on this experience, Accepted IP Addresses `0.0.0.0/0` |
+| `ROBLOX_USER_ID` | your user ID (the number in your profile's web address) |
+| `ROBLOX_UNIVERSE_ID` / `ROBLOX_PLACE_ID` | from the Creator Dashboard (the experience → ⋯ → Copy Universe ID / Copy Start Place ID) |
+
+Run `python3 tools/publish_open_cloud.py --check`, then `python3 tools/publish_open_cloud.py`.
+Open Cloud can't upload videos, and audio uploads are limited to 10 a month (100 if ID-verified).
+
 ## No sound or video?
 
 Roblox can only play audio and video that has been **uploaded to Roblox**. It can't play files
