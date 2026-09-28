@@ -1,0 +1,4 @@
+# generated
+out/
+assets/cache/
+__pycache__/
