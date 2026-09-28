@@ -48,7 +48,8 @@ for i, ch in enumerate(chords):
     s0 = int(i * CH * SR)
     pad[s0:s0 + n] += voice[:len(pad) - s0] * env[:len(pad) - s0, None]
 pad[:tail] += pad[L:L + tail]; pad = pad[:L]                      # wrap the tail -> seamless loop
-pad = sosfilt(butter(2, 2200, 'low', fs=SR, output='sos'), pad, axis=0)
+# filter two periods and keep the second, so the filter state matches at the loop seam (no click)
+pad = sosfilt(butter(2, 2200, 'low', fs=SR, output='sos'), np.concatenate([pad, pad]), axis=0)[L:]
 wet = fftconvolve(np.concatenate([pad, pad]), reverb_ir(), axes=0)[L:2 * L]  # circular-ish reverb for looping
 pad = 0.45 * pad + 0.55 * wet
 pad *= 10 ** (-16 / 20) / np.sqrt(np.mean(pad ** 2))             # ~-16 dBFS RMS
@@ -95,10 +96,11 @@ for _ in range(2600):
     x, y = rng.integers(0, W), rng.integers(0, H); stars[y, x] = rng.uniform(0.25, 1) ** 2.5
 glow = np.asarray(Image.fromarray((stars * 255).astype('uint8')).filter(ImageFilter.GaussianBlur(2.2))) / 255
 img += (stars * 255 + glow * 900)[..., None] * np.array([0.9, 0.95, 1.0])
-for _ in range(14):                                               # a few big twinkly stars
-    x, y = rng.integers(40, W - 40), rng.integers(40, H - 40); s = np.zeros((H, W)); s[y, x] = 1
-    g = np.asarray(Image.fromarray((s * 255).astype('uint8')).filter(ImageFilter.GaussianBlur(6))) / 255
-    img += (g * 9000)[..., None] * np.array([0.8, 0.9, 1.0])
+Y, X = np.mgrid[0:H, 0:W]
+for _ in range(14):                                               # a few big stars: float glow + bright core
+    x, y = rng.integers(40, W - 40), rng.integers(40, H - 40)      # (blurring a uint8 image left grey squares)
+    r2 = (X - x) ** 2 + (Y - y) ** 2
+    img += (np.exp(-r2 / (2 * 7.0 ** 2)) * 60 + np.exp(-r2 / (2 * 1.6 ** 2)) * 230)[..., None] * np.array([0.8, 0.9, 1.0])
 vign = 1 - 0.55 * (((xx - 0.5) ** 2 + (yy - 0.5) ** 2) / 0.5) ** 1.2
 img = np.clip(img * vign[..., None], 0, 255).astype('uint8')
 Image.fromarray(img).save('assets/starfield.png')

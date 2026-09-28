@@ -1,6 +1,6 @@
 -- StarterPlayer > StarterPlayerScripts > MusicClient  (LocalScript)
 -- Calm background music (SoundService.BackgroundMusic) + a small MUSIC ON/OFF
--- button in the top-right corner. The music gets quieter near a playing video
+-- button in the bottom-left corner. The music gets quieter near a playing video
 -- screen so Brandon's voice is easy to hear.
 -- If PolicyService does not allow autoplay for this player, the music starts
 -- OFF and only plays after the player presses the button.
@@ -45,8 +45,9 @@ gui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets
 
 local button = Instance.new("TextButton")
 button.Name = "Toggle"
-button.AnchorPoint = Vector2.new(1, 0)
-button.Position = UDim2.new(1, -12, 0, 12)
+-- Bottom-left corner (top-right is where Roblox shows the player list / leaderstats).
+button.AnchorPoint = Vector2.new(0, 1)
+button.Position = UDim2.new(0, 12, 1, -12)
 button.Size = UDim2.fromOffset(132, 36)
 button.BackgroundColor3 = Color3.fromRGB(22, 16, 44)
 button.BackgroundTransparency = 0.15
