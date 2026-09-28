@@ -1,0 +1,39 @@
+{
+  "_readme": "Story text for Nothing Becomes Everything. tools/build_place.py merges this with upload/audio_manifest.json into src/ReplicatedStorage/Content.lua. Captions come from the manifest; everything here is either Brandon's own words or plain UI copy.",
+  "title": "Nothing Becomes Everything",
+  "subtitle": "a game by Brandon",
+  "creator": "Brandon",
+  "zones": [
+    {"id": "hub", "name": "The Clearing", "numeral": "", "theme": "Where every journey starts.",
+     "color": [120, 225, 240], "music": "hub", "video": "hub", "insightLine": null},
+    {"id": "time", "name": "The Clock Tower", "numeral": "I", "theme": "Each second is a small bite.",
+     "color": [255, 196, 110], "music": "time", "video": "time", "insightLine": "time_3"},
+    {"id": "hole", "name": "The Hole", "numeral": "II", "theme": "Why can't I see the sky?",
+     "color": [160, 176, 255], "music": "hole", "video": "hole", "insightLine": "hole_step"},
+    {"id": "glass", "name": "The Glass Box", "numeral": "III", "theme": "Every word goes in like water slowly rising.",
+     "color": [110, 214, 255], "music": "glass", "video": "glass", "insightLine": "glass_4"},
+    {"id": "road", "name": "The Road", "numeral": "IV", "theme": "Your feet being tired does not mean the road is over.",
+     "color": [255, 156, 112], "music": "road", "video": "road", "insightLine": "road_3"},
+    {"id": "chains", "name": "Chains", "numeral": "V", "theme": "If you never run, you will never see how far you could have gone.",
+     "color": [196, 146, 255], "music": "chains", "video": "chains", "insightLine": "chains_2"},
+    {"id": "everything", "name": "The Summit", "numeral": "VI", "theme": "You were walking the whole time.",
+     "color": [255, 214, 140], "music": "everything", "video": "everything", "insightLine": "everything_2"}
+  ],
+  "insightOverrides": {
+    "time": "Even while you are watching this, it is already taking the next second."
+  },
+  "holeCarvings": ["I CAN'T", "I'M NOT GOOD", "WHY TRY", "I CAN'T DO IT"],
+  "betterThoughts": ["I CAN", "I'M LEARNING", "ONE STEP", "I'M STRONG", "KEEP GOING", "LOOK UP", "I'M ENOUGH"],
+  "glassWords": ["WORTHLESS", "WEIRD", "TOO QUIET", "NOT GOOD", "I CAN'T"],
+  "bellLabel": "I CAN",
+  "monument": ["NOTHING", "BECOMES", "EVERYTHING"],
+  "credits": [
+    {"heading": "", "text": "NOTHING BECOMES EVERYTHING"},
+    {"heading": "", "text": "a game by Brandon"},
+    {"heading": "Words and voice", "text": "Brandon"},
+    {"heading": "Music and sound", "text": "made for this game"},
+    {"heading": "", "text": "Thank you for playing."},
+    {"heading": "", "text": "Keep going."}
+  ],
+  "loadingMessages": ["Lighting the campfire...", "Winding the clock...", "Looking up...", "Keep going..."]
+}

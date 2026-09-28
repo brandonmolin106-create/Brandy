@@ -1,0 +1,51 @@
+{
+  "title": "You Didn't Hit a Wall. (Listen To This When You Want To Quit)",
+  "output": "brandon_molina_you_didnt_hit_a_wall.mp4",
+  "brand": "Brandon Molina",
+  "segments": [
+    {"type": "clip", "label": "cold open 1", "clip": "7628636840991493383", "style": "big", "zoom": false, "flash": 0.15, "sfx": "whoosh",
+     "in": "you didn't hit a wall", "out": "gave it a big name"},
+    {"type": "clip", "label": "cold open 2", "clip": "7670114078936829191", "style": "big", "zoom": false, "flash": 0.15, "sfx": "whoosh",
+     "in": "the ground never pulled you down", "out": "thoughts kept digging",
+     "fixes": [["swords kept digging", "thoughts kept digging"]]},
+    {"type": "clip", "label": "cold open 3", "clip": "7636394268810087687", "style": "big", "zoom": false, "flash": 0.15, "sfx": "whoosh",
+     "in": "not everything that tries reaching for you", "out": "needs to stay in you"},
+    {"type": "clip", "label": "cold open 4", "clip": "7627840728298769682", "style": "big", "zoom": false, "flash": 0.15, "sfx": "whoosh",
+     "in": "keep on going, even when it feels like nothing", "out": "nothing becomes everything"},
+
+    {"type": "card", "kind": "title", "dur": 5.0, "sfx": "boom", "pan_x": 150,
+     "lines": {"kicker": "Brandon Molina", "title": "YOU DIDN'T HIT A WALL.", "sub": "listen to this when you want to quit"}},
+
+    {"type": "clip", "chapter": "Stop Digging", "clip": "7670114078936829191", "in": "I just want to say, putting yourself down",
+     "fixes": [["sort at a time", "thought at a time"], ["swords kept digging", "thoughts kept digging"],
+               ["better sort", "better thought"], ["every sort every", "every thought, every"], ["bad sorts", "bad thoughts"]]},
+    {"type": "clip", "chapter": "Small Rock, Big Name", "clip": "7628636840991493383", "in": "listen to this. Sometimes you say"},
+    {"type": "clip", "chapter": "The Glass Box", "clip": "7636394268810087687", "in": "I just want to say, people say things"},
+    {"type": "clip", "chapter": "Repeat After Me", "clip": "7557352102415060242", "in": "So just repeat after me"},
+    {"type": "clip", "chapter": "Protect Your Dream", "clip": "7620809727936679176", "in": "So what is it that you desire"},
+    {"type": "clip", "chapter": "Chains On Your Feet", "clip": "7629348688833318152", "in": "If you can walk, then you can move forward",
+     "fixes": [["you're on swords", "your own thoughts"]]},
+    {"type": "clip", "chapter": "Free Water", "clip": "7557714341643046162", "in": "So here is a way you can deal with bullies"},
+    {"type": "clip", "chapter": "Clouded Vision", "clip": "7560741642693659911", "in": "when someone calls you terrible",
+     "out": "don't let that blur be a reflection",
+     "fixes": [["I don't really see the paint and grows in each stroke", "they don't really see the painting grow in each stroke"]]},
+    {"type": "clip", "chapter": "One Step", "clip": "7622311957793688839", "in": "listen to this when you feel tired",
+     "fixes": [["into strings", "into strength"], ["nowhere in hell", "nowhere else"]]},
+    {"type": "clip", "chapter": "Be You", "clip": "7685934513406364936", "in": "I just want to say, if you are watching this", "captions": false},
+    {"type": "clip", "chapter": "Time Is Eating You", "clip": "7678001520788426002", "in": "one day we will all be gone. Time is already eating us",
+     "out": "you move with it instead of against it",
+     "fixes": [["No prison it takes", "No prisoners. It takes"], ["sinking to yourself", "thinking to yourself"], ["a few 10 seconds", "10 seconds"]]},
+    {"type": "clip", "chapter": "Be My Friend For 2 Minutes", "clip": "7555112968539639058", "in": "So let's do a little role play together"},
+    {"type": "clip", "chapter": "Nothing Becomes Everything", "clip": "7627840728298769682", "in": "listen closely"},
+    {"type": "clip", "chapter": "Pour Out The Pressure", "clip": "7560378479389248775", "in": "So I thought it would be a great idea",
+     "out": "Just throw it out",
+     "fixes": [["train quality", "tranquility"], ["user of these words", "any of these words"], ["sit and stillness", "sit in stillness"], ["a handout", "a hand out"]]},
+
+    {"type": "clip", "label": "reminder", "clip": "7550285407464787218", "in": "just a friendly reminder", "flash": 0.2, "sfx": "whoosh", "zoom": false},
+    {"type": "clip", "label": "comment prompt", "clip": "7564803702297513224", "zoom": false,
+     "fixes": [["comment below on the comments", "comment below in the comments"]]},
+
+    {"type": "card", "kind": "outro", "label": "outro", "dur": 20.0, "pan_x": 40,
+     "lines": {"title": "IF THIS HIT DIFFERENT…", "sub": "subscribe for more speeches", "foot": "BRANDON MOLINA"}}
+  ]
+}

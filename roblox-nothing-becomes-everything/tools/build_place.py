@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""Build NothingBecomesEverything.rbxlx from source.
+
+    python3 tools/build_place.py
+
+1. Reads upload/audio_manifest.json (voice lines, SFX and music regions) and tools/story.json
+   (zone names, themes, insights, phrases) and writes src/ReplicatedStorage/Content.lua.
+2. Builds every zone (tools/placegen/zone_*.py) and the per-player zone kits.
+3. Embeds every script from src/ (Rojo naming: *.server.lua = Script, *.client.lua =
+   LocalScript, *.lua = ModuleScript, folders = Folder) and writes the place, plus a
+   Rojo-style sourcemap (tools/.cache/sourcemap.json) for the Luau type checker.
+Then run tools/validate_place.py.
+"""
+import json
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+
+from placegen.rbx import (Inst, S, PS, B, I, F, D, T, V3, C3, CFrame, write_place)  # noqa: E402
+from placegen import zone_hub, zone_time, zone_hole, zone_glass, zone_road, zone_chains, zone_summit  # noqa: E402
+
+SRC = os.path.join(ROOT, 'src')
+OUT = os.path.join(ROOT, 'NothingBecomesEverything.rbxlx')
+MANIFEST = os.path.join(ROOT, 'upload', 'audio_manifest.json')
+STORY = os.path.join(HERE, 'story.json')
+CACHE = os.path.join(HERE, '.cache')
+SOURCEMAP = os.path.join(CACHE, 'sourcemap.json')
+CONTENT = os.path.join(SRC, 'ReplicatedStorage', 'Content.lua')
+
+VOICE_IDS = ['hub_welcome', 'time_1', 'time_2', 'time_3', 'hole_1', 'hole_2', 'hole_3', 'hole_4', 'hole_step',
+             'hole_move', 'glass_1', 'glass_2', 'glass_3', 'glass_4', 'road_1', 'road_2', 'road_3', 'chains_1',
+             'chains_2', 'chains_3', 'chains_4', 'everything_1', 'everything_2', 'everything_3']
+SFX_IDS = ['collect', 'step_rise', 'glass_shatter', 'water_drain', 'chains_break', 'wall_shrink', 'zone_complete',
+           'clock_tick', 'heartbeat', 'whoosh', 'portal', 'ui_click', 'finale_boom', 'bell']
+TRACK_IDS = ['hub', 'time', 'hole', 'glass', 'road', 'chains', 'everything', 'finale']
+VIDEO_KEYS = ['hub', 'time', 'hole', 'glass', 'road', 'chains', 'everything']
+
+# ----------------------------------------------------------------------------- content
+class Ctx:
+    def __init__(self, manifest, story):
+        self.manifest = manifest
+        self.story = story
+        self.zones = story['zones']
+        self._zones = {z['id']: z for z in self.zones}
+        self.lines = {l['id']: l for l in manifest['voice']['lines']}
+    def zone(self, zid):
+        return self._zones[zid]
+    def rgb(self, zid):
+        return tuple(self._zones[zid]['color'])
+    def theme(self, zid):
+        return self._zones[zid]['theme']
+    def line(self, lid):
+        return self.lines[lid]
+    def excerpt(self, lid, max_chars=64):
+        text = self.lines[lid]['text'].strip()
+        first = text.split('. ')[0].rstrip('.')
+        if len(first) <= max_chars:
+            short = first + ('.' if not first.endswith(('?', '!')) else '')
+        else:
+            words, out = first.split(), ''
+            for w in words:
+                if len(out) + len(w) + 1 > max_chars - 1:
+                    break
+                out = (out + ' ' + w).strip()
+            short = out.rstrip(',;:') + '\u2026'
+        return '\u201c' + short + '\u201d'
+
+def check_manifest(m):
+    errors = []
+    def region(kind, key, r, dur):
+        if not (0 <= r['start'] < r['end']):
+            errors.append(f'{kind} {key}: start must be < end ({r["start"]}, {r["end"]})')
+        if dur and r['end'] > dur + 0.05:
+            errors.append(f'{kind} {key}: ends at {r["end"]} but the file is {dur} s')
+    lines = {l['id']: l for l in m['voice']['lines']}
+    for lid in VOICE_IDS:
+        if lid not in lines:
+            errors.append(f'voice line {lid} missing')
+        else:
+            region('voice', lid, lines[lid], m['voice'].get('duration', 0))
+            if not lines[lid].get('text'):
+                errors.append(f'voice line {lid} has no text')
+    for sid in SFX_IDS:
+        if sid not in m['sfx']['sounds']:
+            errors.append(f'sfx {sid} missing')
+        else:
+            region('sfx', sid, m['sfx']['sounds'][sid], m['sfx'].get('duration', 0))
+    for tid in TRACK_IDS:
+        if tid not in m['music']['tracks']:
+            errors.append(f'music track {tid} missing')
+        else:
+            region('music', tid, m['music']['tracks'][tid], m['music'].get('duration', 0))
+    for key in VIDEO_KEYS:
+        if key not in m.get('videos', {}):
+            errors.append(f'video {key} missing from manifest')
+    if errors:
+        raise SystemExit('audio_manifest.json problems:\n  ' + '\n  '.join(errors))
+
+def lua_str(s):
+    return '"' + s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n') + '"'
+
+def lua_num(v):
+    v = round(float(v), 3)
+    return str(int(v)) if v.is_integer() else repr(v)
+
+def write_content(ctx):
+    m, st = ctx.manifest, ctx.story
+    out = []
+    w = out.append
+    w('--!strict')
+    w('-- ReplicatedStorage > Content  (ModuleScript)')
+    w('-- GENERATED by tools/build_place.py from upload/audio_manifest.json and tools/story.json.')
+    w('-- Rebuilding the place overwrites this file: change the text in those two files instead')
+    w('-- (or edit here in Studio if you never plan to rebuild). Times are seconds inside each pack.')
+    w('')
+    w('export type Line = { id: string, zone: string, start: number, stop: number, text: string }')
+    w('export type Region = { start: number, stop: number }')
+    w('export type Track = { start: number, stop: number, loop: boolean }')
+    w('export type Zone = {')
+    w('\tid: string,')
+    w('\torder: number,')
+    w('\tname: string,')
+    w('\tnumeral: string,')
+    w('\ttheme: string,')
+    w('\tcolor: { number },')
+    w('\tmusic: string,')
+    w('\tvideo: string,')
+    w('\tinsightLine: string?,')
+    w('\tinsight: string?,')
+    w('}')
+    w('export type Credit = { heading: string, text: string }')
+    w('')
+    w('local Content = {}')
+    w('')
+    w(f'Content.Title = {lua_str(st["title"])}')
+    w(f'Content.Subtitle = {lua_str(st["subtitle"])}')
+    w(f'Content.Creator = {lua_str(st["creator"])}')
+    w('')
+    w('-- Brandon\'s voice lines: one audio file, each line is a region of it.')
+    w(f'Content.VoiceFile = {lua_str(m["voice"]["file"])}')
+    w(f'Content.VoiceDuration = {lua_num(m["voice"].get("duration", 0))}')
+    w('Content.Lines = {')
+    for l in m['voice']['lines']:
+        w(f'\t{l["id"]} = {{ id = {lua_str(l["id"])}, zone = {lua_str(l["zone"])}, start = {lua_num(l["start"])}, '
+          f'stop = {lua_num(l["end"])}, text = {lua_str(l["text"])} }},')
+    w('} :: { [string]: Line }')
+    w('')
+    w(f'Content.SfxFile = {lua_str(m["sfx"]["file"])}')
+    w(f'Content.SfxDuration = {lua_num(m["sfx"].get("duration", 0))}')
+    w('Content.Sfx = {')
+    for sid, r in m['sfx']['sounds'].items():
+        w(f'\t{sid} = {{ start = {lua_num(r["start"])}, stop = {lua_num(r["end"])} }},')
+    w('} :: { [string]: Region }')
+    w('')
+    w(f'Content.MusicFile = {lua_str(m["music"]["file"])}')
+    w(f'Content.MusicDuration = {lua_num(m["music"].get("duration", 0))}')
+    w('Content.Music = {')
+    for tid, r in m['music']['tracks'].items():
+        w(f'\t{tid} = {{ start = {lua_num(r["start"])}, stop = {lua_num(r["end"])}, '
+          f'loop = {"true" if r.get("loop") else "false"} }},')
+    w('} :: { [string]: Track }')
+    w('')
+    w('-- Optional video files (upload/videos). Their asset ids go in Config.Videos.')
+    w('Content.VideoFiles = {')
+    for key, path in m['videos'].items():
+        w(f'\t{key} = {lua_str(path)},')
+    w('} :: { [string]: string }')
+    w('')
+    w('-- The journey, in order. Each zone ends with its Insight (the key line).')
+    w('Content.Zones = {')
+    for i, z in enumerate(st['zones']):
+        line = z.get('insightLine')
+        insight = st.get('insightOverrides', {}).get(z['id']) or (ctx.lines[line]['text'] if line else None)
+        col = ', '.join(str(c) for c in z['color'])
+        w('\t{')
+        w(f'\t\tid = {lua_str(z["id"])},')
+        w(f'\t\torder = {i},')
+        w(f'\t\tname = {lua_str(z["name"])},')
+        w(f'\t\tnumeral = {lua_str(z.get("numeral", ""))},')
+        w(f'\t\ttheme = {lua_str(z["theme"])},')
+        w(f'\t\tcolor = {{ {col} }},')
+        w(f'\t\tmusic = {lua_str(z["music"])},')
+        w(f'\t\tvideo = {lua_str(z["video"])},')
+        w(f'\t\tinsightLine = {lua_str(line) if line else "nil"},')
+        w(f'\t\tinsight = {lua_str(insight) if insight else "nil"},')
+        w('\t},')
+    w('} :: { Zone }')
+    w('')
+    w('Content.Story = {')
+    for key in ('holeCarvings', 'betterThoughts', 'glassWords', 'monument', 'loadingMessages'):
+        w(f'\t{key} = {{ ' + ', '.join(lua_str(s) for s in st[key]) + ' },')
+    w(f'\tbellLabel = {lua_str(st["bellLabel"])},')
+    w('\tcredits = {')
+    for c in st['credits']:
+        w(f'\t\t{{ heading = {lua_str(c["heading"])}, text = {lua_str(c["text"])} }},')
+    w('\t} :: { Credit },')
+    w('}')
+    w('')
+    w('return Content')
+    with open(CONTENT, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(out) + '\n')
+
+# ----------------------------------------------------------------------------- scripts
+def load_scripts(dirpath, parent, relroot=ROOT):
+    for entry in sorted(os.listdir(dirpath)):
+        full = os.path.join(dirpath, entry)
+        if os.path.isdir(full):
+            folder = parent.find(entry)
+            if folder is None:
+                folder = Inst('Folder', entry)
+                parent.add(folder)
+            load_scripts(full, folder, relroot)
+            continue
+        if not entry.endswith('.lua'):
+            continue
+        if entry.endswith('.server.lua'):
+            cls, name = 'Script', entry[:-len('.server.lua')]
+        elif entry.endswith('.client.lua'):
+            cls, name = 'LocalScript', entry[:-len('.client.lua')]
+        else:
+            cls, name = 'ModuleScript', entry[:-len('.lua')]
+        with open(full, encoding='utf-8') as f:
+            src = f.read()
+        s = Inst(cls, name, Source=PS(src))
+        s.source_file = os.path.relpath(full, relroot).replace(os.sep, '/')
+        parent.add(s)
+
+# ----------------------------------------------------------------------------- services
+def lighting():
+    lt = Inst('Lighting', 'Lighting', ClockTime=F(0), TimeOfDay=S('00:00:00'), Brightness=F(1.6),
+              Ambient=C3(34, 38, 62), OutdoorAmbient=C3(70, 78, 120), ColorShift_Top=C3(120, 130, 200),
+              ColorShift_Bottom=C3(20, 30, 60), EnvironmentDiffuseScale=F(0.5), EnvironmentSpecularScale=F(0.6),
+              ExposureCompensation=F(0.3), GlobalShadows=B(True), ShadowSoftness=F(0.3), Technology=T(4),
+              GeographicLatitude=F(35), FogEnd=F(100000), FogStart=F(0), FogColor=C3(90, 100, 140))
+    lt.add(
+        Inst('Atmosphere', 'Atmosphere', Density=F(0.32), Offset=F(0.1), Color=C3(110, 120, 170),
+             Decay=C3(40, 50, 100), Glare=F(0), Haze=F(1.4)),
+        Inst('Sky', 'Sky', StarCount=I(3000), CelestialBodiesShown=B(True), MoonAngularSize=F(11),
+             SunAngularSize=F(16)),
+        Inst('BloomEffect', 'Bloom', Intensity=F(0.7), Size=F(30), Threshold=F(0.9), Enabled=B(True)),
+        Inst('ColorCorrectionEffect', 'Grade', Brightness=F(0.02), Contrast=F(0.12), Saturation=F(0.08),
+             TintColor=C3(226, 230, 255), Enabled=B(True)),
+        Inst('SunRaysEffect', 'SunRays', Intensity=F(0.06), Spread=F(0.8), Enabled=B(True)))
+    return lt
+
+def remotes():
+    r = Inst('Folder', 'Remotes')
+    r.add(Inst('RemoteFunction', 'GetState'))
+    for name in ('State', 'ZoneEvent', 'Travel', 'ZoneAction', 'SaveSettings', 'Notify'):
+        r.add(Inst('RemoteEvent', name))
+    return r
+
+def build():
+    with open(MANIFEST, encoding='utf-8') as f:
+        manifest = json.load(f)
+    with open(STORY, encoding='utf-8') as f:
+        story = json.load(f)
+    check_manifest(manifest)
+    ctx = Ctx(manifest, story)
+    write_content(ctx)
+
+    zones = Inst('Folder', 'Zones')
+    kits = Inst('Folder', 'ZoneKits')
+    stats = {}
+    for mod in (zone_hub, zone_time, zone_hole, zone_glass, zone_road, zone_chains, zone_summit):
+        model, kitf = mod.build(ctx)
+        model.attr(Origin=('Vector3', tuple(float(c) for c in mod.ORIGIN)))
+        zones.add(model)
+        if kitf is not None:
+            kits.add(kitf)
+        stats[model.name] = (count_parts(model), count_parts(kitf) if kitf else 0)
+
+    workspace = Inst('Workspace', 'Workspace', StreamingEnabled=B(True), StreamingTargetRadius=I(900),
+                     StreamingMinRadius=I(96), StreamingIntegrityMode=T(2), StreamOutBehavior=T(2),
+                     FallenPartsDestroyHeight=F(-500), Gravity=F(196.2))
+    workspace.add(zones)
+
+    rfirst = Inst('ReplicatedFirst', 'ReplicatedFirst')
+    rstorage = Inst('ReplicatedStorage', 'ReplicatedStorage')
+    sss = Inst('ServerScriptService', 'ServerScriptService')
+    splayer = Inst('StarterPlayer', 'StarterPlayer', CharacterUseJumpPower=B(True), CharacterJumpPower=F(50),
+                   CharacterWalkSpeed=F(16), CharacterMaxSlopeAngle=F(89), AutoJumpEnabled=B(True),
+                   CameraMaxZoomDistance=F(80), CameraMinZoomDistance=F(0.5))
+    sps = Inst('StarterPlayerScripts', 'StarterPlayerScripts')
+    scs = Inst('StarterCharacterScripts', 'StarterCharacterScripts')
+    splayer.add(sps, scs)
+    load_scripts(os.path.join(SRC, 'ReplicatedFirst'), rfirst)
+    load_scripts(os.path.join(SRC, 'ReplicatedStorage'), rstorage)
+    load_scripts(os.path.join(SRC, 'ServerScriptService'), sss)
+    load_scripts(os.path.join(SRC, 'StarterPlayer', 'StarterPlayerScripts'), sps)
+    rstorage.add(remotes(), kits)
+
+    sound = Inst('SoundService', 'SoundService', RespectFilteringEnabled=B(True))
+    for name, vol in (('Music', 0.6), ('Voice', 1.0), ('SFX', 0.8)):
+        sound.add(Inst('SoundGroup', name, Volume=F(vol)))
+    players = Inst('Players', 'Players', CharacterAutoLoads=B(True), RespawnTime=F(2))
+    starter_gui = Inst('StarterGui', 'StarterGui')
+    services = [workspace, lighting(), rfirst, rstorage, sss, starter_gui, splayer, sound, players]
+    write_place(services, OUT)
+
+    os.makedirs(CACHE, exist_ok=True)
+    def smap(inst):
+        node = {'name': inst.name, 'className': inst.cls}
+        if inst.source_file:
+            node['filePaths'] = [inst.source_file]
+        kids = [smap(c) for c in inst.children]
+        if kids:
+            node['children'] = kids
+        return node
+    with open(SOURCEMAP, 'w') as f:
+        json.dump({'name': 'Game', 'className': 'DataModel', 'children': [smap(s) for s in services]}, f, indent=1)
+
+    total_inst = sum(1 for s in services for _ in s.walk())
+    total_parts = sum(count_parts(s) for s in services)
+    print(f'wrote {os.path.relpath(OUT, ROOT)}: {total_inst} instances, {total_parts} parts')
+    for zid, (w, k) in stats.items():
+        print(f'  {zid:<11} {w:>5} parts in Workspace, {k:>4} in its kit')
+    print(f'wrote {os.path.relpath(CONTENT, ROOT)} ({len(manifest["voice"]["lines"])} lines, '
+          f'{len(manifest["sfx"]["sounds"])} sfx, {len(manifest["music"]["tracks"])} tracks)')
+
+PART_CLASSES = {'Part', 'WedgePart', 'CornerWedgePart', 'Seat', 'SpawnLocation', 'TrussPart', 'MeshPart',
+                'VehicleSeat', 'UnionOperation'}
+
+def count_parts(inst):
+    if inst is None:
+        return 0
+    return sum(1 for i in inst.walk() if i.cls in PART_CLASSES)
+
+if __name__ == '__main__':
+    build()
