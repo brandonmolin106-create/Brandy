@@ -241,7 +241,7 @@ def render(i, s):
         last = 'c1'
     fade = f",fade=t=in:st=0:d={s.get('fin', 0.0)}" if s.get('fin') else ''
     fade += f",fade=t=out:st={d - s['fout']:.3f}:d={s['fout']}" if s.get('fout') else ''
-    graph += comp + f"[{last}]{tail}{fade},trim=end_frame={nf},setpts=PTS-STARTPTS,format=yuv420p[v]"
+    graph += comp + f"[{last}]{tail}{fade},trim=end_frame={nf},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v]"
     run([FF, '-y', '-nostats', '-loglevel', 'error', *ins, *extra_in, '-filter_complex', graph,
          '-map', '[v]', '-frames:v', str(nf), *X264, out])
     return i

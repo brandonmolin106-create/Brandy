@@ -226,7 +226,7 @@ def render_clip(idx, seg):
          + (f"[c1][fz]overlay={FG_X}:0:enable='{zx}'[c2];" if zx else '[c1]null[c2];')
          + f"[c2]ass='{ass}':fontsdir='{os.path.join(WORK, 'fonts')}'{flash},"
          f"fade=t=out:st={d - 0.2:.3f}:d=0.2,tpad=stop_mode=clone:stop_duration=1,"
-         f"trim=end_frame={nf},format=yuv420p[v]")
+         f"trim=end_frame={nf},setsar=1,format=yuv420p[v]")
     a = (f"[0:a]aresample={SR},highpass=f=80,afftdn=nr=8:nf=-40,"
          f"acompressor=threshold=-21dB:ratio=3:attack=6:release=150:makeup=2,"
          f"loudnorm=I=-16:TP=-2:LRA=9,aresample={SR},aformat=sample_fmts=s16:channel_layouts=stereo,"
@@ -246,7 +246,7 @@ def render_card(idx, seg):
     x0 = seg.get('pan_x', 60)
     v = (f"[0:v]crop={W}:{H}:x='{x0}+t*14':y='(ih-{H})/2+t*3',eq=brightness=-0.03,"
          f"ass='{ass}':fontsdir='{os.path.join(WORK, 'fonts')}',"
-         f"fade=t=in:st=0:d=0.5,fade=t=out:st={d - 0.6:.3f}:d=0.6,trim=end_frame={nf},format=yuv420p[v]")
+         f"fade=t=in:st=0:d=0.5,fade=t=out:st={d - 0.6:.3f}:d=0.6,trim=end_frame={nf},setsar=1,format=yuv420p[v]")
     run([FF, '-y', '-nostats', '-loglevel', 'error', '-loop', '1', '-framerate', str(FPS),
          '-i', os.path.join(WORK, 'assets', 'starfield.png'),
          '-f', 'lavfi', '-i', f'anullsrc=r={SR}:cl=stereo',
