@@ -35,8 +35,9 @@ GRADE = {
 }
 SECTION_GRADE = {'intro': 'bw', 'time': 'bw', 'hole': 'teal', 'glass': 'cold', 'road': 'warm',
                  'riser': 'drop', 'chains': 'drop', 'everything': 'warm', 'outro': 'bw'}
-# clips with a TikTok text sticker burned into the top: px to trim off the 576x1024 frame in portrait shots
-TOP_TRIM = {'7628636840991493383': 230}
+# clips with a TikTok text sticker burned into the top: portrait shots fade everything above this
+# source row (of the 576x1024 frame) into the background
+TOP_FADE = {'7628636840991493383': 345}
 
 
 def run(cmd):
@@ -86,6 +87,19 @@ def make_layers():
                 a = int(90 + 60 * np.sin(t * 2))
                 d.ellipse((x - r, y - r, x + r, y + r), fill=col + (a,))
             im.filter(ImageFilter.GaussianBlur(70)).save(f'{LAY}/leak_{f:03d}.png')
+
+
+def portrait_mask(fade_src_row=0):
+    """Feathered-sides mask; optionally transparent above a source row (hides burned-in stickers)."""
+    if not fade_src_row:
+        return f'{LAY}/mask.png'
+    path = f'{LAY}/mask_top{fade_src_row}.png'
+    if not os.path.exists(path):
+        m = np.asarray(Image.open(f'{LAY}/mask.png'), np.float32) / 255
+        y0 = int(fade_src_row * IH / 1024)
+        ramp = np.clip((np.arange(IH) - y0) / 60.0, 0, 1) ** 1.5
+        Image.fromarray((m * ramp[:, None] * 255).astype('uint8')).save(path)
+    return path
 
 
 # ---------------------------------------------------------------- face / eye line for ECU crops
@@ -215,11 +229,6 @@ def render(i, s):
             pre += ",tmix=frames=3:weights='1 2 1'"
         if s['kind'] == 'portrait':
             x = s['x']
-            top = TOP_TRIM.get(s['clip'], 0)
-            if top:                                              # keep the 9:16 shape, zoom past the sticker
-                th = 1024 - top
-                tw = int(th * 576 / 1024) // 2 * 2
-                pre += f",crop={tw}:{th}:{(576 - tw) // 2}:{top},scale=576:1024"
             graph = (f"{pre},split=2[a][b];"
                      f"[a]scale=240:427,crop=240:100:0:300,gblur=sigma=14,scale={W}:{IH},"
                      f"eq=brightness=-0.34:saturation=0.5[bg];"
@@ -231,7 +240,7 @@ def render(i, s):
     k = len([x for x in ins if x == '-i'])
     extra_in = []
     if s['kind'] == 'portrait':
-        extra_in += ['-loop', '1', '-i', f'{LAY}/mask.png']
+        extra_in += ['-loop', '1', '-i', portrait_mask(TOP_FADE.get(s['clip'], 0))]
         graph = graph.replace('[m]', f'[{k}:v]')
         k += 1
     extra_in += ['-framerate', str(FPS), '-loop', '1', '-i', os.path.join(LAY, 'dust_%03d.png')]
