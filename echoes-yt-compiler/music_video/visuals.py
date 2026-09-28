@@ -35,6 +35,8 @@ GRADE = {
 }
 SECTION_GRADE = {'intro': 'bw', 'time': 'bw', 'hole': 'teal', 'glass': 'cold', 'road': 'warm',
                  'riser': 'drop', 'chains': 'drop', 'everything': 'warm', 'outro': 'bw'}
+# clips with a TikTok text sticker burned into the top: px to trim off the 576x1024 frame in portrait shots
+TOP_TRIM = {'7628636840991493383': 230}
 
 
 def run(cmd):
@@ -213,6 +215,11 @@ def render(i, s):
             pre += ",tmix=frames=3:weights='1 2 1'"
         if s['kind'] == 'portrait':
             x = s['x']
+            top = TOP_TRIM.get(s['clip'], 0)
+            if top:                                              # keep the 9:16 shape, zoom past the sticker
+                th = 1024 - top
+                tw = int(th * 576 / 1024) // 2 * 2
+                pre += f",crop={tw}:{th}:{(576 - tw) // 2}:{top},scale=576:1024"
             graph = (f"{pre},split=2[a][b];"
                      f"[a]scale=240:427,crop=240:100:0:300,gblur=sigma=14,scale={W}:{IH},"
                      f"eq=brightness=-0.34:saturation=0.5[bg];"
