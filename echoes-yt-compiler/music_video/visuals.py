@@ -32,7 +32,27 @@ GRADE = {
     'cold': 'colorbalance=rs=-0.14:bs=0.20:rm=-0.06:bm=0.10,eq=saturation=0.65:brightness=-0.02,curves=preset=medium_contrast',
     'warm': 'colorbalance=rs=0.08:bs=-0.10:rh=0.12:bh=-0.10,eq=saturation=1.05:gamma=1.04',
     'drop': 'colorbalance=rs=-0.06:bs=0.08:rh=0.12:bh=-0.10,curves=preset=strong_contrast,eq=saturation=1.12',
+    # thriller cut: bleach-bypass coldness, a red drop, a drained sepia for the ending
+    'thr_bw': 'hue=s=0,curves=preset=strong_contrast,eq=contrast=1.12:gamma=0.95',
+    'thr_bleach': 'eq=saturation=0.38:contrast=1.22:brightness=-0.02,colorbalance=rs=-0.05:gs=0.03:bs=0.06,curves=preset=medium_contrast',
+    'thr_cold': 'colorbalance=rs=-0.16:bs=0.24:rm=-0.06:bm=0.10,eq=saturation=0.32:contrast=1.2:brightness=-0.03',
+    'thr_red': 'colorbalance=rs=0.28:gs=-0.10:bs=-0.12:rm=0.16:gm=-0.06,eq=saturation=0.62:contrast=1.3,curves=preset=strong_contrast',
+    'thr_sepia': 'colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131,eq=saturation=0.7:contrast=1.1:gamma=0.97',
 }
+SUB_HEAD = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: {W}
+PlayResY: {H}
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Sub,PT Sans,44,&H00F2F2F2,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0.5,0,1,2.2,0.8,2,120,120,30,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
 SECTION_GRADE = {'intro': 'bw', 'time': 'bw', 'hole': 'teal', 'glass': 'cold', 'road': 'warm',
                  'riser': 'drop', 'chains': 'drop', 'everything': 'warm', 'outro': 'bw'}
 # clips with a TikTok text sticker burned into the top: portrait shots fade everything above this
@@ -190,10 +210,13 @@ def write_ass(path, events):
 
 
 # ---------------------------------------------------------------- shot rendering
-def finish(grade, extra=''):
-    """Common tail: grade, text, grain, vignette, letterbox."""
-    return (f"{GRADE[grade]}{extra},ass='{{ass}}':fontsdir='{FONTS}',"
-            f"noise=alls=5:allf=t,vignette=angle=PI/4.4,pad={W}:{H}:0:{BAR_Y}:black")
+def finish(grade, extra='', grain=5, glitch='', subs=''):
+    """Common tail: grade, text, optional glitch hits, grain, vignette, letterbox, optional bar subtitles."""
+    gl = (f",rgbashift=rh=-26:bh=26:rv=4:bv=-4:enable='{glitch}',noise=alls=60:allf=t:enable='{glitch}',"
+          f"eq=contrast=1.5:brightness=0.06:enable='{glitch}'") if glitch else ''
+    sub = f",ass='{subs}':fontsdir='{FONTS}'" if subs else ''
+    return (f"{GRADE[grade]}{extra},ass='{{ass}}':fontsdir='{FONTS}'{gl},"
+            f"noise=alls={grain}:allf=t,vignette=angle=PI/4.4,pad={W}:{H}:0:{BAR_Y}:black{sub}")
 
 
 def render(i, s):
@@ -211,7 +234,13 @@ def render(i, s):
     if s.get('glow'):
         fx += (",format=gbrp,split[g1][g2];[g2]scale=480:201,gblur=sigma=14,scale="
                f"{W}:{IH}[g3];[g1][g3]blend=all_mode=screen:all_opacity=0.38,format=yuv420p")
-    tail = finish(grade, fx).replace('{ass}', ass)
+    subs = ''
+    if s.get('subs'):
+        subs = os.path.join(SH, f'{i:03d}_subs.ass')
+        with open(subs, 'w') as f:
+            f.write(SUB_HEAD + '\n'.join(s['subs']) + '\n')
+    glitch = '+'.join(f'between(t,{a:.3f},{b:.3f})' for a, b in s.get('glitch', []))
+    tail = finish(grade, fx, s.get('grain', 5), glitch, subs).replace('{ass}', ass)
     dust = f"[{{d}}:v]scale={W}:{IH},format=rgba,colorchannelmixer=aa={s.get('dust', 0.55)}[dust];"
     leak = f"[{{l}}:v]scale={W}:{IH},format=rgba,colorchannelmixer=aa={s.get('leak', 0.0)}[leak];"
     ins, graph = [], ''
@@ -229,11 +258,17 @@ def render(i, s):
             pre += ",tmix=frames=3:weights='1 2 1'"
         if s['kind'] == 'portrait':
             x = s['x']
-            graph = (f"{pre},split=2[a][b];"
+            win = '+'.join(f'between(t,{a:.3f},{b:.3f})' for a, b in s.get('ecu_win', []))
+            graph = (f"{pre},split={3 if win else 2}[a][b]{'[c]' if win else ''};"
                      f"[a]scale=240:427,crop=240:100:0:300,gblur=sigma=14,scale={W}:{IH},"
-                     f"eq=brightness=-0.34:saturation=0.5[bg];"
-                     f"[b]scale={PW}:{IH}:flags=lanczos,unsharp=5:5:0.4[fg0];[fg0][m]alphamerge[fg];"
-                     f"[bg][fg]overlay={x}:0[base];")
+                     f"eq=brightness={s.get('bg_bright', -0.34)}:saturation=0.5[bg];"
+                     f"[b]scale={PW}:{IH}:flags=lanczos,unsharp=5:5:0.4[fg0];[fg0][m]alphamerge[fg];")
+            if win:                                              # lip-synced eye close-ups on the key words
+                y = max(0, min(1024 - 241, s['eye'] - 120))
+                graph += (f"[c]crop=576:241:0:{y},scale={W}:{IH}:flags=lanczos,unsharp=7:7:0.8[ecu];"
+                          f"[bg][fg]overlay={x}:0[b0];[b0][ecu]overlay=0:0:enable='{win}'[base];")
+            else:
+                graph += f"[bg][fg]overlay={x}:0[base];"
         else:                                                    # ecu: eye-line band, full width
             y = max(0, min(1024 - 241, s['eye'] - 120))
             graph = f"{pre},crop=576:241:0:{y},scale={W}:{IH}:flags=lanczos,unsharp=7:7:0.8[base];"
