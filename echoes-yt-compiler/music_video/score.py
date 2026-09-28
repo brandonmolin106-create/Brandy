@@ -755,7 +755,7 @@ def track_strings(mix):
     c0, c1 = BAR0['chains'], BAR0['everything']                       # chains: the full section
     for t0, d, ch in chord_events(c0, c1, merge=False):
         low, mv, _ = STR[ch]
-        lift = 2.0 if t0 >= T(c1 - 4) - 1e-6 else 0.0                # full power once the voice is done
+        lift = 1.0 if t0 >= T(c1 - 4) - 1e-6 else 0.0                # full power once the voice is done
         note(t0, mid(low), d, 'low', -20 + lift, 0.06, 0.6)
         note(t0, mid(mv), d, 'mid', -24 + lift, 0.06, 0.6)
     climax = dict(zip(range(c1 - 4, c1), ('A4 C5', 'G4 E4', 'F4 A4', 'D5 C#5')))
@@ -871,9 +871,9 @@ def track_taiko(mix):
                 hit(t, 'big' if s == 0 else 'mid', 0.5 + 0.45 * (bt + s) / 8, -6)
     for i, b in enumerate(range(c0, c1)):                             # chains
         full, last = b >= c1 - 4, b == c1 - 1
-        g = 0.0 if full else -3.5
+        g = -1.5 if full else -3.5
         hit(T(b), 'big', 1.0, g)
-        hit(T(b), 'mid', 0.75, g - 3)
+        hit(T(b), 'mid', 0.75, g - (5 if full else 3))
         if last:
             beats = np.arange(1.0, 4.0, 0.25)
         else:
@@ -907,7 +907,7 @@ def track_ostinato(mix):
             if t < T(DROP_BAR):
                 g = -26 - 26 * (1 - min(1.0, (t - T(b0)) / (T(r1) - T(b0)))) + 2 * max(0.0, (t - T(r1)) / (2 * BAR))
             else:
-                g = -21 if t >= T(c1 - 4) else -24
+                g = -22 if t >= T(c1 - 4) else -24
             m = cell[k % 4]
             mix.add('music', t, pluck(m, vel), gain_db=g, pan=0.25 if k % 2 else -0.25, track='ostinato',
                     room=0.2, hall=0.15)
@@ -949,7 +949,7 @@ def track_hits(mix):
     mix.add('music', T(c0), impact(1), gain_db=-8, track='impact', hall=0.35, long=0.15)
     for b in range(c0, c1, 2):
         root = mid({'Dm': 'D1', 'F': 'F1'}[CHART[b]])[0]
-        mix.add('music', T(b), braam(root, seed=b), gain_db=-13 if b == c0 else -15, track='braam', hall=0.25)
+        mix.add('music', T(b), braam(root, seed=b), gain_db=-13 if b == c0 else (-16.5 if b >= c1 - 4 else -15), track='braam', hall=0.25)
     x = crash(7)
     mix.add('music', T(c1 - 4) - 1.6, x[:ns(1.6)][::-1] * asr(ns(1.6), 1.0, 0.004)[:, None], gain_db=-26,
             track='crash', hall=0.2)
@@ -1259,6 +1259,11 @@ def main():
     print(f'wrote {out}: {len(y) / SR:.3f}s, {loud:.2f} LUFS, true peak {tp:.2f} dBTP, '
           f'sample peak {20 * np.log10(np.abs(y).max()):.2f} dBFS, limiter max GR {gr.max():.2f} dB, '
           f'{int((np.abs(y) >= 32767 / 32768).sum())} full-scale samples  ({time.time() - t_start:.0f}s)')
+    hot = np.flatnonzero(gr > 1.5)
+    if hot.size:
+        groups = np.split(hot, np.flatnonzero(np.diff(hot) > SR // 4) + 1)
+        print(f'  limiter > 1.5 dB in {len(groups)} places, the biggest: ' + ', '.join(
+            f'{g[0] / SR:.2f}s ({gr[g].max():.1f} dB)' for g in sorted(groups, key=lambda g: -gr[g].max())[:8]))
     print('  section      LUFS   peak dBFS  limiter GR | dry track levels (dB RMS after master gain)')
     tracks = sorted({k[0] for k in mix.meter})
     for s in TL['sections']:
