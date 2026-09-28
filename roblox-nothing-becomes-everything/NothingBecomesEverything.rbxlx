@@ -39300,7 +39300,7 @@
 			</Item>
 		</Item>
 	</Item>
-	<Item class="Lighting" referent="RBX087E3BDECCBF522BBC1F7AB6BBD53DA7">
+	<Item class="Lighting" referent="RBX7D46FD1770AF5A2E93BE7F244AD6B6F4">
 		<Properties>
 			<string name="Name">Lighting</string>
 			<float name="ClockTime">0</float>
@@ -39321,7 +39321,7 @@
 			<float name="FogStart">0</float>
 			<Color3 name="FogColor"><R>0.35294</R><G>0.39216</G><B>0.54902</B></Color3>
 		</Properties>
-		<Item class="Atmosphere" referent="RBX7D46FD1770AF5A2E93BE7F244AD6B6F4">
+		<Item class="Atmosphere" referent="RBX5A2ADE7826C25E0AA55022C3EC291F48">
 			<Properties>
 				<string name="Name">Atmosphere</string>
 				<float name="Density">0.32</float>
@@ -39332,7 +39332,7 @@
 				<float name="Haze">1.4</float>
 			</Properties>
 		</Item>
-		<Item class="Sky" referent="RBX5A2ADE7826C25E0AA55022C3EC291F48">
+		<Item class="Sky" referent="RBX38122CEE86FF5FF9B41FA965C717A167">
 			<Properties>
 				<string name="Name">Sky</string>
 				<int name="StarCount">3000</int>
@@ -39341,7 +39341,7 @@
 				<float name="SunAngularSize">16</float>
 			</Properties>
 		</Item>
-		<Item class="BloomEffect" referent="RBX38122CEE86FF5FF9B41FA965C717A167">
+		<Item class="BloomEffect" referent="RBX05B75B11A83E5268A40F4621071C36E1">
 			<Properties>
 				<string name="Name">Bloom</string>
 				<float name="Intensity">0.7</float>
@@ -39350,7 +39350,7 @@
 				<bool name="Enabled">true</bool>
 			</Properties>
 		</Item>
-		<Item class="ColorCorrectionEffect" referent="RBX05B75B11A83E5268A40F4621071C36E1">
+		<Item class="ColorCorrectionEffect" referent="RBXCA5E92BAB5625C8A860A2257C3AA4DCC">
 			<Properties>
 				<string name="Name">Grade</string>
 				<float name="Brightness">0.02</float>
@@ -39360,7 +39360,7 @@
 				<bool name="Enabled">true</bool>
 			</Properties>
 		</Item>
-		<Item class="SunRaysEffect" referent="RBXCA5E92BAB5625C8A860A2257C3AA4DCC">
+		<Item class="SunRaysEffect" referent="RBX1E68879520215E9EAAAA7D5F590640E2">
 			<Properties>
 				<string name="Name">SunRays</string>
 				<float name="Intensity">0.06</float>
@@ -40216,41 +40216,41 @@ return Types
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="Folder" referent="RBX3D2A939E586158A4B32EA333B1939D2E">
+		<Item class="Folder" referent="RBXD57E293E8E3D5985A26A26DF2F9F9418">
 			<Properties>
 				<string name="Name">Remotes</string>
 			</Properties>
-			<Item class="RemoteFunction" referent="RBXD57E293E8E3D5985A26A26DF2F9F9418">
+			<Item class="RemoteFunction" referent="RBX0283291CC9495AFB8E43410D7EE3CBBB">
 				<Properties>
 					<string name="Name">GetState</string>
 				</Properties>
 			</Item>
-			<Item class="RemoteEvent" referent="RBX0283291CC9495AFB8E43410D7EE3CBBB">
+			<Item class="RemoteEvent" referent="RBX35F650AA94BB5DD5BCDC6107752CB0E4">
 				<Properties>
 					<string name="Name">State</string>
 				</Properties>
 			</Item>
-			<Item class="RemoteEvent" referent="RBX35F650AA94BB5DD5BCDC6107752CB0E4">
+			<Item class="RemoteEvent" referent="RBX7E0D1715290F5B4788BA13F9C120A537">
 				<Properties>
 					<string name="Name">ZoneEvent</string>
 				</Properties>
 			</Item>
-			<Item class="RemoteEvent" referent="RBX7E0D1715290F5B4788BA13F9C120A537">
+			<Item class="RemoteEvent" referent="RBXE8F1AD29B1CE54C589B6F5C38A337E9E">
 				<Properties>
 					<string name="Name">Travel</string>
 				</Properties>
 			</Item>
-			<Item class="RemoteEvent" referent="RBXE8F1AD29B1CE54C589B6F5C38A337E9E">
+			<Item class="RemoteEvent" referent="RBXCD359DDB2F0E55CEB901B4D7B3EF299C">
 				<Properties>
 					<string name="Name">ZoneAction</string>
 				</Properties>
 			</Item>
-			<Item class="RemoteEvent" referent="RBXCD359DDB2F0E55CEB901B4D7B3EF299C">
+			<Item class="RemoteEvent" referent="RBXF982750F43F156F2BF22FE4A795488B9">
 				<Properties>
 					<string name="Name">SaveSettings</string>
 				</Properties>
 			</Item>
-			<Item class="RemoteEvent" referent="RBXF982750F43F156F2BF22FE4A795488B9">
+			<Item class="RemoteEvent" referent="RBXA157873618BD58CAA78B25D704FA2DBA">
 				<Properties>
 					<string name="Name">Notify</string>
 				</Properties>
@@ -49734,7 +49734,7 @@ end)
 			</Properties>
 		</Item>
 	</Item>
-	<Item class="StarterGui" referent="RBX96F625FC3E225A848F8DED05ED9BEA40">
+	<Item class="StarterGui" referent="RBX087E3BDECCBF522BBC1F7AB6BBD53DA7">
 		<Properties>
 			<string name="Name">StarterGui</string>
 		</Properties>
@@ -49783,6 +49783,7 @@ local LightingFX = require(Modules:WaitForChild("LightingFX"))
 local Videos = require(Modules:WaitForChild("Videos"))
 local Interactions = require(Modules:WaitForChild("Interactions"))
 local ZoneController = require(Modules:WaitForChild("ZoneController"))
+local SetupCheck = require(Modules:WaitForChild("SetupCheck"))
 
 local Notify = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Notify") :: RemoteEvent
 
@@ -49821,6 +49822,7 @@ SettingsMenu.init(function(key: string, value: any)
 end, click)
 Interactions.init()
 ZoneController.init()
+task.spawn(SetupCheck.run) -- tells the owner what isn't uploaded yet; players never see it
 
 Notify.OnClientEvent:Connect(function(text: any)
 	if type(text) == "string" then
@@ -51557,6 +51559,249 @@ return SettingsMenu
 				</Item>
 				<Item class="ModuleScript" referent="RBXA0701B2EB5005882B1C91AA28742B419">
 					<Properties>
+						<string name="Name">SetupCheck</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+-- StarterPlayerScripts > ClientModules > SetupCheck  (ModuleScript)
+-- Tells Brandon why there's no sound or video, instead of the game just staying quiet.
+-- It checks the IDs in Config: which files aren't uploaded yet (ID 0), and which
+-- uploaded IDs fail to load, with the fix for each. It only shows in Studio or when the
+-- game's owner plays it; other players never see it.
+
+local ContentProvider = game:GetService("ContentProvider")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Config = require(ReplicatedStorage:WaitForChild("Config"))
+
+local SetupCheck = {}
+
+local GREEN = Color3.fromRGB(120, 222, 150)
+local RED = Color3.fromRGB(255, 125, 115)
+local AMBER = Color3.fromRGB(255, 205, 110)
+local BLUE = Color3.fromRGB(150, 200, 255)
+local INK = Color3.fromRGB(235, 238, 245)
+
+local FIX_LOAD = "Fix: wait a few minutes (Roblox may still be checking it), make sure you pasted the ID from "
+	.. "Asset Manager > right-click > Copy Asset ID, and publish the game with the same account that uploaded it."
+
+local function shouldShow(): boolean
+	if RunService:IsStudio() then
+		return true
+	end
+	local player = Players.LocalPlayer
+	return player ~= nil and game.CreatorType == Enum.CreatorType.User and game.CreatorId == player.UserId
+end
+
+local function asset(id: number): string
+	return "rbxassetid://" .. tostring(math.floor(id))
+end
+
+-- Loads one asset through ContentProvider and reports whether Roblox served it.
+local function loads(target: Instance | string): boolean
+	local status: Enum.AssetFetchStatus? = nil
+	local ok = pcall(function()
+		ContentProvider:PreloadAsync({ target }, function(_: string, s: Enum.AssetFetchStatus)
+			status = s
+		end)
+	end)
+	if not ok then
+		return false
+	end
+	return status == Enum.AssetFetchStatus.Success
+end
+
+local function soundLoads(id: number): boolean
+	local s = Instance.new("Sound")
+	s.SoundId = asset(id)
+	local result = loads(s) or s.IsLoaded
+	s:Destroy()
+	return result
+end
+
+local function videoLoads(id: number): boolean
+	local v = Instance.new("VideoFrame")
+	v.Video = asset(id)
+	local result = loads(v) or v.IsLoaded
+	v:Destroy()
+	return result
+end
+
+-- ---------------------------------------------------------------------------- panel
+type Panel = { gui: ScreenGui, list: Frame, add: (text: string, color: Color3) -> TextLabel }
+
+local function panel(): Panel
+	local player = Players.LocalPlayer
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "SetupCheck"
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = 60
+	gui.IgnoreGuiInset = true
+
+	local frame = Instance.new("Frame")
+	frame.AnchorPoint = Vector2.new(0.5, 0)
+	frame.Position = UDim2.new(0.5, 0, 0, 64)
+	frame.Size = UDim2.new(0.92, 0, 0, 0)
+	frame.AutomaticSize = Enum.AutomaticSize.Y
+	frame.BackgroundColor3 = Color3.fromRGB(14, 18, 28)
+	frame.BackgroundTransparency = 0.06
+	frame.Parent = gui
+	local limit = Instance.new("UISizeConstraint")
+	limit.MaxSize = Vector2.new(600, math.huge)
+	limit.Parent = frame
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 12)
+	corner.Parent = frame
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(90, 200, 225)
+	stroke.Thickness = 1.5
+	stroke.Transparency = 0.3
+	stroke.Parent = frame
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 14)
+	pad.PaddingBottom = UDim.new(0, 14)
+	pad.PaddingLeft = UDim.new(0, 16)
+	pad.PaddingRight = UDim.new(0, 16)
+	pad.Parent = frame
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 8)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = frame
+
+	local order = 0
+	local function add(text: string, color: Color3): TextLabel
+		order += 1
+		local label = Instance.new("TextLabel")
+		label.LayoutOrder = order
+		label.BackgroundTransparency = 1
+		label.Size = UDim2.new(1, 0, 0, 0)
+		label.AutomaticSize = Enum.AutomaticSize.Y
+		label.Font = Enum.Font.GothamMedium
+		label.TextSize = 16
+		label.TextWrapped = true
+		label.RichText = true
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.TextColor3 = color
+		label.Text = text
+		label.Parent = frame
+		return label
+	end
+
+	add("<b>SETUP CHECK</b>  <font color=\"#9aa4b6\">(only you can see this)</font>", INK)
+
+	local close = Instance.new("TextButton")
+	close.Name = "Hide"
+	close.AnchorPoint = Vector2.new(1, 0)
+	close.Position = UDim2.new(1, 4, 0, -6)
+	close.Size = UDim2.new(0, 64, 0, 28)
+	close.BackgroundColor3 = Color3.fromRGB(40, 48, 66)
+	close.TextColor3 = INK
+	close.Font = Enum.Font.GothamBold
+	close.TextSize = 14
+	close.Text = "Hide"
+	close.ZIndex = 2
+	close.Parent = frame
+	local closeCorner = Instance.new("UICorner")
+	closeCorner.CornerRadius = UDim.new(0, 8)
+	closeCorner.Parent = close
+	close.Activated:Connect(function()
+		gui:Destroy()
+	end)
+
+	if player then
+		gui.Parent = player:WaitForChild("PlayerGui")
+	end
+	return { gui = gui, list = frame, add = add }
+end
+
+-- ---------------------------------------------------------------------------- checks
+type Item = { name: string, id: number, kind: string }
+
+function SetupCheck.run()
+	if not shouldShow() then
+		return
+	end
+	local p = panel()
+	local problems = 0
+
+	if game.PlaceId == 0 then
+		problems += 1
+		p.add("<b>Game not published yet.</b> File > Publish to Roblox (it stays private). Your uploads can't play "
+			.. "until the game is published with the same account.", AMBER)
+	end
+
+	local items: { Item } = {
+		{ name = "Voice pack (voice_pack.ogg)", id = Config.VoicePackId, kind = "sound" },
+		{ name = "Music pack (music_pack.ogg)", id = Config.MusicPackId, kind = "sound" },
+		{ name = "Sound effects (sfx_pack.ogg)", id = Config.SfxPackId, kind = "sound" },
+		{ name = "Loading screen (loading_screen.png)", id = Config.LoadingImageId, kind = "image" },
+	}
+	local missing: { string } = {}
+	for _, item in items do
+		if item.id <= 0 then
+			problems += 1
+			table.insert(missing, item.name)
+			p.add(`<b>{item.name}</b>: not uploaded yet (ID is 0).`, RED)
+		else
+			local row = p.add(`<b>{item.name}</b>: checking ID {item.id}...`, AMBER)
+			task.spawn(function()
+				local good = if item.kind == "sound" then soundLoads(item.id) else loads(asset(item.id))
+				if good then
+					row.Text = `<b>{item.name}</b>: working.`
+					row.TextColor3 = GREEN
+				else
+					problems += 1
+					row.Text = `<b>{item.name}</b>: ID {item.id} didn't load. {FIX_LOAD}`
+					row.TextColor3 = RED
+				end
+			end)
+		end
+	end
+	if #missing > 0 then
+		p.add("<b>How to add sound (free):</b> Window > Asset Manager > Import, pick the files from the "
+			.. "\"upload\" folder, then right-click each one > Copy Asset ID and paste it into "
+			.. "ReplicatedStorage > Config (VoicePackId, MusicPackId, SfxPackId, LoadingImageId). "
+			.. "Captions work without it; your voice and music need it.", INK)
+	end
+
+	local videos, set = 0, 0
+	for zone, id in Config.Videos do
+		videos += 1
+		if id > 0 then
+			set += 1
+			local row = p.add(`<b>Video: {zone}</b>: checking ID {id}...`, AMBER)
+			task.spawn(function()
+				if videoLoads(id) then
+					row.Text = `<b>Video: {zone}</b>: working.`
+					row.TextColor3 = GREEN
+				else
+					row.Text = `<b>Video: {zone}</b>: ID {id} didn't load. It may still be under review or was rejected. {FIX_LOAD}`
+					row.TextColor3 = RED
+				end
+			end)
+		end
+	end
+	if set == 0 then
+		p.add(`<b>Videos: 0 of {videos} uploaded.</b> That's why the screens say "Brandon's video goes here". Roblox `
+			.. "can't play video files from your computer: each video has to be uploaded to Roblox (2,000 Robux each, "
+			.. "13+ and ID-verified), then its ID goes in Config.Videos. Upload one first and wait for approval.", BLUE)
+	end
+
+	task.delay(12, function()
+		if problems == 0 and p.gui.Parent then
+			p.add("Everything's set up. This panel closes by itself.", GREEN)
+			task.wait(4)
+			p.gui:Destroy()
+		end
+	end)
+end
+
+return SetupCheck
+]]></ProtectedString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX5C6419EB46F95BEDA83AE1E5DC8327E2">
+					<Properties>
 						<string name="Name">State</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
 -- StarterPlayerScripts > ClientModules > State  (ModuleScript)
@@ -51653,7 +51898,7 @@ return State
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX5C6419EB46F95BEDA83AE1E5DC8327E2">
+				<Item class="ModuleScript" referent="RBX458FF93DB6EC553598AD6629398AC209">
 					<Properties>
 						<string name="Name">Theme</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
@@ -51692,7 +51937,7 @@ return Theme
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX458FF93DB6EC553598AD6629398AC209">
+				<Item class="ModuleScript" referent="RBX5A67CC8B72B755888EE1F6E112292281">
 					<Properties>
 						<string name="Name">UIKit</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
@@ -51820,7 +52065,7 @@ return UIKit
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX5A67CC8B72B755888EE1F6E112292281">
+				<Item class="ModuleScript" referent="RBX75A3622425F157DBA355D7BED2A9FA25">
 					<Properties>
 						<string name="Name">Videos</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
@@ -52012,7 +52257,7 @@ return Videos
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX75A3622425F157DBA355D7BED2A9FA25">
+				<Item class="ModuleScript" referent="RBX32FF4600398E5E8BAB407E099DA78F10">
 					<Properties>
 						<string name="Name">Voice</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
@@ -52125,7 +52370,7 @@ return Voice
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX32FF4600398E5E8BAB407E099DA78F10">
+				<Item class="ModuleScript" referent="RBX7535183368BD5F648BE333B40AE2F0E0">
 					<Properties>
 						<string name="Name">ZoneContext</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
@@ -52186,7 +52431,7 @@ return ZoneContext
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX7535183368BD5F648BE333B40AE2F0E0">
+				<Item class="ModuleScript" referent="RBXDC5F6F5D396951309795014B890B2A8E">
 					<Properties>
 						<string name="Name">ZoneController</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
@@ -52496,11 +52741,11 @@ return ZoneController
 ]]></ProtectedString>
 					</Properties>
 				</Item>
-				<Item class="Folder" referent="RBXDC5F6F5D396951309795014B890B2A8E">
+				<Item class="Folder" referent="RBXF9E8FD746B4251BC9BA37E56B504A296">
 					<Properties>
 						<string name="Name">Zones</string>
 					</Properties>
-					<Item class="ModuleScript" referent="RBXF9E8FD746B4251BC9BA37E56B504A296">
+					<Item class="ModuleScript" referent="RBX3AAF5EF1EF075D8D98FA2940CC34509E">
 						<Properties>
 							<string name="Name">Chains</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -52688,7 +52933,7 @@ return Chains
 ]]></ProtectedString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX3AAF5EF1EF075D8D98FA2940CC34509E">
+					<Item class="ModuleScript" referent="RBXD6B1234DB01D5077B0ABEA1BC32E9893">
 						<Properties>
 							<string name="Name">Glass</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -53126,7 +53371,7 @@ return Glass
 ]]></ProtectedString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXD6B1234DB01D5077B0ABEA1BC32E9893">
+					<Item class="ModuleScript" referent="RBX0157AF49F90559D99DC34D96D12F1C6E">
 						<Properties>
 							<string name="Name">Hole</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -53431,7 +53676,7 @@ return Hole
 ]]></ProtectedString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX0157AF49F90559D99DC34D96D12F1C6E">
+					<Item class="ModuleScript" referent="RBX8E4B138B7BFA535CAD237EF8A22A30B1">
 						<Properties>
 							<string name="Name">Hub</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -53582,7 +53827,7 @@ return Hub
 ]]></ProtectedString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX8E4B138B7BFA535CAD237EF8A22A30B1">
+					<Item class="ModuleScript" referent="RBXF67051C978F955B7A9D6625613D8A343">
 						<Properties>
 							<string name="Name">Road</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -53709,7 +53954,7 @@ return Road
 ]]></ProtectedString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXF67051C978F955B7A9D6625613D8A343">
+					<Item class="ModuleScript" referent="RBX58147CFC391E59EC94FE7ABAD31E0DD5">
 						<Properties>
 							<string name="Name">Summit</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -53841,7 +54086,7 @@ return Summit
 ]]></ProtectedString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX58147CFC391E59EC94FE7ABAD31E0DD5">
+					<Item class="ModuleScript" referent="RBX3D2A939E586158A4B32EA333B1939D2E">
 						<Properties>
 							<string name="Name">Time</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
@@ -53907,31 +54152,31 @@ return Time
 			</Properties>
 		</Item>
 	</Item>
-	<Item class="SoundService" referent="RBXA157873618BD58CAA78B25D704FA2DBA">
+	<Item class="SoundService" referent="RBXA4AE9DB4C28E57C781CC4D8A2C8BF502">
 		<Properties>
 			<string name="Name">SoundService</string>
 			<bool name="RespectFilteringEnabled">true</bool>
 		</Properties>
-		<Item class="SoundGroup" referent="RBXA4AE9DB4C28E57C781CC4D8A2C8BF502">
+		<Item class="SoundGroup" referent="RBXEBE0FDBF711457CB977AA3440B8CF4CB">
 			<Properties>
 				<string name="Name">Music</string>
 				<float name="Volume">0.6</float>
 			</Properties>
 		</Item>
-		<Item class="SoundGroup" referent="RBXEBE0FDBF711457CB977AA3440B8CF4CB">
+		<Item class="SoundGroup" referent="RBX94A4DC0C5B2051DA8880B67B09C1001A">
 			<Properties>
 				<string name="Name">Voice</string>
 				<float name="Volume">1</float>
 			</Properties>
 		</Item>
-		<Item class="SoundGroup" referent="RBX94A4DC0C5B2051DA8880B67B09C1001A">
+		<Item class="SoundGroup" referent="RBX87C7D32B56335E34887B18440D6A10F3">
 			<Properties>
 				<string name="Name">SFX</string>
 				<float name="Volume">0.8</float>
 			</Properties>
 		</Item>
 	</Item>
-	<Item class="Players" referent="RBX87C7D32B56335E34887B18440D6A10F3">
+	<Item class="Players" referent="RBX96F625FC3E225A848F8DED05ED9BEA40">
 		<Properties>
 			<string name="Name">Players</string>
 			<bool name="CharacterAutoLoads">true</bool>

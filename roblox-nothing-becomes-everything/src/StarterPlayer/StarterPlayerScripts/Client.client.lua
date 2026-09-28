@@ -24,6 +24,7 @@ local LightingFX = require(Modules:WaitForChild("LightingFX"))
 local Videos = require(Modules:WaitForChild("Videos"))
 local Interactions = require(Modules:WaitForChild("Interactions"))
 local ZoneController = require(Modules:WaitForChild("ZoneController"))
+local SetupCheck = require(Modules:WaitForChild("SetupCheck"))
 
 local Notify = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Notify") :: RemoteEvent
 
@@ -62,6 +63,7 @@ SettingsMenu.init(function(key: string, value: any)
 end, click)
 Interactions.init()
 ZoneController.init()
+task.spawn(SetupCheck.run) -- tells the owner what isn't uploaded yet; players never see it
 
 Notify.OnClientEvent:Connect(function(text: any)
 	if type(text) == "string" then

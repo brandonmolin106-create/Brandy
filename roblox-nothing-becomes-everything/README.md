@@ -26,7 +26,7 @@ Everything works before you upload anything. Captions still show, the screens sa
 | `tools/story.json` | Zone names, themes, Insights and phrases (see "Changing text"). |
 | `tools/make_media.py` | Built the audio packs, videos and loading screens (not needed to play). |
 
-**Size:** 2,019 parts in total (under the 4,000 budget), 36 scripts, all strict-typed Luau.
+**Size:** 2,019 parts in total (under the 4,000 budget), 37 scripts, all strict-typed Luau.
 
 ---
 
@@ -208,6 +208,26 @@ in chat. The game has none, and the validator checks that.
 
 ---
 
+## No sound or video?
+
+Roblox can only play audio and video that has been **uploaded to Roblox**. It can't play files
+from your computer, and none are built into the place file. With every ID in `Config` at 0, the
+game is silent (captions still show) and the screens say "Brandon's video goes here".
+
+When you press **Play** in Studio (or play your own published game), a **Setup Check** panel
+lists exactly what's missing or broken. Other players never see it.
+
+- **Sound (free):** publish the game first, then upload `voice_pack.ogg`, `music_pack.ogg`,
+  `sfx_pack.ogg` and `loading_screen.png`, and paste the four IDs into `Config` (steps 1–3).
+- **Still silent after pasting IDs?**
+  1. Wait a bit. New uploads have to pass Roblox moderation first.
+  2. Use the asset ID from Asset Manager → right-click → **Copy Asset ID** (an Audio asset, not
+     a Decal or Model).
+  3. Publish the game with the same account that uploaded the files.
+  4. Check the in-game Settings: Music and Voice sliders shouldn't be at 0.
+- **Videos:** each one has to be uploaded to Roblox (2,000 Robux each, 13+ and ID-verified;
+  see step 4). The Setup Check shows "Videos: 0 of 7 uploaded" until you do.
+
 ## Changing text and lines
 
 - **Quick edits in Studio:** open **ReplicatedStorage → Content**. You'll find every caption
@@ -336,7 +356,7 @@ The validator checks that:
    Insights, portals, the 9:16 screens with placeholders, prompt actions, that every voice
    line and sound effect is used and exists in `Content`, the kits (7×6 steps, 7 orbs, one
    block per word, visual-only water) and the Config defaults;
-7. **luau-lsp** type-checks all 36 scripts with Roblox types (all `--!strict`), with both
+7. **luau-lsp** type-checks all 37 scripts with Roblox types (all `--!strict`), with both
    the classic and the new Luau type solver.
 
 ---
