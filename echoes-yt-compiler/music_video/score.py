@@ -5,7 +5,8 @@
 
 Reads $WORK/mv/timeline.json (70 BPM, 4/4, section and spoken-line times) and writes
 $WORK/mv/score.wav (48 kHz stereo 16-bit, exactly `total` seconds, about -18 LUFS, true peak
-under -1 dBTP, ducked ~5 dB under every spoken line) and $WORK/mv/score_spectrogram.png.
+under -1 dBTP, ducked DUCK_DB (default -9 dB) under every spoken line) and a spectrogram PNG.
+Env overrides: DUCK_DB=0 for an unducked render (game music), SCORE_OUT=<path> for the output file.
 There are no samples or presets: every sound is an oscillator, filtered noise or a generated
 impulse response, so the score is copyright-free.
 
@@ -39,7 +40,8 @@ N = int(round(TOTAL * SR))
 SEC = {s['name']: s for s in TL['sections']}
 BAR0 = {s['name']: int(round(s['start'] / BAR)) for s in TL['sections']}
 DROP_BAR = int(round(TL['drop'] / BAR))
-TARGET_LUFS, CEILING_DBTP, DUCK_DB = -18.0, -1.5, -9.0
+TARGET_LUFS, CEILING_DBTP = -18.0, -1.5
+DUCK_DB = float(os.environ.get('DUCK_DB', '-9.0'))   # 0 = no ducking (game music loops)
 
 
 def T(bar, beat=0.0):
@@ -1270,7 +1272,7 @@ def main():
     raw = master(mix)
     y, gain, gr = finalize(raw)
     assert len(y) == N and np.isfinite(y).all()
-    out = os.path.join(MV, 'score.wav')
+    out = os.environ.get('SCORE_OUT') or os.path.join(MV, 'score.wav')
     write_wav(out, y)
     y = read_wav(out)
     tp = 20 * np.log10(peak_env(y).max())
@@ -1292,7 +1294,7 @@ def main():
               for tr in tracks if mix.meter.get((tr, s['name']), 0) > 0]
         print(f"  {s['name']:10} {lufs(y[a:b]):6.1f} {20 * np.log10(np.abs(y[a:b]).max()):7.1f} "
               f"{gr[a:b].max():9.1f} dB | " + ' '.join(f'{tr} {v:.0f}' for tr, v in sorted(lv, key=lambda kv: -kv[1])))
-    png = os.path.join(MV, 'score_spectrogram.png')
+    png = os.path.splitext(out)[0] + '_spectrogram.png'
     spectrogram_png(y, png, f'{os.path.basename(out)}  ·  {loud:.1f} LUFS integrated  ·  true peak {tp:.1f} dBTP'
                             f'  ·  {len(y) / SR:.3f} s  ·  D minor, 70 BPM')
     print(f'wrote {png}')

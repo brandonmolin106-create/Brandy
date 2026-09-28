@@ -1,0 +1,293 @@
+{
+ "voice": {
+  "file": "voice_pack.ogg",
+  "duration": 159.063,
+  "lines": [
+   {
+    "id": "hub_welcome",
+    "zone": "hub",
+    "start": 0.3,
+    "end": 2.94,
+    "text": "Just a friendly reminder that you are amazing."
+   },
+   {
+    "id": "time_1",
+    "zone": "time",
+    "start": 3.54,
+    "end": 7.42,
+    "text": "Time is already eating us. Each second is a small bite."
+   },
+   {
+    "id": "time_2",
+    "zone": "time",
+    "start": 8.02,
+    "end": 12.58,
+    "text": "You are not watching time go by. Time is watching you disappear while it eats you."
+   },
+   {
+    "id": "time_3",
+    "zone": "time",
+    "start": 13.18,
+    "end": 17.76,
+    "text": "Even while you are watching this, it is already taking the next second."
+   },
+   {
+    "id": "hole_1",
+    "zone": "hole",
+    "start": 18.36,
+    "end": 24.1,
+    "text": "Putting yourself down is like jumping into a hole and asking yourself, why can't I see the sky?"
+   },
+   {
+    "id": "hole_2",
+    "zone": "hole",
+    "start": 24.7,
+    "end": 29.66,
+    "text": "Every time you say \"I can't do it, I'm not good,\" it's another hand of dirt."
+   },
+   {
+    "id": "hole_3",
+    "zone": "hole",
+    "start": 30.26,
+    "end": 35.44,
+    "text": "The funny thing is, the ground never pulled you down. Your thoughts kept digging."
+   },
+   {
+    "id": "hole_4",
+    "zone": "hole",
+    "start": 36.04,
+    "end": 44.84,
+    "text": "The sky never disappeared. The sky never went away. You just stopped looking up. The light never left."
+   },
+   {
+    "id": "hole_step",
+    "zone": "hole",
+    "start": 45.44,
+    "end": 49.24,
+    "text": "One better thought is one step higher."
+   },
+   {
+    "id": "hole_move",
+    "zone": "hole",
+    "start": 49.84,
+    "end": 53.94,
+    "text": "You were never made to look at dirt. You were made to move."
+   },
+   {
+    "id": "glass_1",
+    "zone": "glass",
+    "start": 54.54,
+    "end": 62.66,
+    "text": "It can also feel like you are in a glass box, and every word goes in like water slowly rising."
+   },
+   {
+    "id": "glass_2",
+    "zone": "glass",
+    "start": 63.26,
+    "end": 67.721,
+    "text": "But the box is made in your mind, and the water is what you keep holding onto."
+   },
+   {
+    "id": "glass_3",
+    "zone": "glass",
+    "start": 68.321,
+    "end": 71.821,
+    "text": "What they say is what they say. It is not who you are."
+   },
+   {
+    "id": "glass_4",
+    "zone": "glass",
+    "start": 72.421,
+    "end": 77.901,
+    "text": "Not everything that tries reaching for you needs to stay in you."
+   },
+   {
+    "id": "road_1",
+    "zone": "road",
+    "start": 78.501,
+    "end": 87.001,
+    "text": "Your feet being tired does not mean the road is over. It means you walked far."
+   },
+   {
+    "id": "road_2",
+    "zone": "road",
+    "start": 87.601,
+    "end": 95.462,
+    "text": "Your mind feels heavy does not mean you are broken. It means that you are carried a lot."
+   },
+   {
+    "id": "road_3",
+    "zone": "road",
+    "start": 96.062,
+    "end": 104.422,
+    "text": "The truth is, you didn't hit a wall. You just met something small and gave it a big name."
+   },
+   {
+    "id": "chains_1",
+    "zone": "chains",
+    "start": 105.022,
+    "end": 115.002,
+    "text": "If you never walk, you will stay in the same place. If you never run, you will never see how far you could have gone."
+   },
+   {
+    "id": "chains_2",
+    "zone": "chains",
+    "start": 115.602,
+    "end": 120.903,
+    "text": "Never let your mind lock you in a place your body could have left."
+   },
+   {
+    "id": "chains_3",
+    "zone": "chains",
+    "start": 121.503,
+    "end": 128.823,
+    "text": "So move right now. Don't stay the same, or \"I can't\" will become your name."
+   },
+   {
+    "id": "chains_4",
+    "zone": "chains",
+    "start": 129.423,
+    "end": 134.423,
+    "text": "If you stop, it all stops. If you keep going, you keep on growing."
+   },
+   {
+    "id": "everything_1",
+    "zone": "everything",
+    "start": 135.023,
+    "end": 142.943,
+    "text": "One day you will look back and realize you were walking the whole time. You just didn't see it yet."
+   },
+   {
+    "id": "everything_2",
+    "zone": "everything",
+    "start": 143.543,
+    "end": 150.023,
+    "text": "Keep on going, even when it feels like nothing, because one day that nothing becomes everything."
+   },
+   {
+    "id": "everything_3",
+    "zone": "everything",
+    "start": 150.623,
+    "end": 158.463,
+    "text": "You don't have to be great today. You don't have to be the best. You just have to not stop."
+   }
+  ]
+ },
+ "sfx": {
+  "file": "sfx_pack.ogg",
+  "duration": 40.19,
+  "sounds": {
+   "collect": {
+    "start": 0.3,
+    "end": 1.9
+   },
+   "step_rise": {
+    "start": 2.25,
+    "end": 3.25
+   },
+   "glass_shatter": {
+    "start": 3.6,
+    "end": 5.8
+   },
+   "water_drain": {
+    "start": 6.15,
+    "end": 7.95
+   },
+   "chains_break": {
+    "start": 8.3,
+    "end": 12.85
+   },
+   "wall_shrink": {
+    "start": 13.2,
+    "end": 19.0
+   },
+   "zone_complete": {
+    "start": 19.35,
+    "end": 23.85
+   },
+   "clock_tick": {
+    "start": 24.2,
+    "end": 25.1
+   },
+   "heartbeat": {
+    "start": 25.45,
+    "end": 26.02
+   },
+   "whoosh": {
+    "start": 26.37,
+    "end": 27.12
+   },
+   "portal": {
+    "start": 27.47,
+    "end": 29.67
+   },
+   "ui_click": {
+    "start": 30.02,
+    "end": 30.14
+   },
+   "finale_boom": {
+    "start": 30.49,
+    "end": 34.99
+   },
+   "bell": {
+    "start": 35.34,
+    "end": 39.84
+   }
+  }
+ },
+ "music": {
+  "file": "music_pack.ogg",
+  "duration": 291.929,
+  "tracks": {
+   "hub": {
+    "start": 0.5,
+    "end": 64.5,
+    "loop": true
+   },
+   "time": {
+    "start": 65.5,
+    "end": 86.071,
+    "loop": true
+   },
+   "hole": {
+    "start": 87.071,
+    "end": 121.357,
+    "loop": true
+   },
+   "glass": {
+    "start": 122.357,
+    "end": 146.357,
+    "loop": true
+   },
+   "road": {
+    "start": 147.357,
+    "end": 171.357,
+    "loop": true
+   },
+   "chains": {
+    "start": 172.357,
+    "end": 216.928,
+    "loop": true
+   },
+   "everything": {
+    "start": 217.928,
+    "end": 245.357,
+    "loop": true
+   },
+   "finale": {
+    "start": 246.357,
+    "end": 290.929,
+    "loop": false
+   }
+  }
+ },
+ "videos": {
+  "hub": "videos/video_hub.mp4",
+  "time": "videos/video_time.mp4",
+  "hole": "videos/video_hole.mp4",
+  "glass": "videos/video_glass.mp4",
+  "road": "videos/video_road.mp4",
+  "chains": "videos/video_chains.mp4",
+  "everything": "videos/video_everything.mp4"
+ }
+}
