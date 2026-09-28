@@ -357,7 +357,7 @@ def build(tl):
 def mix(tl, video, out):
     run([FF, '-y', '-nostats', '-loglevel', 'error', '-i', f'{MV}/voice_fx.wav', '-i', f'{MV}/voice_dry.wav',
          '-i', f'{MV}/score.wav', '-filter_complex',
-         '[2:a][1:a]sidechaincompress=threshold=0.04:ratio=2.5:attack=30:release=500[sc];'
+         '[2:a][1:a]sidechaincompress=threshold=0.025:ratio=4:attack=20:release=450[sc];'
          f"[0:a][sc]amix=inputs=2:normalize=0,atrim=0:{tl['total']:.3f}[m]",
          '-map', '[m]', '-c:a', 'pcm_s16le', f'{MV}/premix.wav'])
     st = run([FF, '-hide_banner', '-i', f'{MV}/premix.wav', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json',

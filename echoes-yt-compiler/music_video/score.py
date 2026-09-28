@@ -39,7 +39,7 @@ N = int(round(TOTAL * SR))
 SEC = {s['name']: s for s in TL['sections']}
 BAR0 = {s['name']: int(round(s['start'] / BAR)) for s in TL['sections']}
 DROP_BAR = int(round(TL['drop'] / BAR))
-TARGET_LUFS, CEILING_DBTP, DUCK_DB = -18.0, -1.5, -5.0
+TARGET_LUFS, CEILING_DBTP, DUCK_DB = -18.0, -1.5, -9.0
 
 
 def T(bar, beat=0.0):
@@ -361,7 +361,7 @@ def piano(m, dur=5.0, vel=0.45):
         x[:ln, 1] += env * (0.38 * s1 + 0.62 * s2)
     th = ns(0.05)
     thump = lowpass(rng.standard_normal(th), 500 + 2500 * vel) * np.exp(-t[:th] / 0.006)
-    x[:th] += 0.5 * (thump / np.abs(thump).max())[:, None] * np.abs(x).max()
+    x[:th] += 0.25 * (thump / np.abs(thump).max())[:, None] * np.abs(x).max()
     x *= asr(n, 0.0025 - 0.0015 * vel, 0.01)[:, None]
     _PIANO[key] = x / np.abs(x).max() * vel
     return _PIANO[key]
@@ -380,7 +380,8 @@ def ensemble(m, length, voices=4, detune=8.0, vib=6.0, shape='saw', width=0.6, s
         sp = 2 * v / (voices - 1) - 1 if voices > 1 else 0.0
         vib_c = (vib * rng.uniform(0.7, 1.2) * np.clip(tc / 1.2, 0, 1)
                  * np.sin(2 * np.pi * rng.uniform(4.7, 5.9) * tc + rng.uniform(0, 2 * np.pi)))
-        cents = detune * sp + rng.normal(0, 0.15 * detune) + vib_c + np.interp(tc, knots, rng.normal(0, 1.5, len(knots)))
+        drift = np.interp(tc, knots, rng.normal(0, 1.5, len(knots)))
+        cents = detune * sp + rng.normal(0, 0.15 * detune) + vib_c + drift
         f = hz(m) * 2 ** (np.interp(np.arange(n), ctl, cents) / 1200)
         out += pan_st(osc(shape, f, phase=rng.random()), width * sp)
     return out / np.sqrt(voices)
@@ -418,7 +419,8 @@ def water(length, seed):
     bubbling level, getting brighter and louder over the section."""
     def shape(f, t):
         p = np.clip(t / length, 0, 1)
-        fc = (330 + 420 * p) * 2 ** (0.65 * np.sin(2 * np.pi * t / 7.3) + 0.25 * np.sin(2 * np.pi * t / 2.9 + 1))
+        lfo = 0.65 * np.sin(2 * np.pi * t / 7.3) + 0.25 * np.sin(2 * np.pi * t / 2.9 + 1)
+        fc = (330 + 420 * p) * 2 ** lfo
         f = np.maximum(f, 1.0)[:, None]
         return (np.exp(-0.5 * (np.log2(f / fc[None, :]) / 0.7) ** 2)
                 + 0.2 * np.exp(-0.5 * (np.log2(f / 110) / 0.9) ** 2))
@@ -428,7 +430,8 @@ def water(length, seed):
     rng = np.random.default_rng(seed + 1)
     knots = np.arange(0, length + 0.3, 0.1)
     gurgle = lowpass(np.interp(t, knots, rng.standard_normal(len(knots))), 5.0)
-    am = (0.8 + 0.2 * np.sin(2 * np.pi * 0.14 * t)) * np.clip(1 + 0.35 * gurgle / gurgle.std(), 0.3, 1.8)
+    swell = 0.8 + 0.2 * np.sin(2 * np.pi * 0.14 * t)
+    am = swell * np.clip(1 + 0.35 * gurgle / gurgle.std(), 0.3, 1.8)
     return x * (am * (0.45 + 0.55 * t / length))[:, None]
 
 
@@ -436,7 +439,8 @@ def bubble(f0, d):
     """One bubble: a sine chirping upward with a fast decay."""
     n = ns(4 * d)
     t = np.arange(n) / SR
-    return np.sin(2 * np.pi * np.cumsum(f0 * (1 + 0.8 * t / d)) / SR) * np.exp(-t / d) * asr(n, 0.001, 0.004)
+    chirp = np.sin(2 * np.pi * np.cumsum(f0 * (1 + 0.8 * t / d)) / SR)
+    return chirp * np.exp(-t / d) * asr(n, 0.001, 0.004)
 
 
 def reverse_swell(ms, length, seed):
@@ -453,11 +457,14 @@ def reverse_swell(ms, length, seed):
     return x / np.abs(x).max()
 
 
-def pluck(m, vel=1.0, _cache={}):
-    """Harp/pizzicato pluck for the 16th ostinato: slightly stretched harmonics, the higher ones dying
-    faster, plus a tiny pick transient."""
+_PLUCK = {}
+
+
+def pluck(m, vel=1.0):
+    """Spiccato-like pluck for the 16th ostinato: slightly stretched harmonics with a bright attack
+    (the higher ones die within a few tens of ms) and a short pick/bow transient."""
     key = (m, round(vel, 2))
-    if key not in _cache:
+    if key not in _PLUCK:
         rng = np.random.default_rng(m)
         n = ns(0.6)
         t = np.arange(n) / SR
@@ -466,12 +473,12 @@ def pluck(m, vel=1.0, _cache={}):
             fk = k * hz(m) * np.sqrt(1 + 3e-4 * k * k)
             if fk > 11000:
                 break
-            x += (np.exp(-(k - 1) / (2.5 + 4 * vel)) / k * np.exp(-t * (1 + 0.6 * (k - 1)) / 0.28)
+            x += (np.exp(-(k - 1) / (6 + 6 * vel)) / k ** 0.8 * np.exp(-t * (1 + 0.6 * (k - 1)) / 0.15)
                   * np.sin(2 * np.pi * fk * t + rng.uniform(0, 2 * np.pi)))
         pick = bandpass(rng.standard_normal(n), 2000, 8000) * np.exp(-t / 0.004)
-        x = (x + 0.12 * vel * pick / np.abs(pick).max()) * asr(n, 0.0008, 0.004)
-        _cache[key] = x / np.abs(x).max() * vel
-    return _cache[key]
+        x = (x + 0.3 * vel * pick / np.abs(pick).max()) * asr(n, 0.0008, 0.004)
+        _PLUCK[key] = x / np.abs(x).max() * vel
+    return _PLUCK[key]
 
 
 def pulse_note(m, cutoff, length):
@@ -565,10 +572,12 @@ def impact(seed=1):
     ph = 2 * np.pi * np.cumsum(hz(26) + (105 - hz(26)) * np.exp(-t / 0.09)) / SR
     boom_ = (np.sin(ph) + 0.3 * np.sin(2 * ph) * np.exp(-t / 0.4)) * np.exp(-t / 1.3)
     thud = np.sin(2 * np.pi * np.cumsum(55 + 70 * np.exp(-t / 0.03)) / SR) * np.exp(-t / 0.14)
+    bar_modes = ((1, 1, 1.4), (2.76, .6, 1.0), (5.40, .45, .7), (8.93, .3, .5), (13.34, .2, .35))
     clang = sum(a * np.sin(2 * np.pi * hz(50) * r * t + rng.uniform(0, 6.3)) * np.exp(-t / tau)
-                for r, a, tau in ((1, 1, 1.4), (2.76, .6, 1.0), (5.40, .45, .7), (8.93, .3, .5), (13.34, .2, .35)))
+                for r, a, tau in bar_modes)
     click = highpass(rng.standard_normal(n), 1500) * np.exp(-t / 0.0025)
-    crash_ = highpass(rng.standard_normal((n, 2)), 380) * (0.75 * np.exp(-t / 0.28) + 0.25 * np.exp(-t / 1.7))[:, None]
+    crash_ = highpass(rng.standard_normal((n, 2)), 380)
+    crash_ *= (0.75 * np.exp(-t / 0.28) + 0.25 * np.exp(-t / 1.7))[:, None]
     sheen = bandpass(rng.standard_normal((n, 2)), 5000, 13000) * np.exp(-t / 1.2)[:, None]
     x = (pan_st(boom_ + 0.7 * thud + 0.08 * clang + 0.3 * click / np.abs(click).max())
          + 0.35 * crash_ / np.abs(crash_).max() + 0.12 * sheen / np.abs(sheen).max())
@@ -581,7 +590,8 @@ def crash(seed, length=4.0):
     rng = np.random.default_rng(seed)
     n = ns(length)
     t = np.arange(n) / SR
-    body = highpass(rng.standard_normal((n, 2)), 400) * (0.7 * np.exp(-t / 0.35) + 0.3 * np.exp(-t / 1.6))[:, None]
+    body = highpass(rng.standard_normal((n, 2)), 400)
+    body *= (0.7 * np.exp(-t / 0.35) + 0.3 * np.exp(-t / 1.6))[:, None]
     sheen = bandpass(rng.standard_normal((n, 2)), 5000, 14000) * np.exp(-t / 1.3)[:, None]
     x = (body + 0.5 * sheen) * asr(n, 0.001, 0.3)[:, None]
     return x / np.abs(x).max()
@@ -655,8 +665,9 @@ def track_drone(mix):
     end = T(BAR0['road'] + 2.5)
     x = drone(end)
     t = np.arange(len(x)) / SR
-    x *= (rise(t, 0, 11.0) * (1 - rise(t, T(BAR0['road']), end)) * db(-3 * rise(t, T(BAR0['hole']), T(BAR0['hole'] + 2))))[:, None]
-    mix.add('music', 0.0, x, gain_db=-17.5, track='drone')
+    g = rise(t, 0, 11.0) * (1 - rise(t, T(BAR0['road']), end))       # in from silence, out under the road
+    g *= db(-3 * rise(t, T(BAR0['hole']), T(BAR0['hole'] + 2)))       # steps back once the hole strings enter
+    mix.add('music', 0.0, x * g[:, None], gain_db=-17.5, track='drone')
 
 
 def track_clock(mix):
@@ -681,7 +692,7 @@ def track_piano(mix):
     motif with a left-hand pulse in 'everything', a few sustained notes in the outro."""
     i, tm, h, e, o = (BAR0[k] for k in ('intro', 'time', 'hole', 'everything', 'outro'))
     ev = [(i + 1, 0, 'D4', .45, 5), (i + 2, 0, 'A4', .45, 5), (i + 3, 0, 'F4', .5, 5), (i + 4, 0, 'E4', .5, 3),
-          (i + 4, 2, 'C#4', .45, 4)]                                  # ...resolving to D4 on 'time'
+          (i + 4, 2, 'C#4', .45, 1.75)]                               # damped as it resolves to D4 on 'time'
     ev += [(tm + k, 0, n, .42, 5) for k, n in enumerate('D4 F4 E4 A3 Bb3 A3'.split())]
     ev += [(h + k, 0, n, .32, 4) for k, n in enumerate('A4 Bb4 A4 G4 A4 Bb4 A4 G4 A4 Bb4'.split())]
     melody = 'D5 C5 C5 A4 G4 E4 F4 A4 D5 F5 E5 C5 D5 E5'.split()
@@ -756,7 +767,7 @@ def track_strings(mix):
     for t0, d, ch in chord_events(c0, c1, merge=False):
         low, mv, _ = STR[ch]
         note(t0, mid(low), d, 'low', -20, 0.06, 0.6)                 # (the last four bars get louder by
-        note(t0, mid(mv), d, 'mid', -24, 0.06, 0.6)                  #  losing the duck, not by a fader)
+        note(t0, mid(mv), d, 'mid', -25.5, 0.06, 0.6)                #  losing the duck, not by a fader)
     climax = dict(zip(range(c1 - 4, c1), ('A4 C5', 'G4 E4', 'F4 A4', 'D5 C#5')))
     for b in range(c0, c1):
         if b in climax:                                               # last four bars: the big line
@@ -856,7 +867,7 @@ def track_taiko(mix):
     r0, r1, c0, c1 = BAR0['road'], BAR0['riser'], BAR0['chains'], BAR0['everything']
     for b in range(r0, r1):
         p = (b - r0) / (r1 - r0 - 1)
-        hit(T(b), 'big', 0.55 + 0.4 * p, -4)
+        hit(T(b), 'big', 0.7 + 0.28 * p, -4)
         if b >= r0 + 4:
             hit(T(b, 2), 'big', 0.4 + 0.3 * p, -4)
         if b >= r1 - 2:
@@ -904,15 +915,17 @@ def track_ostinato(mix):
                 continue
             vel = (1.0 if k % 4 == 0 else 0.8 if k % 2 == 0 else 0.7) * rng.uniform(0.93, 1.0)
             vel = round(vel, 2)
-            if t < T(DROP_BAR):
-                g = -26 - 26 * (1 - min(1.0, (t - T(b0)) / (T(r1) - T(b0)))) + 2 * max(0.0, (t - T(r1)) / (2 * BAR))
+            full = t >= T(c1 - 4) - 1e-6
+            if t < T(DROP_BAR):                                          # fade in through the road, grow in the riser
+                p = min(1.0, (t - T(b0)) / (T(r1) - T(b0)))
+                g = -18 - 24 * (1 - p) ** 1.8 + 2 * max(0.0, (t - T(r1)) / (2 * BAR))
             else:
-                g = -23 if t >= T(c1 - 4) else -24
-            m = cell[k % 4]
-            mix.add('music', t, pluck(m, vel), gain_db=g, pan=0.25 if k % 2 else -0.25, track='ostinato',
+                g = -16 if full else -16.5
+            m, th = cell[k % 4], t + rng.normal(0, 0.002)              # a player, not a sequencer
+            mix.add('music', th, pluck(m, vel), gain_db=g, pan=0.25 if k % 2 else -0.25, track='ostinato',
                     room=0.2, hall=0.15)
-            if t >= T(c1 - 4):
-                mix.add('music', t, pluck(m + 12, vel), gain_db=g - 6, pan=-0.35 if k % 2 else 0.35,
+            if full:
+                mix.add('music', th, pluck(m + 12, vel), gain_db=g - 4, pan=-0.35 if k % 2 else 0.35,
                         track='ostinato', room=0.2, hall=0.15)
 
 
@@ -949,7 +962,9 @@ def track_hits(mix):
     mix.add('music', T(c0), impact(1), gain_db=-8, track='impact', hall=0.35, long=0.15)
     for b in range(c0, c1, 2):
         root = mid({'Dm': 'D1', 'F': 'F1'}[CHART[b]])[0]
-        mix.add('music', T(b), braam(root, seed=b), gain_db=-13 if b == c0 else (-16.5 if b >= c1 - 4 else -15), track='braam', hall=0.25)
+        g = -13 if b == c0 else (-17 if b >= c1 - 4 else -15)
+        # the brass speaks a hair (12 ms) after the drums, which also keeps the peaks from stacking
+        mix.add('music', T(b) + 0.012, braam(root, seed=b), gain_db=g, track='braam', hall=0.25)
     x = crash(7)
     mix.add('music', T(c1 - 4) - 1.6, x[:ns(1.6)][::-1] * asr(ns(1.6), 1.0, 0.004)[:, None], gain_db=-26,
             track='crash', hall=0.2)
@@ -966,15 +981,17 @@ def track_pad(mix):
     buf = np.zeros((N - ns(ts), 2))
     for k, (t0, d, ch) in enumerate(chord_events(e0, len(CHART))):
         for j, m in enumerate(mid(PAD[ch])):
-            x = pad_voice(m, d + 2.5, seed=5000 + 10 * k + 2 * j) * asr(ns(d + 2.5), 2.5 if k == 0 else 1.0, 2.5)[:, None]
-            x *= db(-6.0 if j == 0 else 0.0)                          # keep the pad's bass voice light
+            env = asr(ns(d + 2.5), 2.5 if k == 0 else 1.0, 2.5) * db(-6.0 if j == 0 else 0.0)  # light bass voice
+            x = pad_voice(m, d + 2.5, seed=5000 + 10 * k + 2 * j) * env[:, None]
             a = ns(t0 - ts)
             b = min(len(buf), a + len(x))
             buf[a:b] += x[:b - a]
     t = np.arange(len(buf)) / SR + ts
     kn = [(ts, 1200), (T(e0 + 7) - 0.5, 1500), (T(e0 + 7) + 1.5, 2800), (T(len(CHART) - 2), 2400), (TOTAL, 1200)]
     buf = sweep_lowpass(buf, 2 ** np.interp(t, [k[0] for k in kn], np.log2([k[1] for k in kn])))
-    buf *= ((1 - rise(t, T(len(CHART) - 2) + 1.0, TOTAL - 0.2)) * db(-5 * rise(t, T(BAR0['outro']), T(BAR0['outro'] + 1))))[:, None]
+    g = db(-5 * rise(t, T(BAR0['outro']), T(BAR0['outro'] + 1)))       # a step back for the outro...
+    g *= 1 - rise(t, T(len(CHART) - 2) + 1.0, TOTAL - 0.2)            # ...then gone by the last sample
+    buf *= g[:, None]
     mix.add('music', ts, buf, gain_db=-31, track='pad', hall=0.35, long=0.25)
 
 
@@ -1130,9 +1147,9 @@ def read_wav(path):
 
 
 # ------------------------------------------------------------------------------ spectrogram
-INK = {'surface': (26, 26, 25), 'primary': (255, 255, 255), 'secondary': (195, 194, 183), 'muted': (137, 135, 129),
-       'grid': (44, 44, 42), 'axis': (56, 56, 53), 'blue': (57, 135, 229), 'orange': (217, 89, 38),
-       'critical': (208, 59, 59)}
+INK = {'surface': (26, 26, 25), 'primary': (255, 255, 255), 'secondary': (195, 194, 183),
+       'muted': (137, 135, 129), 'grid': (44, 44, 42), 'axis': (56, 56, 53), 'blue': (57, 135, 229),
+       'orange': (217, 89, 38), 'critical': (208, 59, 59)}
 RAMP = ['#1a1a19', '#0d366b', '#104281', '#184f95', '#256abf', '#3987e5', '#6da7ec', '#9ec5f4', '#cde2fb']
 
 
@@ -1171,10 +1188,12 @@ def spectrogram_png(y, path, subtitle, lo_db=-100.0, hi_db=-25.0):
     kc = np.sqrt(edges[:-1] * edges[1:])
     k0 = np.floor(kc).astype(int)
     fr = (kc - k0)[:, None]
-    rows = np.where((hi - lo >= 3)[:, None], (cs[hi] - cs[lo]) / (hi - lo)[:, None], P[k0] * (1 - fr) + P[k0 + 1] * fr)
-    sdb = 10 * np.log10(rows[::-1] + 1e-14)
+    band_mean = (cs[hi] - cs[lo]) / (hi - lo)[:, None]     # rows spanning >= 3 bins: mean power
+    interp = P[k0] * (1 - fr) + P[k0 + 1] * fr               # narrower rows (low end): interpolate
+    sdb = 10 * np.log10(np.where((hi - lo >= 3)[:, None], band_mean, interp)[::-1] + 1e-14)
     stops = np.array([[int(c[i:i + 2], 16) for i in (1, 3, 5)] for c in RAMP], float)
-    lut = np.stack([np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(RAMP)), stops[:, c]) for c in range(3)], 1)
+    grid = np.linspace(0, 1, len(RAMP))
+    lut = np.stack([np.interp(np.linspace(0, 1, 256), grid, stops[:, c]) for c in range(3)], 1)
     idx = np.clip((sdb - lo_db) / (hi_db - lo_db) * 255, 0, 255).astype(np.uint8)
     img.paste(Image.fromarray(lut[idx].astype(np.uint8), 'RGB'), (L, TOP))
 
@@ -1258,7 +1277,8 @@ def main():
     loud = lufs(y)
     print(f'wrote {out}: {len(y) / SR:.3f}s, {loud:.2f} LUFS, true peak {tp:.2f} dBTP, '
           f'sample peak {20 * np.log10(np.abs(y).max()):.2f} dBFS, limiter max GR {gr.max():.2f} dB, '
-          f'{int((np.abs(y) >= 32767 / 32768).sum())} full-scale samples, master gain {gain:+.1f} dB  ({time.time() - t_start:.0f}s)')
+          f'{int((np.abs(y) >= 32767 / 32768).sum())} full-scale samples, master gain {gain:+.1f} dB '
+          f'({time.time() - t_start:.0f}s)')
     hot = np.flatnonzero(gr > 1.5)
     if hot.size:
         groups = np.split(hot, np.flatnonzero(np.diff(hot) > SR // 4) + 1)
@@ -1270,8 +1290,8 @@ def main():
         a, b = ns(s['start']), ns(s['end'])
         lv = [(tr, 10 * np.log10(mix.meter[(tr, s['name'])] / (2 * (b - a)) + 1e-20) + gain)
               for tr in tracks if mix.meter.get((tr, s['name']), 0) > 0]
-        print(f"  {s['name']:10} {lufs(y[a:b]):6.1f} {20 * np.log10(np.abs(y[a:b]).max()):7.1f} {gr[a:b].max():9.1f} dB | "
-              + ' '.join(f'{tr} {v:.0f}' for tr, v in sorted(lv, key=lambda kv: -kv[1])))
+        print(f"  {s['name']:10} {lufs(y[a:b]):6.1f} {20 * np.log10(np.abs(y[a:b]).max()):7.1f} "
+              f"{gr[a:b].max():9.1f} dB | " + ' '.join(f'{tr} {v:.0f}' for tr, v in sorted(lv, key=lambda kv: -kv[1])))
     png = os.path.join(MV, 'score_spectrogram.png')
     spectrogram_png(y, png, f'{os.path.basename(out)}  ·  {loud:.1f} LUFS integrated  ·  true peak {tp:.1f} dBTP'
                             f'  ·  {len(y) / SR:.3f} s  ·  D minor, 70 BPM')
