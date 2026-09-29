@@ -275,8 +275,10 @@ def segments(comp):
 
 
 def ready(comp, s):
-    """A render source counts once its directory carries a .ready marker (set after QA)."""
-    return s['src'] in ('face', 'black') or os.path.exists(f"{comp.src.renders}/{s['src']}/.ready")
+    """A render source counts once its directory carries a .ready marker (set after QA).
+    CINE_FORCE=a,b lets a work-in-progress cut use unfinished / first-pass renders."""
+    force = [x for x in os.environ.get('CINE_FORCE', '').split(',') if x]
+    return s['src'] in ('face', 'black') or s['src'] in force or os.path.exists(f"{comp.src.renders}/{s['src']}/.ready")
 
 
 def render_segments(comp, outdir, part=0, parts=1, crf=14):
@@ -286,6 +288,9 @@ def render_segments(comp, outdir, part=0, parts=1, crf=14):
             continue
         path = f'{outdir}/seg_{k:03d}.mp4'
         if os.path.exists(path) and os.path.getsize(path) > 0:
+            continue
+        skip = os.environ.get('CINE_SKIP_DIR')
+        if skip and os.path.exists(f'{skip}/seg_{k:03d}.mp4'):
             continue
         if not ready(comp, s):
             continue
