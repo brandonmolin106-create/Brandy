@@ -834,13 +834,13 @@ class Shots:
                  A.neb_cosmic.at(t, gain=0.35 * ramp(t, 330.0, 334.0))]
         fg = []
         if 331.0 < t < 339.0:
+            # two faint memories drifting apart far behind him, then forgotten
             fade = ramp(t, 331.0, 332.2) * (1 - ramp(t, 336.3, 338.5))
-            ang = (t - 331) * 0.7
-            fp = np.array([0.32 * math.sin(ang), 0.05, 0.32 * math.cos(ang)])
-            fd = np.array([math.cos(ang), 0, -math.sin(ang)])
-            fg.append(A.fish.at(t, pos=fp, heading=fd, scale=0.1, gain=0.8 * fade, dissolve=ramp(t, 336.3, 338.5)))
-            fg.append(A.person.at(0, pos=(-0.3 * math.sin(ang), -0.25, -0.3 * math.cos(ang) - 0.2), yaw=0, scale=0.18,
-                                  walk=0, cam_pos=c.eye, col=(0.8, 0.3, 0.3), gain=0.6 * fade, dissolve=ramp(t, 336.3, 338.5)))
+            u = ramp(t, 331.0, 339.0)
+            parts.append(A.fish.at(t, pos=(-0.42 - 0.2 * u, 0.98, -2.6), heading=(-1, 0.1, 0.2), scale=0.2, gain=1.1 * fade,
+                                   dissolve=ramp(t, 336.3, 338.5), beat=3))
+            parts.append(A.person.at(0, pos=(0.44 + 0.2 * u, 0.6, -2.9), yaw=0.3, scale=0.3, walk=0, cam_pos=c.eye,
+                                     col=(0.8, 0.3, 0.3), gain=0.5 * fade, dissolve=ramp(t, 336.3, 338.5)))
         spark = np.array([[0.0, 0.0, 0.0]], np.float32)
         return Frame(c, bg=merge(*parts), fg=merge(*fg) if fg else None,
                      avatar=AV('starlight', gain=1.6, dissolve=form, lift=0.3, spread=0.3),
@@ -859,8 +859,8 @@ class Shots:
         rng = np.random.default_rng(2)
         sp = rng.normal(0, 0.0025, (300, 3)).astype(np.float32) + np.array([0.075, -0.06, 0.2], np.float32)
         spark = (sp, np.tile(spark_c * (0.5 + 0.8 * tick) * sp_on, (300, 1)).astype(np.float32), np.full(300, 0.0004, np.float32))
-        cosmos = merge(A.stars_dense.at(t, gain=0.35 + 0.25 * pull), A.neb_dawn.at(t, gain=0.35 + 0.25 * pull),
-                       A.galaxy.at(t, center=(-25, 30, -140), tilt=0.9, gain=0.15 + 0.3 * pull))
+        cosmos = merge(A.stars_dense.at(t, gain=0.3 + 0.3 * pull), A.neb_dawn.at(t, gain=0.18 + 0.3 * pull),
+                       A.galaxy.at(t, center=(-45, 60, -220), tilt=0.9, gain=0.05 + 0.25 * pull))
         return Frame(c, bg=cosmos, fg=spark, avatar=AV('starlight', gain=1.6 * min(1.0, (0.7 / dist) ** 1.6),
                                                        dissolve=0.55 * pull, lift=0.5, spread=0.6), bg_dof=1.5,
                      rays=((540, 520), 0.3 + 0.4 * pull, 0.7), grade=dict(split_hi=(0.05, 0.02, -0.03)))

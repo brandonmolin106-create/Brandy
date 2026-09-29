@@ -58,6 +58,29 @@ def brand_sprite():
     return np.asarray(img, np.float32) / 255
 
 
+def handle_sprite(text='@brandonmolina651'):
+    f = ImageFont.truetype('/opt/fonts/Montserrat.ttf', 40)
+    try:
+        f.set_variation_by_name('SemiBold')
+    except Exception:
+        pass
+    img = Image.new('L', (700, 80), 0)
+    ImageDraw.Draw(img).text((350, 40), text, font=f, fill=255, anchor='mm')
+    return np.asarray(img, np.float32) / 255
+
+
+def draw_handle(img, s, t):
+    a = smooth((t - 359.2) / 1.0) * (1 - smooth((t - 363.4) / 1.4))
+    if a <= 0.01:
+        return
+    y0, x0 = 1100, (W - s.shape[1]) // 2
+    reg = img[y0:y0 + s.shape[0], x0:x0 + s.shape[1]].astype(np.float32)
+    glow = cv2.GaussianBlur(s, (0, 0), 5) * 0.5
+    reg = reg + glow[..., None] * np.array([120, 160, 255], np.float32) * 0.5 * a
+    reg = reg * (1 - s[..., None] * a * 0.85) + np.array([225, 232, 255], np.float32) * s[..., None] * a * 0.85
+    img[y0:y0 + s.shape[0], x0:x0 + s.shape[1]] = np.clip(reg, 0, 255).astype(np.uint8)
+
+
 def smooth(x):
     x = min(max(x, 0.0), 1.0)
     return x * x * (3 - 2 * x)
@@ -84,6 +107,7 @@ def main():
         return
     subs = Subtitles(phrases)
     brand = brand_sprite()
+    handle = handle_sprite()
     src = subprocess.Popen(['ffmpeg', '-v', 'error', '-i', f'{work}/video_master.mp4', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'],
                            stdout=subprocess.PIPE, bufsize=W * H * 3 * 2)
     common = ['-c:a', 'aac', '-ar', '48000', '-movflags', '+faststart', '-shortest']
@@ -105,6 +129,7 @@ def main():
         img = np.frombuffer(buf, np.uint8).reshape(H, W, 3).copy()
         t = fi / FPS
         draw_brand(img, brand, t)
+        draw_handle(img, handle, t)
         if not any(a < t < b for a, b in NO_CAPTIONS):
             subs.draw(img, t)
         enc.stdin.write(img.tobytes())
