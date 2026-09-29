@@ -3,4 +3,6 @@ out/
 assets/cache/
 __pycache__/
 out2/
+out3/
+out3_render.log
 assets/plates/

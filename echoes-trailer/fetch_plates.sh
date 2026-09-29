@@ -4,10 +4,14 @@
 #   ocean_b    Anthony Cantin / Unsplash (Unsplash License)
 #   mount_a    Gantavya Bhatt / Unsplash (Unsplash License)
 #   forest_a   Wolfgang Hasselmann / Unsplash (Unsplash License)
+#   aurora_a   Jonny Gios / Unsplash (Unsplash License)                (v3)
+#   volc_b     Wolfgang Hasselmann / Unsplash (Unsplash License)       (v3)
 set -euo pipefail
 cd "$(dirname "$0")/assets/plates" 2>/dev/null || { mkdir -p "$(dirname "$0")/assets/plates"; cd "$(dirname "$0")/assets/plates"; }
 curl -sSfL -o weic2205a.jpg "https://cdn.esawebb.org/archives/images/large/weic2205a.jpg"
 curl -sSfL -o ocean_b.jpg  "https://images.unsplash.com/photo-1644955770652-2afd6c313722?fm=jpg&q=92&w=5200"
 curl -sSfL -o mount_a.jpg  "https://images.unsplash.com/photo-1691539706978-3cb89d88915f?fm=jpg&q=92&w=5200"
 curl -sSfL -o forest_a.jpg "https://images.unsplash.com/photo-1757412741742-288712226fde?fm=jpg&q=92&w=5200"
+curl -sSfL -o aurora_a.jpg "https://images.unsplash.com/photo-1759675739458-6e5a4a60a117?fm=jpg&q=92&w=5200"
+curl -sSfL -o volc_b.jpg   "https://images.unsplash.com/photo-1761133135231-2f2fe70907e7?fm=jpg&q=92&w=5200"
 ls -la

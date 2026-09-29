@@ -70,10 +70,34 @@ python3 audio2.py                              # score + narration -> out2/sound
 ./finalize2.sh                                 # 4K master, 1080p copy, <30 MB HEVC share copy
 ```
 
+## v3: ice and fire, 8:00
+
+`timeline3.py` + `audio3.py` (the same `render2.py`, selected with `TRAILER_TIMELINE=timeline3`):
+
+- **Re-timed onto 8 minutes:** the v2 story keeps its beats and four new sequences open up inside it:
+  the star over an aurora and an erupting volcano before the BOOM, a second hyper montage
+  (RISE / BURN / ECHO slammed on the narrator's words), the finished emblem as a monument over ice and fire,
+  and a hyper-speed recap through every world before the final SLAM.
+- **Faster cutting:** 220 shots (v2: 79). Every long shot is chopped into 4-6 s pieces with hard framing jumps,
+  and each new cut gets its own stab, whoosh and hit.
+- **Two new worlds:** Vestrahorn under the aurora (the logo sits behind the real peaks, with animated
+  aurora curtains and blowing snow) and Stromboli erupting (lava flicker, ballistic lava bombs, ember storms,
+  volcanic lightning striking the logo).
+- **6 more narration lines** (30 in total).
+
+```bash
+./fetch_plates.sh && python3 build_plates.py
+python3 audio3.py          # -> out3/soundtrack_raw.wav
+./make_video3.sh           # -> out3/video_4k_silent.mp4
+./finalize3.sh             # 4K master, 1080p copy, <30 MB HEVC share copy
+```
+
 ### Credits
 - "Cosmic Cliffs" in the Carina Nebula: NASA, ESA, CSA, STScI (ESA/Webb, CC BY 4.0)
 - Ocean at dusk: Anthony Cantin on Unsplash
 - Mountains under the Milky Way: Gantavya Bhatt on Unsplash
 - Night forest: Wolfgang Hasselmann on Unsplash
+- Aurora over Vestrahorn: Jonny Gios on Unsplash
+- Stromboli erupting: Wolfgang Hasselmann on Unsplash
 - Wordmark and title font: Jost (SIL Open Font License)
 - Narration voice: Higgsfield Seed Audio preset voice

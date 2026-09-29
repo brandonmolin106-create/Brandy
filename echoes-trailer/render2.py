@@ -14,15 +14,18 @@ import numexpr as ne
 import numpy as np
 
 import render as R
-import timeline2 as T
+import importlib
 from render import (DUST8, GOLD, GOLD8, GOLD_HOT, INK, LOGO_GOLD, PAPER, PLATINUM, SILVER, WARM_WHITE,
                     apply_G, draw_dot, ease_io, ease_out, ease_out_expo, ev, lerp, make_G, pulse, smooth, span,
                     warp_region, warp_sprite)
 from scenery import Scenery
 
+T = importlib.import_module(os.environ.get("TRAILER_TIMELINE", "timeline2"))
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCENIC = ("ocean", "mountain", "storm", "forest")
-PLATE_OF = {"void": "space", "ocean": "ocean", "mountain": "mount", "storm": "storm", "forest": "forest"}
+SCENIC = ("ocean", "mountain", "storm", "forest", "aurora", "volcano")
+PLATE_OF = {"void": "space", "ocean": "ocean", "mountain": "mount", "storm": "storm", "forest": "forest",
+            "aurora": "aurora", "volcano": "volcano"}
 
 
 def plate_expo(env, t, sub):
@@ -33,7 +36,7 @@ def plate_expo(env, t, sub):
         if t > T.COLLAPSE[1]:
             e *= 0.8
         return e * smooth(span(t, 6.5, 9.0)) if t < 10 else e
-    return {"ocean": 0.85, "mountain": 0.6, "storm": 0.72, "forest": 0.62}.get(env, 1.0)
+    return {"ocean": 0.85, "mountain": 0.6, "storm": 0.72, "forest": 0.62, "aurora": 0.8, "volcano": 0.8}.get(env, 1.0)
 EMB_BORDER = (-4000.0, 1.5, 0.0, 0.0)
 
 
@@ -112,7 +115,7 @@ def words_alpha(t):
 
 
 def strike_list(t, shot):
-    if shot.env != "storm":
+    if shot.env not in ("storm", "volcano"):
         return []
     out = []
     for j, (ts, kind) in enumerate(T.STRIKES):
@@ -166,7 +169,8 @@ class Assets2(R.Assets):
         pdir = os.path.join(HERE, "assets", "cache", "plates")
         meta = json.load(open(os.path.join(pdir, "meta.json")))
         self.plates = {}
-        for name in ("space", "ocean", "mount", "storm", "forest"):
+        for name in [n for n in ("space", "ocean", "mount", "storm", "forest", "aurora", "volcano")
+                     if os.path.exists(os.path.join(pdir, n + ".npz"))]:
             d = np.load(os.path.join(pdir, name + ".npz"))
             rgb = d["rgb"]
             mask = d["mask"] if "mask" in d.files else None
@@ -595,6 +599,70 @@ def glitch_slices(out, seed, amt, sc):
             out[y0:y0 + h, :, c] = np.roll(band[..., c], int(dx * f), axis=1)
 
 
+AUR_G = np.array([0.18, 1.0, 0.45], np.float32)
+AUR_V = np.array([0.7, 0.2, 1.0], np.float32)
+
+
+def aurora_curtain(t, A, pan, hy, u):
+    """Moving aurora curtain above the ridge: folded ribbons with rays, green base, violet tops."""
+    qx = A.qxx / A.qw + np.float32(pan * 0.0002)
+    qy = A.qyy / A.qh
+    y0 = np.float32((hy if hy is not None else 0.45 * A.H) / A.H - 0.05)
+    v = dict(qx=qx, qy=qy, t=np.float32(t), y0=y0)
+    v["fold"] = ev("0.12*sin(qx*5.1 + t*0.23) + 0.05*sin(qx*13.0 - t*0.41 + 1.7)", v)
+    v["ray"] = ev("(0.55 + 0.45*sin(qx*170.0 + fold*40.0 + t*0.9))*(0.6 + 0.4*sin(qx*47.0 - t*0.6))", v)
+    v["band"] = ev("exp(-((qy - (y0 - 0.2 + fold))/0.11)**2)", v)
+    v["body"] = ev("band*ray*(0.65 + 0.35*sin(t*0.7 + qx*3.0))", v)
+    v["top"] = ev("exp(-((qy - (y0 - 0.38 + fold*1.2))/0.09)**2)*ray*0.45", v)
+    q = v["body"][..., None] * AUR_G + v["top"][..., None] * AUR_V
+    q *= np.float32(0.16)
+    return cv2.resize(q, (A.W, A.H), interpolation=cv2.INTER_LINEAR)
+
+
+_BR = np.random.default_rng(4242)
+NB = 900
+BOMBS = dict(t0=np.sort(_BR.uniform(0, 500, NB)).astype(np.float32), vent=_BR.integers(0, 2, NB),
+             vx=_BR.normal(0, 0.16, NB).astype(np.float32), vy=-_BR.uniform(0.45, 1.05, NB).astype(np.float32),
+             life=_BR.uniform(1.4, 2.8, NB).astype(np.float32), sz=_BR.uniform(0.6, 2.2, NB).astype(np.float32))
+VENTS = np.float32([[0.45, 0.778], [0.546, 0.763]])      # crater vents (plate fractions)
+_SR = np.random.default_rng(99)
+SNOW = dict(x=_SR.uniform(0, 1, 700).astype(np.float32), y=_SR.uniform(0, 1, 700).astype(np.float32),
+            v=_SR.uniform(0.03, 0.12, 700).astype(np.float32), z=_SR.uniform(0, 1, 700).astype(np.float32),
+            ph=_SR.uniform(0, 6.3, 700).astype(np.float32))
+
+
+def draw_lava_bombs(lay, gq, t, Mp, pw, ph, H, sc):
+    """Ballistic lava bombs from the two vents, drawn as motion-blurred hot streaks."""
+    B = BOMBS
+    age = t - B["t0"]
+    idx = np.where((age > 0) & (age < B["life"]))[0]
+    g = 0.55
+    for i in idx:
+        a = float(age[i])
+        v = VENTS[B["vent"][i]]
+        bx, by = v[0] * pw * Mp[0, 0] + Mp[0, 2], v[1] * ph * Mp[1, 1] + Mp[1, 2]
+        pos = lambda s: (bx + B["vx"][i] * H * s, by + B["vy"][i] * H * s + 0.5 * g * H * s * s)
+        x1, y1 = pos(a)
+        x0, y0 = pos(max(0.0, a - 0.05))
+        heat = (1 - a / B["life"][i]) ** 1.3
+        heat = float(heat)
+        c = (255 * heat, 150 * heat ** 1.6 + 30 * heat, 40 * heat ** 3)
+        w = max(1, int(B["sz"][i] * sc * 2))
+        cv2.line(lay, (int(x0 * 16), int(y0 * 16)), (int(x1 * 16), int(y1 * 16)), c, w, cv2.LINE_AA, 4)
+        if B["sz"][i] > 1.2:
+            cv2.circle(gq, (int(x1 / 4 * 16), int(y1 / 4 * 16)), int(1.5 * 16),
+                       (0.12 * heat, 0.05 * heat, 0.01 * heat), -1, cv2.LINE_AA, 4)
+
+
+def draw_snow(lay, t, W, H, sc):
+    S = SNOW
+    y = (S["y"] + t * S["v"]) % 1.05 - 0.025
+    x = (S["x"] + 0.02 * np.sin(t * 0.8 + S["ph"]) + t * 0.015 * (0.5 + S["z"])) % 1.0
+    for i in range(len(y)):
+        b = float(0.25 + 0.6 * S["z"][i]) * 255
+        draw_dot(lay, x[i] * W, y[i] * H, (0.6 + 2.2 * S["z"][i] ** 2) * sc * 2, b * 0.55, DUST8)
+
+
 # ----------------------------------------------------------------------------- frame
 def render2(t, A):
     W, H, sc = A.W, A.H, A.sc
@@ -642,7 +710,7 @@ def render2(t, A):
             pmask = cv2.warpAffine(Pp["mask"], Mp, (W, H), flags=cv2.INTER_LINEAR)
         if env == "ocean":
             hy = Pp["meta"]["horizon"] * zp + ty
-        elif env in ("mountain", "storm"):
+        elif env in ("mountain", "storm", "aurora"):
             hy = Pp["meta"]["ridge_mean"] * zp + ty
     img = base.copy() if base is not None else A.bg.copy()
     q_extra = np.zeros((A.qh, A.qw, 3), np.float32)
@@ -666,6 +734,16 @@ def render2(t, A):
     # --- storm clouds over the photo (behind the logo and the peaks)
     if env == "storm":
         img += cv2.resize(scn.storm_clouds(t, pan, hy, flashL), (W, H), interpolation=cv2.INTER_LINEAR)
+    if env == "aurora":
+        cur = aurora_curtain(t, A, pan, hy, u)
+        if pmask is not None:
+            cur *= (1 - pmask.astype(np.float32) / 255)[..., None]
+        img += cur
+    if env == "volcano":
+        # the eruption breathes: hot parts of the photo flicker and pulse on the beat
+        fl = 1 + 0.10 * math.sin(t * 13.0) * math.sin(t * 5.3 + 1) + 0.18 * max(0.0, math.sin(t * 2.1)) ** 6
+        hotm = np.clip(base.max(2, keepdims=True) * 2.5 - 0.35, 0, 1)
+        img *= 1 + (np.float32(fl) - 1) * hotm
 
     # --- the emblem, the name
     if not nologo:
@@ -755,9 +833,9 @@ def render2(t, A):
                 qx=A.qxx, qy=A.qyy, lx=np.float32(ec[0] / 4), ly=np.float32(ec[1] / 4),
                 r=np.float32(A.qw * (0.45 if env != "forest" else 0.3))))
             spill = cv2.resize(spill, (W, H), interpolation=cv2.INTER_LINEAR)[y0:]
-            strength = 1.0 if env != "forest" else 0.92
+            strength = 0.92 if env == "forest" else 1.0
             v = dict(img=img[y0:], b=base[y0:], m=(pmask[y0:].astype(np.float32) * np.float32(strength / 255))[..., None],
-                     sp=spill[..., None], L=np.float32(Ls * 0.9), F=np.float32(flashL * 0.9),
+                     sp=spill[..., None], L=np.float32(Ls * (0.45 if env == "aurora" else 0.9)), F=np.float32(flashL * 0.9),
                      warm=np.array([1.0, 0.72, 0.36], np.float32)[None, None, :],
                      cold=np.array([0.75, 0.82, 1.0], np.float32)[None, None, :])
             v["alb"] = (v["b"].mean(2, keepdims=True) * np.float32(3.0)).clip(0, 1)
@@ -806,10 +884,16 @@ def render2(t, A):
         scn.draw_rain(lay, t, 1.0)
     if env == "forest":
         scn.draw_fireflies(lay, gq, t, 1.0)
-    ember_amt = 0.9 * smooth(span(t, T.COMPLETE, T.COMPLETE + 1.5)) * (1 - smooth(span(t, 268, 272)))
+    if env == "volcano" and pname is not None:
+        draw_lava_bombs(lay, gq, t, Mp, pw, ph, H, sc)
+    if env == "aurora":
+        draw_snow(lay, t, W, H, sc)
+    ember_amt = 0.9 * smooth(span(t, T.COMPLETE, T.COMPLETE + 1.5)) * (1 - smooth(span(t, T.LOCKUP[0] - 2, T.LOCKUP[0] + 2)))
     ember_amt = max(ember_amt, 0.8 * smooth(span(t, T.SLAM, T.SLAM + 1.0)) * (1 - smooth(span(t, *T.FADE_END))))
     if env == "forest":
         ember_amt = max(ember_amt, 0.25)
+    if env == "volcano":
+        ember_amt = max(ember_amt, 1.0)
     if ember_amt > 0.01 and lt is None:
         scn.draw_embers(lay, gq, t, ember_amt, rise=True)
     if not nologo:
@@ -840,7 +924,7 @@ def render2(t, A):
     q = q_extra + b1 * 0.45 + cv2.resize(b2, (A.qw, A.qh)) * 0.55
     q += cv2.GaussianBlur(gq, (0, 0), 2.0 * sc * 4)
     q += cv2.GaussianBlur(bright, (0, 0), 6 * sc * 4) * np.float32([0.22, 0.06, 0.025])  # film halation
-    ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45}[env]
+    ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45, "aurora": 0.6, "volcano": 0.9}[env]
     ray_amt *= smooth(span(t, T.SPARK, T.SPARK + 2)) if not sub else 1.0
     if t > T.STAR_OUT and t < T.SLAM:
         ray_amt *= 1 - smooth(span(t, T.STAR_OUT, T.STAR_OUT + 0.6))
