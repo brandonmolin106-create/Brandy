@@ -43,3 +43,37 @@ Preview stills: `python3 render.py --scale 0.25 --stills 30,150,276.3,310,335`
 - `audio.py`: synthesised thriller score (drones, heartbeat, ticking ostinato, taiko, braams, choir, risers) plus narration EQ/echo/adaptive ducking
 - `assets/voice/`: narration lines (deep male preset voice, generated with Higgsfield Seed Audio)
 - `assets/Jost-*.ttf`: wordmark font (SIL OFL, see `assets/LICENSE-Jost.txt`)
+
+## v2: worlds, shock and brutal thriller score (6:00)
+
+`render2.py` + `timeline2.py` + `scenery.py` + `audio2.py`, a faster and harsher cut:
+
+- **79 shots, always centred on the logo:** push-ins straight down its axis, never off to the side.
+- **Photographic worlds** (`build_plates.py`): NASA/ESA Webb "Cosmic Cliffs" deep space, a dusk ocean,
+  mountains under the Milky Way (also the storm), and a night forest. They are graded to night and the logo is
+  composited *into* them: real peaks and tree trunks pass in front of it (hand-traced ridge, snapped to the
+  photo), its light spills onto snow and bark, and its reflection ripples across the real water.
+- **Effects:** lightning (branching bolts that strike the logo), electric arcs, rain, storm clouds, fireflies,
+  embers, metal shards, lens-flare ghosts, light leaks, god rays, shockwave distortion with prismatic fringe,
+  impact frames (white-hot flash, negative frame), zoom-blur punches, radial light-streak bursts,
+  RGB glitch-slicing on stutter cuts, chromatic aberration, camera shake, and film halation with an ACES grade.
+- **Kinetic title cards** in chrome-gold: EVERY SOUND / HAS AN ECHO / THEY WERE WRONG / FASTER / LOUDER / STRONGER,
+  with the last three slammed on the narrator's words.
+- **24 narration lines**, plus a synthesised thriller score: layered impact stacks (crack, metal clang, 808 boom,
+  sub drop, taiko, gated snare, crash), opening-filter braams, Shepard-tone risers, tremolo and screeching strings,
+  a 120 bpm pulse, thunder, weather beds per world, and true dead air before every mega-hit.
+
+```bash
+./fetch_plates.sh && python3 build_plates.py   # photographic plates -> assets/cache/plates
+python3 audio2.py                              # score + narration -> out2/soundtrack_raw.wav
+./make_video2.sh                               # 4K picture -> out2/video_4k_silent.mp4
+./finalize2.sh                                 # 4K master, 1080p copy, <30 MB HEVC share copy
+```
+
+### Credits
+- "Cosmic Cliffs" in the Carina Nebula: NASA, ESA, CSA, STScI (ESA/Webb, CC BY 4.0)
+- Ocean at dusk: Anthony Cantin on Unsplash
+- Mountains under the Milky Way: Gantavya Bhatt on Unsplash
+- Night forest: Wolfgang Hasselmann on Unsplash
+- Wordmark and title font: Jost (SIL Open Font License)
+- Narration voice: Higgsfield Seed Audio preset voice

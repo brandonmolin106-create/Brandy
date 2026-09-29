@@ -88,7 +88,7 @@ def pan_st(x, pan=0.0, width=0.0):
     r = np.sin((pan + 1) * np.pi / 4)
     st = np.stack([x * l, x * r])
     if width > 0:
-        d = int(width * 0.012 * SR)
+        d = min(int(width * 0.012 * SR), st.shape[1] - 1)
         st[1] = np.concatenate([np.zeros(d), st[1][:-d]]) if d > 0 else st[1]
     return st * np.sqrt(2)
 
