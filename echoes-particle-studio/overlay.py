@@ -2,7 +2,7 @@
 
 usage: python overlay.py WORK CAPTIONS.txt WORDS.json OUTDIR
   reads  WORK/video_master.mp4 (render without overlays) and WORK/audio/mix.wav
-  writes OUTDIR/EchoesInTheDark_FishInTheCup_MASTER.mp4 and ..._TikTok.mp4
+  writes OUTDIR/EchoesInTheDark_FishInTheCup_1080p.mp4 (upload-ready master, H.264 High, <=12 Mbps)
 """
 import json
 import re
@@ -114,11 +114,9 @@ def main():
     enc = subprocess.Popen([
         'ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
         '-i', f'{work}/audio/mix.wav',
-        '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-preset', 'medium', '-crf', '15', '-profile:v', 'high',
-        '-pix_fmt', 'yuv420p', '-b:a', '320k', *common, f'{outdir}/EchoesInTheDark_FishInTheCup_MASTER.mp4',
-        '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-maxrate', '12M',
-        '-bufsize', '24M', '-profile:v', 'high', '-level', '4.2', '-pix_fmt', 'yuv420p', '-g', '60', '-b:a', '256k',
-        *common, f'{outdir}/EchoesInTheDark_FishInTheCup_TikTok.mp4'], stdin=subprocess.PIPE)
+        '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-maxrate', '12M',
+        '-bufsize', '24M', '-profile:v', 'high', '-level', '4.2', '-pix_fmt', 'yuv420p', '-g', '60', '-b:a', '320k',
+        *common, f'{outdir}/EchoesInTheDark_FishInTheCup_1080p.mp4'], stdin=subprocess.PIPE)
     n = W * H * 3
     fi = 0
     t0 = time.time()
