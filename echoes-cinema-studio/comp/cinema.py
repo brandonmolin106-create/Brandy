@@ -193,7 +193,7 @@ class Compositor:
                 dx, dy, rot = dx + a, dy + b_, rot + r
                 zoom *= 1 + 0.035 * st * e
         img = fx.transform(img, zoom, dx, dy, rot, flip=s.get('flip', False))
-        if s['src'] == 'face':
+        if s['src'] == 'face' and not s.get('bell'):
             rec_overlay(img, t)   # burned-in camcorder OSD stays locked to the frame
         # ---- optics
         if s['src'] != 'face':
@@ -216,8 +216,9 @@ class Compositor:
             img = fx.glitch(img, t, g, seed=int(t * 10))
         img = fx.light_leak(img, t, sum(st * fx.env(t, ti, 0.15, 0.8) for (ti, st) in self.events['leaks']))
         # ---- typography over picture
-        for sl in self.events['slams']:
-            sl.draw(img, t)
+        live = [sl for sl in self.events['slams'] if sl.active(t)]
+        if live:  # a new slam cuts the previous one off instead of cross-fading into a mess
+            max(live, key=lambda sl: sl.t0).draw(img, t)
         for tl in self.events['types']:
             tl.draw(img, t)
         for c in self.events['counters']:
