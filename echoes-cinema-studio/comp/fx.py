@@ -123,6 +123,8 @@ GRADES = {
     'room': dict(sat=0.78, red_sat=1.25, shadow=(-0.012, 0.010, 0.022), high=(0.035, 0.012, -0.02), contrast=1.18),
     'ocean': dict(sat=0.95, red_sat=1.25, shadow=(-0.02, 0.01, 0.03), high=(-0.01, 0.02, 0.03), contrast=1.12),
     'sun': dict(sat=1.05, red_sat=1.1, shadow=(0.0, 0.004, 0.02), high=(0.05, 0.02, -0.03), contrast=1.15),
+    'sun_hot': dict(sat=1.0, red_sat=1.05, shadow=(0.0, 0.004, 0.02), high=(0.03, 0.01, -0.03), contrast=1.22,
+                    exposure=0.7),
     'storm': dict(sat=0.55, red_sat=0.8, shadow=(-0.01, 0.01, 0.03), high=(-0.01, 0.0, 0.02), contrast=1.2,
                   exposure=0.9),
     'space': dict(sat=0.9, red_sat=1.0, shadow=(-0.005, 0.0, 0.015), high=(0.01, 0.01, 0.0), contrast=1.1),

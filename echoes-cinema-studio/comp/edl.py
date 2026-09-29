@@ -95,7 +95,7 @@ def build():
     S(178.72, 181.44, FACE)
     S(181.44, 188.64, 'ocean_storm', ct0=0.0, speed=0.55, grade='storm', handheld=4.0)
     S(188.64, 189.18, BLACK)
-    S(189.18, 196.29, 'sunrise', ct0=0.0, speed=0.56, grade='sun', bloom=0.5)
+    S(189.18, 196.29, 'sunrise', ct0=0.0, speed=0.56, grade='sun_hot', bloom=0.35)
     S(196.29, 196.87, BLACK)
     S(196.87, 202.11, 'tree_storm', ct0=0.0, speed=0.76, grade='sun')
     S(202.11, 202.81, BLACK)
@@ -108,7 +108,7 @@ def build():
     S(227.14, 228.74, 'sunrise_wide', ct0=0.5, grade='sun')
     S(228.74, 233.34, 'sunrise_wide', ct0=1.5, speed=0.8, grade='sun', push=(1.0, 1.08))
     S(233.34, 237.60, FACE)
-    S(237.60, 239.06, 'sunrise', ct0=3.0, grade='sun', bloom=0.6)
+    S(237.60, 239.06, 'sunrise', ct0=3.0, grade='sun_hot', bloom=0.4)
     S(239.06, 242.84, FACE, freeze=(239.06, 239.5))
     # ---------------------------------------------------------------- nine million years
     S(242.84, 247.56, 'cup_side_loop', loop=True, speed=4.0, timelapse=1.3, age=True, push=(1.0, 1.1))
@@ -117,7 +117,7 @@ def build():
     S(254.24, 260.54, 'dry_cup', push=(1.08, 1.18), dim=0.8)
     S(260.54, 268.30, 'no_cup', push=(1.0, 1.1), dim=0.7)
     S(268.30, 280.60, 'earth_turn', ct0=0.0, speed=0.49, grade='space')
-    S(280.60, 287.10, 'galaxy', ct0=0.0, speed=0.46, grade='space')
+    S(280.60, 287.10, 'galaxy', ct0=0.0, speed=0.46, grade='space', dim=0.5)
     S(287.10, 298.78, 'galaxy', ct0=3.0, speed=0.26, grade='space')
     S(298.78, 302.32, BLACK)
     # ---------------------------------------------------------------- gone
@@ -189,9 +189,9 @@ def build():
     ev['glitches'] += [(239.06, 0.45, 0.9)]
     ev['counters'].append(Counter(242.84, 247.4, 0, 9_000_000, 'YEARS'))
     slam(248.04, 248.56, 'GONE.', 'small', 0.3)
-    ev['counters'].append(Counter(269.88, 271.4, 9_000_000, 18_000_000, 'YEARS', y=1500))
-    ev['counters'].append(Counter(272.40, 273.5, 18_000_000, 27_000_000, 'YEARS', y=1500))
-    ev['counters'].append(Counter(273.58, 276.2, 27_000_000, 36_000_000, 'YEARS', y=1500))
+    ev['counters'].append(Counter(269.88, 271.4, 9_000_000, 18_000_000, 'YEARS', y=520))
+    ev['counters'].append(Counter(272.40, 273.5, 18_000_000, 27_000_000, 'YEARS', y=520))
+    ev['counters'].append(Counter(273.58, 276.2, 27_000_000, 36_000_000, 'YEARS', y=520))
     for txt, a, b in (('1,000,000', 280.68, 281.60), ('9,000,000', 281.62, 282.86), ('100,000,000', 282.88, 283.92),
                       ('1,000,000,000', 283.94, 284.88), ('1,000,000,000,000', 284.90, 285.82),
                       ('+1,000,000,000,000', 286.30, 287.3)):
