@@ -48,12 +48,12 @@ VOICE = [
     (15, 0.6),     # Every legend begins with a sound.
     (1, 8.0),      # Before the light... there was only the dark.
     (2, 20.0),     # And in the dark... every sound leaves an echo.
-    (16, 32.0),    # Across the silent sea...
+    (16, 32.8),    # Across the silent sea...
     (17, 44.0),    # Over mountains no one has ever climbed...
     (3, 55.5),     # A whisper. A heartbeat. A single spark.
     (9, 64.0),     # They said nothing could grow here.
     (10, 72.0),    # They were wrong.
-    (4, 77.0),     # From that spark... something began to grow.
+    (4, 78.2),     # From that spark... something began to grow.
     (18, 88.0),    # It grew through the storm. It grew through the silence.
     (5, 101.0),    # Line by line. Story by story.
     (19, 114.0),   # Every root. Every branch. Every echo.

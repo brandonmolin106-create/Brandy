@@ -511,7 +511,9 @@ def voice_track():
             st = echo(x, 0.38, 0.38, 4)
         vb.add(t0, st, 0.62)
         wet.add(t0, st, 0.14)
-        lens[idx] = len(x) / SR
+        envx = np.convolve(np.abs(x), np.ones(960) / 960, "same")
+        on = np.where(envx > 0.02 * np.abs(x).max())[0]
+        lens[idx] = (on[-1] / SR + 0.15) if len(on) else len(x) / SR     # where the speech actually ends
     return vb, wet, lens
 
 
@@ -532,13 +534,23 @@ def main():
         if idx not in lens:
             continue
         i0, i1 = int((t0 + 0.3) * SR), int((t0 + lens[idx]) * SR)
-        vr = np.sqrt(np.mean(vb.x[:, i0:i1] ** 2)) + 1e-9
-        mr = np.sqrt(np.mean(pre[:, i0:i1] ** 2)) + 1e-9
-        g = min(0.85, vr / (mr * 10 ** (6.5 / 20)))
-        a0, a1 = int((t0 + 0.1) * SR), int((t0 + lens[idx] + 0.3) * SR)
-        duck[a0:a1] = np.minimum(duck[a0:a1], g)
-    lp = sos_lp(1.5, 1)
+        vr_line = np.sqrt(np.mean(vb.x[:, i0:i1] ** 2)) + 1e-9
+        # duck in half-second chunks so loud hit tails under a line get pushed down harder
+        c = int(0.5 * SR)
+        for j0 in range(int((t0 + 0.1) * SR), int((t0 + lens[idx] + 0.3) * SR), c):
+            j1 = min(N, j0 + c)
+            vr = max(np.sqrt(np.mean(vb.x[:, j0:j1] ** 2)), vr_line * 0.7) + 1e-9
+            mr = np.sqrt(np.mean(pre[:, j0:j1] ** 2)) + 1e-9
+            g = min(0.85, vr / (mr * 10 ** (7.0 / 20)))
+            duck[j0:j1] = np.minimum(duck[j0:j1], g)
+    lp = sos_lp(2.5, 1)
     duck = np.minimum(sosfilt(lp, sosfilt(lp, duck)[::-1])[::-1], 1.0).astype(np.float32)
+    # never duck a mega-hit
+    for ti, sv in T.IMPACTS:
+        if sv >= 0.8:
+            j0, j1 = int((ti - 0.03) * SR), int((ti + 0.6) * SR)
+            ramp = np.clip((np.arange(j1 - j0) / SR - 0.4) / 0.2, 0, 1).astype(np.float32)
+            duck[j0:j1] = np.maximum(duck[j0:j1], 1 - ramp * (1 - duck[j0:j1]))
     tg = np.arange(N) / SR
     a, b = T.SILENCE
     gate = np.ones(N, np.float32)
