@@ -176,30 +176,62 @@ class Subtitles:
         _blend(frame, x0, y0, rgb * dim, a * alpha)
 
 
-def build_phrases(words, keywords=(), max_words=4, max_gap=0.45, max_dur=2.6):
-    """Group word dicts {w, s, e} into on-screen phrases, breaking at pauses/punctuation."""
+FUNC = {'the', 'a', 'an', 'to', 'of', 'in', 'and', 'that', 'like', 'they', 'on', 'it', 'is', 'but', 'so', 'what',
+        'when', 'with', 'can', 'for', 'at', 'will', 'its', 'their', 'your', 'you', 'i', 'he', 'my', 'even', 'just',
+        'not', 'because', 'if', 'does', 'do', 'how', 'why', 'one', 'then', 'into', 'about', 'be', 'are', 'was', 'has'}
+
+
+def _clean(w):
+    return w['w'].strip('.,!?;:"\'').lower()
+
+
+def build_phrases(words, keywords=(), max_words=4, max_gap=0.45, max_dur=2.6, max_chars=24):
+    """Group word dicts {w, s, e} into on-screen phrases.
+
+    Breaks at pauses and sentence punctuation, keeps phrases short enough to read, never
+    leaves a phrase ending on a function word, and folds one-word orphans into neighbours.
+    """
     kw = {k.lower() for k in keywords}
-    phrases, cur = [], []
-    for i, w in enumerate(words):
+    items = []
+    for w in words:
         txt = w['w'].strip()
         if not txt:
             continue
-        clean = txt.strip('.,!?;:"\'').lower()
-        item = {'w': txt.upper().strip(), 's': w['s'], 'e': w['e'], 'key': w.get('key', clean in kw)}
+        items.append({'w': txt.upper(), 's': w['s'], 'e': w['e'], 'key': w.get('key', _clean(w) in kw)})
+
+    def nchars(ph):
+        return sum(len(x['w']) for x in ph) + max(0, len(ph) - 1)
+
+    phrases, cur = [], []
+    for it in items:
         if cur:
-            gap = w['s'] - cur[-1]['e']
-            if gap > max_gap or len(cur) >= max_words or (w['e'] - cur[0]['s']) > max_dur:
+            gap = it['s'] - cur[-1]['e']
+            ended = cur[-1]['w'][-1] in '.!?'
+            full = (len(cur) >= max_words or (it['e'] - cur[0]['s']) > max_dur or nchars(cur + [it]) > max_chars)
+            if ended or gap > max_gap or full:
+                carry = []
+                if not ended and gap <= max_gap:
+                    while len(cur) > 1 and _clean(cur[-1]) in FUNC and cur[-1]['w'][-1] not in '.,!?;:':
+                        carry.insert(0, cur.pop())
+                phrases.append(cur)
+                cur = carry
+            elif cur[-1]['w'][-1] in ',;:' and len(cur) >= 2:
                 phrases.append(cur)
                 cur = []
-        cur.append(item)
-        if txt[-1] in '.!?,;:' and len(cur) >= 2:
-            phrases.append(cur)
-            cur = []
+        cur.append(it)
     if cur:
         phrases.append(cur)
+    # fold orphans: a single short word glued to its neighbour when they are close in time
     out = []
-    for p in phrases:
+    for ph in phrases:
+        if (len(ph) == 1 and out and len(out[-1]) <= 4 and ph[0]['s'] - out[-1][-1]['e'] < 0.35
+                and out[-1][-1]['w'][-1] not in '.!?' and nchars(out[-1] + ph) <= max_chars + 4):
+            out[-1] = out[-1] + ph
+        else:
+            out.append(ph)
+    res = []
+    for p in out:
         for it in p:
             it['w'] = it['w'].rstrip(',;:')
-        out.append({'start': p[0]['s'], 'end': p[-1]['e'], 'words': p})
-    return out
+        res.append({'start': p[0]['s'], 'end': p[-1]['e'], 'words': p})
+    return res

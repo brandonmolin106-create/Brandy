@@ -21,7 +21,8 @@ First production: **"The Fish in the Cup"**, from @brandonmolina651's 6-minute T
 | 7 | `timeline.py` | The edit: every shot, camera move and effect keyed to word timestamps |
 | 8 | `render_core.py`, `director.py`, `render.py` | Numba splat renderer (blur-pyramid DOF, bloom, god rays, ACES, grade, grain) + subtitles |
 | 9 | `soundtrack.py` (`sfx.py`, `audio_post.py`) | Vocal chain, emotion-automated reverb/echo, synthesized score + SFX, ducking, -14 LUFS master |
-| 10 | `run_render.sh`, `assemble.sh` | Parallel chunked render, mux, deliverable encodes |
+| 10 | `run_render.sh` | Parallel chunked render (no captions baked in) |
+| 11 | `overlay.py`, `assemble.sh` | Hand-written captions aligned word-for-word to the transcript, brand mark, final encodes |
 
 ## Running it
 
@@ -30,6 +31,7 @@ WORK=/path/to/workdir            # holds the source video, stems, capture data
 python capture.py source.mp4 $WORK/perf_capture.npz
 python build_bust.py likeness.mp4 FRAME $WORK/bust.npz --density 1.0 --size 0.5
 python transcribe.py vocals16k.wav $WORK/transcript.json   # then write the proofread words.json
+# write productions/<name>/captions.txt: one caption per line, *keyword* in gold
 python render.py $WORK preview 1.0,10.0,42.0 sheet.jpg     # look-dev contact sheet
 ./run_render.sh $WORK                                       # full render (chunks)
 python soundtrack.py $WORK $WORK/audio/mix.wav

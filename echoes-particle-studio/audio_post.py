@@ -164,17 +164,69 @@ def duck(bed, key, depth_db=7.0, attack=0.03, release=0.35):
     return out
 
 
+@nb.njit(cache=True)
+def _lookahead_gain(greq, D, release):
+    """Backward sliding min over D+1 samples, moving average over D, then slow release."""
+    n = greq.shape[0]
+    g1 = np.empty(n, np.float32)
+    dq = np.empty(n, np.int64)
+    head = 0
+    tail = 0
+    for i in range(n):
+        while tail > head and greq[dq[tail - 1]] >= greq[i]:
+            tail -= 1
+        dq[tail] = i
+        tail += 1
+        while dq[head] < i - D:
+            head += 1
+        g1[i] = greq[dq[head]]
+    g2 = np.empty(n, np.float32)
+    acc = 0.0
+    for i in range(n):
+        acc += g1[i]
+        if i >= D:
+            acc -= g1[i - D]
+            g2[i] = acc / D
+        else:
+            g2[i] = acc / (i + 1)
+    out = np.empty(n, np.float32)
+    y = 1.0
+    for i in range(n):
+        v = g2[i]
+        if v < y:
+            y = v
+        else:
+            y = y + (v - y) * release
+        out[i] = y
+    return out
+
+
+def limit(x, ceiling_db=-1.5, lookahead_ms=5.0, release_ms=120.0):
+    """Brickwall lookahead limiter (no makeup gain). x: (n, 2)."""
+    c = 10 ** (ceiling_db / 20)
+    D = max(1, int(SR * lookahead_ms / 1000))
+    pk = np.abs(x).max(1)
+    greq = np.minimum(1.0, c / np.maximum(pk, 1e-9)).astype(np.float32)
+    g = _lookahead_gain(greq, D, np.float32(1 - math.exp(-1 / (release_ms / 1000 * SR))))
+    xd = np.concatenate([np.zeros((D, 2), np.float32), x[:-D]])
+    y = xd * g[:, None]
+    return np.clip(y, -c, c).astype(np.float32), D
+
+
 def master(mix, target_lufs=-14.0, ceiling_db=-1.0):
     board = Pedalboard([
         HighpassFilter(cutoff_frequency_hz=24),
-        Compressor(threshold_db=-16, ratio=1.8, attack_ms=25, release_ms=250),
+        Compressor(threshold_db=-18, ratio=1.8, attack_ms=25, release_ms=250),
     ])
     y = fx(mix, *board)
     meter = pyln.Meter(SR)
-    loud = meter.integrated_loudness(y)
-    y = y * (10 ** ((target_lufs - loud) / 20))
-    y = fx(y, Limiter(threshold_db=ceiling_db - 0.3, release_ms=120))
-    # hard safety clip at the ceiling (true-peak-ish)
-    c = 10 ** (ceiling_db / 20)
-    y = np.clip(y, -c, c)
-    return y.astype(np.float32), meter.integrated_loudness(y)
+    g = 0.0
+    for _ in range(3):
+        loud = meter.integrated_loudness(y * (10 ** (g / 20)))
+        g += target_lufs - loud
+        lim, D = limit(y * (10 ** (g / 20)), ceiling_db - 0.5)
+        got = meter.integrated_loudness(lim)
+        g += (target_lufs - got) * 0.9
+    lim, D = limit(y * (10 ** (g / 20)), ceiling_db - 0.5)
+    lim = lim[D:]
+    return lim.astype(np.float32), meter.integrated_loudness(lim)

@@ -32,8 +32,11 @@ class Renderer:
         self.A = Assets()
         self.S = Shots(self.A, self.energy)
         self.tl = build_timeline(self.S)
-        words = key_filter(json.load(open(f'{work}/words.json')))
-        self.subs = Subtitles(build_phrases(words, max_words=4))
+        import os
+        from overlay import align
+        cap = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'productions/fish-in-the-cup/captions.txt')
+        words = json.load(open(f'{work}/words.json'))
+        self.subs = Subtitles(align(cap, words) if os.path.exists(cap) else build_phrases(key_filter(words), max_words=4))
         self.comp = Compositor()
         self._looks = {}
         self.seed = np.random.default_rng(17).random(2_000_000).astype(np.float32)
@@ -96,7 +99,7 @@ class Renderer:
         av = self.avatar_parts(F.avatar, fi, t) if F.avatar else None
         return self.comp.compose(F, av, fi)
 
-    def frame(self, fi):
+    def frame(self, fi, overlays=True):
         t = fi / FPS
         i = self.shot_index(t)
         img = None
@@ -124,7 +127,8 @@ class Renderer:
             break
         if img is None:
             img = self.render_shot(i, t, fi)
-        self.overlays(img, t)
+        if overlays:
+            self.overlays(img, t)
         return img
 
     def overlays(self, img, t):
@@ -166,7 +170,7 @@ def main():
         enc = Encoder(out)
         t0 = time.time()
         for fi in range(f0, f1):
-            enc.write(R.frame(fi))
+            enc.write(R.frame(fi, overlays=False))  # captions/brand are burned in by overlay.py
             if (fi - f0) % 60 == 0:
                 el = time.time() - t0
                 print(f'frame {fi} ({fi - f0 + 1}/{f1 - f0}) {el / (fi - f0 + 1):.2f}s/frame', flush=True)
