@@ -1,0 +1,131 @@
+{
+  "_doc": "Narration for Endless Destiny. Each section starts at `at` (seconds) and must finish before `end`. Lines run in order; `gap` is silence after the line. A line with its own `at` is pinned to that time. `soft` lines are whispered quieter.",
+  "sections": [
+    {"name": "I · The Void", "at": 6, "end": 40, "lines": [
+      ["In the beginning...", 2.2],
+      ["there was no light.", 3],
+      ["No sound. No shape. No direction.", 3],
+      ["Only the dark.", 4],
+      ["And a question... older than the stars.", 3],
+      ["Not, where does it end.", 1.5],
+      ["But where... does it lead.", 0]
+    ]},
+    {"name": "II · A Point of Light", "at": 41.5, "end": 87.5, "lines": [
+      ["And then...", 2],
+      ["something moved.", 4],
+      ["Every journey begins smaller than a heartbeat.", 3],
+      ["One point of light. So small... the dark does not even notice it.", 4],
+      ["It does not know how far it will travel.", 1.5],
+      ["It does not know what it will become.", 3.5],
+      ["But the dark is wrong about it.", 2],
+      ["The dark is always wrong... about the small things.", 0]
+    ]},
+    {"name": "III · Inside the Light", "at": 91.5, "end": 148, "lines": [
+      ["Look closer.", 3],
+      ["Closer.", 4],
+      ["Inside every light... a universe.", 2.5],
+      ["Inside every universe... another light.", 4],
+      ["Cells. Stars. Thoughts. Galaxies.", 2],
+      ["The same pattern. Repeating. Reaching. Refusing to stop.", 4],
+      ["Every ending you have ever feared... was only a door you could not yet see.", 4],
+      ["You were never meant to find the edge of it.", 2.5],
+      ["Because there is no edge.", 0]
+    ]},
+    {"name": "IV · The Road", "at": 153, "end": 197.5, "lines": [
+      ["They told you destiny was a destination.", 2],
+      ["A finish line.", 1.5],
+      ["One final place to stand... and call it the end.", 4],
+      ["They were wrong.", 5],
+      ["Every road you walk... bends toward another.", 3],
+      ["Some paths vanish into the dark.", 1.5, {"at": 186.5}],
+      ["Some turn back.", 1.5],
+      ["And some... begin exactly where the last one ended.", 0]
+    ]},
+    {"name": "V · Transformations", "at": 199.3, "end": 226, "lines": [
+      ["A star collapses...", 0],
+      ["and becomes a door.", 0, {"at": 202.4}],
+      ["The door becomes a horizon.", 0, {"at": 206.4}],
+      ["The horizon... a single line of fire.", 0, {"at": 210.3}],
+      ["The line becomes a map of the stars.", 0, {"at": 214.3}],
+      ["The stars close into a circle...", 0, {"at": 218.3}],
+      ["and the circle breaks open... into a road.", 0, {"at": 222.3}]
+    ]},
+    {"name": "VI · Traces", "at": 229, "end": 299, "lines": [
+      ["Listen.", 3],
+      ["The dark is not empty.", 3],
+      ["It echoes.", 5],
+      ["Every choice you have ever made. Every step. Every fall. Every time you got back up...", 1.2],
+      ["left a trace of light behind you.", 4],
+      ["You thought they faded.", 2],
+      ["They did not fade.", 3],
+      ["They waited.", 5],
+      ["And now... slowly... the traces begin to take shape.", 0]
+    ]},
+    {"name": "VII · Gravity", "at": 302, "end": 359, "lines": [
+      ["Something is forming.", 2],
+      ["It has been forming since the very first spark.", 3],
+      ["Every path. Every ending. Every return.", 2.5],
+      ["Pulled together by a gravity you cannot see...", 1.2],
+      ["and cannot escape.", 0],
+      ["Step back. See how small it is... against everything.", 0, {"at": 331}],
+      ["Now... come back.", 0, {"at": 343.3}],
+      ["Closer than you have ever been.", 0, {"at": 349.5}]
+    ]},
+    {"name": "VIII · Through the Particle", "at": 364.5, "end": 398, "lines": [
+      ["Go deeper.", 2.5],
+      ["Through the smallest light... into the largest dark.", 3],
+      ["Another universe.", 1.5],
+      ["Another road.", 1.5],
+      ["The same destiny... wearing a different face.", 0],
+      ["And something is watching.", 1.8, {"at": 386}],
+      ["Not to judge you.", 1.5],
+      ["To remember you.", 0]
+    ]},
+    {"name": "IX · The Tunnel", "at": 399.8, "end": 420, "lines": [
+      ["Time.", 1],
+      ["Distance.", 1],
+      ["Memory.", 1],
+      ["Choice.", 2.5],
+      ["Every fear you carried. Every door you never opened.", 2],
+      ["You are not lost.", 1.5],
+      ["You are in motion.", 0]
+    ]},
+    {"name": "X · Collapse", "at": 421.5, "end": 464.6, "lines": [
+      ["And then...", 1.3],
+      ["the world begins to pull inward.", 3],
+      ["Everything you built.", 1.3],
+      ["Everything you believed...", 0.8],
+      ["was the end.", 3],
+      ["The stars fall toward you.", 1.8],
+      ["The roads collapse behind you.", 2],
+      ["There is nowhere left to run...", 1.5],
+      ["and nothing left to hold.", 2.5],
+      ["It all comes down...", 0.9],
+      ["to one...", 0.7],
+      ["moment.", 0]
+    ]},
+    {"name": "XI · Silence", "at": 470.5, "end": 482.9, "lines": [
+      ["Breathe.", 0, {"soft": true}],
+      ["Listen.", 0, {"at": 475.5, "soft": true}],
+      ["One spark.", 0, {"at": 480}]
+    ]},
+    {"name": "XII · Ignition", "at": 488.5, "end": 497, "lines": [
+      ["There it is.", 2],
+      ["It was always there.", 0]
+    ]},
+    {"name": "XIII · The Road Beyond", "at": 497.8, "end": 525.3, "lines": [
+      ["But this...", 1.2],
+      ["this was never the ending.", 3],
+      ["The ending... was only the beginning of another road.", 2.5],
+      ["And another.", 2],
+      ["And another.", 3],
+      ["Destiny was never a place.", 2],
+      ["It was never the destination.", 0]
+    ]},
+    {"name": "XIV · Endless Destiny", "at": 525.3, "end": 540, "lines": [
+      ["It is the journey.", 0],
+      ["It is endless.", 0, {"at": 529}],
+      ["Endless... Destiny.", 0, {"at": 533.6}]
+    ]}
+  ]
+}

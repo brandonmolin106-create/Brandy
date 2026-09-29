@@ -1,0 +1,688 @@
+[
+ {
+  "t": 6,
+  "d": 1.36,
+  "s": "In the beginning\u2026",
+  "f": "00.mp3",
+  "soft": false
+ },
+ {
+  "t": 9.56,
+  "d": 1.39,
+  "s": "there was no light.",
+  "f": "01.mp3",
+  "soft": false
+ },
+ {
+  "t": 13.95,
+  "d": 2.82,
+  "s": "No sound. No shape. No direction.",
+  "f": "02.mp3",
+  "soft": false
+ },
+ {
+  "t": 19.77,
+  "d": 1.55,
+  "s": "Only the dark.",
+  "f": "03.mp3",
+  "soft": false
+ },
+ {
+  "t": 25.32,
+  "d": 2.61,
+  "s": "And a question\u2026 older than the stars.",
+  "f": "04.mp3",
+  "soft": false
+ },
+ {
+  "t": 30.93,
+  "d": 1.67,
+  "s": "Not, where does it end.",
+  "f": "05.mp3",
+  "soft": false
+ },
+ {
+  "t": 34.1,
+  "d": 1.74,
+  "s": "But where\u2026 does it lead.",
+  "f": "06.mp3",
+  "soft": false
+ },
+ {
+  "t": 41.5,
+  "d": 0.98,
+  "s": "And then\u2026",
+  "f": "07.mp3",
+  "soft": false
+ },
+ {
+  "t": 44.48,
+  "d": 1.51,
+  "s": "something moved.",
+  "f": "08.mp3",
+  "soft": false
+ },
+ {
+  "t": 49.99,
+  "d": 2.98,
+  "s": "Every journey begins smaller than a heartbeat.",
+  "f": "09.mp3",
+  "soft": false
+ },
+ {
+  "t": 55.97,
+  "d": 4.5,
+  "s": "One point of light. So small\u2026 the dark does not even notice it.",
+  "f": "10.mp3",
+  "soft": false
+ },
+ {
+  "t": 64.48,
+  "d": 2.71,
+  "s": "It does not know how far it will travel.",
+  "f": "11.mp3",
+  "soft": false
+ },
+ {
+  "t": 68.68,
+  "d": 2.33,
+  "s": "It does not know what it will become.",
+  "f": "12.mp3",
+  "soft": false
+ },
+ {
+  "t": 74.51,
+  "d": 2.16,
+  "s": "But the dark is wrong about it.",
+  "f": "13.mp3",
+  "soft": false
+ },
+ {
+  "t": 78.67,
+  "d": 3.59,
+  "s": "The dark is always wrong\u2026 about the small things.",
+  "f": "14.mp3",
+  "soft": false
+ },
+ {
+  "t": 91.5,
+  "d": 1.31,
+  "s": "Look closer.",
+  "f": "15.mp3",
+  "soft": false
+ },
+ {
+  "t": 95.81,
+  "d": 0.95,
+  "s": "Closer.",
+  "f": "16.mp3",
+  "soft": false
+ },
+ {
+  "t": 100.76,
+  "d": 2.56,
+  "s": "Inside every light\u2026 a universe.",
+  "f": "17.mp3",
+  "soft": false
+ },
+ {
+  "t": 105.82,
+  "d": 2.86,
+  "s": "Inside every universe\u2026 another light.",
+  "f": "18.mp3",
+  "soft": false
+ },
+ {
+  "t": 112.68,
+  "d": 2.63,
+  "s": "Cells. Stars. Thoughts. Galaxies.",
+  "f": "19.mp3",
+  "soft": false
+ },
+ {
+  "t": 117.31,
+  "d": 4.06,
+  "s": "The same pattern. Repeating. Reaching. Refusing to stop.",
+  "f": "20.mp3",
+  "soft": false
+ },
+ {
+  "t": 125.36,
+  "d": 4.97,
+  "s": "Every ending you have ever feared\u2026 was only a door you could not yet see.",
+  "f": "21.mp3",
+  "soft": false
+ },
+ {
+  "t": 134.33,
+  "d": 2.5,
+  "s": "You were never meant to find the edge of it.",
+  "f": "22.mp3",
+  "soft": false
+ },
+ {
+  "t": 139.33,
+  "d": 1.84,
+  "s": "Because there is no edge.",
+  "f": "23.mp3",
+  "soft": false
+ },
+ {
+  "t": 153,
+  "d": 3.15,
+  "s": "They told you destiny was a destination.",
+  "f": "24.mp3",
+  "soft": false
+ },
+ {
+  "t": 158.15,
+  "d": 1.51,
+  "s": "A finish line.",
+  "f": "25.mp3",
+  "soft": false
+ },
+ {
+  "t": 161.17,
+  "d": 3.68,
+  "s": "One final place to stand\u2026 and call it the end.",
+  "f": "26.mp3",
+  "soft": false
+ },
+ {
+  "t": 168.84,
+  "d": 1.16,
+  "s": "They were wrong.",
+  "f": "27.mp3",
+  "soft": false
+ },
+ {
+  "t": 175.0,
+  "d": 2.93,
+  "s": "Every road you walk\u2026 bends toward another.",
+  "f": "28.mp3",
+  "soft": false
+ },
+ {
+  "t": 186.5,
+  "d": 2.51,
+  "s": "Some paths vanish into the dark.",
+  "f": "29.mp3",
+  "soft": false
+ },
+ {
+  "t": 190.51,
+  "d": 1.49,
+  "s": "Some turn back.",
+  "f": "30.mp3",
+  "soft": false
+ },
+ {
+  "t": 193.5,
+  "d": 3.4,
+  "s": "And some\u2026 begin exactly where the last one ended.",
+  "f": "31.mp3",
+  "soft": false
+ },
+ {
+  "t": 199.3,
+  "d": 1.64,
+  "s": "A star collapses\u2026",
+  "f": "32.mp3",
+  "soft": false
+ },
+ {
+  "t": 202.4,
+  "d": 1.65,
+  "s": "and becomes a door.",
+  "f": "33.mp3",
+  "soft": false
+ },
+ {
+  "t": 206.4,
+  "d": 2.29,
+  "s": "The door becomes a horizon.",
+  "f": "34.mp3",
+  "soft": false
+ },
+ {
+  "t": 210.3,
+  "d": 2.77,
+  "s": "The horizon\u2026 a single line of fire.",
+  "f": "35.mp3",
+  "soft": false
+ },
+ {
+  "t": 214.3,
+  "d": 2.74,
+  "s": "The line becomes a map of the stars.",
+  "f": "36.mp3",
+  "soft": false
+ },
+ {
+  "t": 218.3,
+  "d": 2.36,
+  "s": "The stars close into a circle\u2026",
+  "f": "37.mp3",
+  "soft": false
+ },
+ {
+  "t": 222.3,
+  "d": 3.03,
+  "s": "and the circle breaks open\u2026 into a road.",
+  "f": "38.mp3",
+  "soft": false
+ },
+ {
+  "t": 229,
+  "d": 0.96,
+  "s": "Listen.",
+  "f": "39.mp3",
+  "soft": false
+ },
+ {
+  "t": 232.96,
+  "d": 2.01,
+  "s": "The dark is not empty.",
+  "f": "40.mp3",
+  "soft": false
+ },
+ {
+  "t": 237.96,
+  "d": 1.3,
+  "s": "It echoes.",
+  "f": "41.mp3",
+  "soft": false
+ },
+ {
+  "t": 244.26,
+  "d": 5.81,
+  "s": "Every choice you have ever made. Every step. Every fall. Every time you got back up\u2026",
+  "f": "42.mp3",
+  "soft": false
+ },
+ {
+  "t": 251.27,
+  "d": 2.49,
+  "s": "left a trace of light behind you.",
+  "f": "43.mp3",
+  "soft": false
+ },
+ {
+  "t": 257.76,
+  "d": 1.66,
+  "s": "You thought they faded.",
+  "f": "44.mp3",
+  "soft": false
+ },
+ {
+  "t": 261.42,
+  "d": 1.62,
+  "s": "They did not fade.",
+  "f": "45.mp3",
+  "soft": false
+ },
+ {
+  "t": 266.04,
+  "d": 1.06,
+  "s": "They waited.",
+  "f": "46.mp3",
+  "soft": false
+ },
+ {
+  "t": 272.1,
+  "d": 3.86,
+  "s": "And now\u2026 slowly\u2026 the traces begin to take shape.",
+  "f": "47.mp3",
+  "soft": false
+ },
+ {
+  "t": 302,
+  "d": 1.74,
+  "s": "Something is forming.",
+  "f": "48.mp3",
+  "soft": false
+ },
+ {
+  "t": 305.74,
+  "d": 3.01,
+  "s": "It has been forming since the very first spark.",
+  "f": "49.mp3",
+  "soft": false
+ },
+ {
+  "t": 311.75,
+  "d": 3.04,
+  "s": "Every path. Every ending. Every return.",
+  "f": "50.mp3",
+  "soft": false
+ },
+ {
+  "t": 317.29,
+  "d": 2.92,
+  "s": "Pulled together by a gravity you cannot see\u2026",
+  "f": "51.mp3",
+  "soft": false
+ },
+ {
+  "t": 321.41,
+  "d": 1.69,
+  "s": "and cannot escape.",
+  "f": "52.mp3",
+  "soft": false
+ },
+ {
+  "t": 331,
+  "d": 3.58,
+  "s": "Step back. See how small it is\u2026 against everything.",
+  "f": "53.mp3",
+  "soft": false
+ },
+ {
+  "t": 343.3,
+  "d": 1.5,
+  "s": "Now\u2026 come back.",
+  "f": "54.mp3",
+  "soft": false
+ },
+ {
+  "t": 349.5,
+  "d": 2.19,
+  "s": "Closer than you have ever been.",
+  "f": "55.mp3",
+  "soft": false
+ },
+ {
+  "t": 364.5,
+  "d": 1.25,
+  "s": "Go deeper.",
+  "f": "56.mp3",
+  "soft": false
+ },
+ {
+  "t": 368.25,
+  "d": 3.46,
+  "s": "Through the smallest light\u2026 into the largest dark.",
+  "f": "57.mp3",
+  "soft": false
+ },
+ {
+  "t": 374.72,
+  "d": 1.53,
+  "s": "Another universe.",
+  "f": "58.mp3",
+  "soft": false
+ },
+ {
+  "t": 377.75,
+  "d": 1.3,
+  "s": "Another road.",
+  "f": "59.mp3",
+  "soft": false
+ },
+ {
+  "t": 380.55,
+  "d": 3.05,
+  "s": "The same destiny\u2026 wearing a different face.",
+  "f": "60.mp3",
+  "soft": false
+ },
+ {
+  "t": 386,
+  "d": 1.91,
+  "s": "And something is watching.",
+  "f": "61.mp3",
+  "soft": false
+ },
+ {
+  "t": 389.71,
+  "d": 1.66,
+  "s": "Not to judge you.",
+  "f": "62.mp3",
+  "soft": false
+ },
+ {
+  "t": 392.87,
+  "d": 1.4,
+  "s": "To remember you.",
+  "f": "63.mp3",
+  "soft": false
+ },
+ {
+  "t": 399.8,
+  "d": 0.83,
+  "s": "Time.",
+  "f": "64.mp3",
+  "soft": false
+ },
+ {
+  "t": 401.63,
+  "d": 1.04,
+  "s": "Distance.",
+  "f": "65.mp3",
+  "soft": false
+ },
+ {
+  "t": 403.67,
+  "d": 0.97,
+  "s": "Memory.",
+  "f": "66.mp3",
+  "soft": false
+ },
+ {
+  "t": 405.63,
+  "d": 0.82,
+  "s": "Choice.",
+  "f": "67.mp3",
+  "soft": false
+ },
+ {
+  "t": 408.95,
+  "d": 3.64,
+  "s": "Every fear you carried. Every door you never opened.",
+  "f": "68.mp3",
+  "soft": false
+ },
+ {
+  "t": 414.59,
+  "d": 1.44,
+  "s": "You are not lost.",
+  "f": "69.mp3",
+  "soft": false
+ },
+ {
+  "t": 417.54,
+  "d": 1.51,
+  "s": "You are in motion.",
+  "f": "70.mp3",
+  "soft": false
+ },
+ {
+  "t": 421.5,
+  "d": 0.98,
+  "s": "And then\u2026",
+  "f": "71.mp3",
+  "soft": false
+ },
+ {
+  "t": 423.78,
+  "d": 2.25,
+  "s": "the world begins to pull inward.",
+  "f": "72.mp3",
+  "soft": false
+ },
+ {
+  "t": 429.03,
+  "d": 1.64,
+  "s": "Everything you built.",
+  "f": "73.mp3",
+  "soft": false
+ },
+ {
+  "t": 431.97,
+  "d": 1.78,
+  "s": "Everything you believed\u2026",
+  "f": "74.mp3",
+  "soft": false
+ },
+ {
+  "t": 434.56,
+  "d": 1.3,
+  "s": "was the end.",
+  "f": "75.mp3",
+  "soft": false
+ },
+ {
+  "t": 438.85,
+  "d": 2.12,
+  "s": "The stars fall toward you.",
+  "f": "76.mp3",
+  "soft": false
+ },
+ {
+  "t": 442.77,
+  "d": 2.14,
+  "s": "The roads collapse behind you.",
+  "f": "77.mp3",
+  "soft": false
+ },
+ {
+  "t": 446.91,
+  "d": 1.97,
+  "s": "There is nowhere left to run\u2026",
+  "f": "78.mp3",
+  "soft": false
+ },
+ {
+  "t": 450.38,
+  "d": 1.91,
+  "s": "and nothing left to hold.",
+  "f": "79.mp3",
+  "soft": false
+ },
+ {
+  "t": 454.79,
+  "d": 1.72,
+  "s": "It all comes down\u2026",
+  "f": "80.mp3",
+  "soft": false
+ },
+ {
+  "t": 457.42,
+  "d": 0.92,
+  "s": "to one\u2026",
+  "f": "81.mp3",
+  "soft": false
+ },
+ {
+  "t": 459.04,
+  "d": 0.99,
+  "s": "moment.",
+  "f": "82.mp3",
+  "soft": false
+ },
+ {
+  "t": 470.5,
+  "d": 0.95,
+  "s": "Breathe.",
+  "f": "83.mp3",
+  "soft": true
+ },
+ {
+  "t": 475.5,
+  "d": 0.96,
+  "s": "Listen.",
+  "f": "84.mp3",
+  "soft": true
+ },
+ {
+  "t": 480,
+  "d": 1.34,
+  "s": "One spark.",
+  "f": "85.mp3",
+  "soft": false
+ },
+ {
+  "t": 488.5,
+  "d": 1.2,
+  "s": "There it is.",
+  "f": "86.mp3",
+  "soft": false
+ },
+ {
+  "t": 491.7,
+  "d": 1.66,
+  "s": "It was always there.",
+  "f": "87.mp3",
+  "soft": false
+ },
+ {
+  "t": 497.8,
+  "d": 1.13,
+  "s": "But this\u2026",
+  "f": "88.mp3",
+  "soft": false
+ },
+ {
+  "t": 500.13,
+  "d": 2.11,
+  "s": "this was never the ending.",
+  "f": "89.mp3",
+  "soft": false
+ },
+ {
+  "t": 505.24,
+  "d": 3.42,
+  "s": "The ending\u2026 was only the beginning of another road.",
+  "f": "90.mp3",
+  "soft": false
+ },
+ {
+  "t": 511.16,
+  "d": 1.13,
+  "s": "And another.",
+  "f": "91.mp3",
+  "soft": false
+ },
+ {
+  "t": 514.29,
+  "d": 1.13,
+  "s": "And another.",
+  "f": "92.mp3",
+  "soft": false
+ },
+ {
+  "t": 518.42,
+  "d": 2.2,
+  "s": "Destiny was never a place.",
+  "f": "93.mp3",
+  "soft": false
+ },
+ {
+  "t": 522.62,
+  "d": 2.29,
+  "s": "It was never the destination.",
+  "f": "94.mp3",
+  "soft": false
+ },
+ {
+  "t": 525.3,
+  "d": 1.66,
+  "s": "It is the journey.",
+  "f": "95.mp3",
+  "soft": false
+ },
+ {
+  "t": 529,
+  "d": 1.55,
+  "s": "It is endless.",
+  "f": "96.mp3",
+  "soft": false
+ },
+ {
+  "t": 533.6,
+  "d": 1.67,
+  "s": "Endless\u2026 Destiny.",
+  "f": "97.mp3",
+  "soft": false
+ }
+]
