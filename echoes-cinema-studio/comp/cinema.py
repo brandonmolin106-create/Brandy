@@ -144,9 +144,7 @@ class Compositor:
             im = self.src.face(t + s.get('face_offset', 0.0))
             if s.get('freeze') is not None and t >= s['freeze'][0]:
                 im = self.src.face(s['freeze'][0])
-            im = tape_look(im, t)
-            rec_overlay(im, t)
-            return im
+            return tape_look(im, t)
         ct = s.get('ct0', 0.0) + lt * s.get('speed', 1.0)
         im = self.src.clip(src, ct, loop=s.get('loop', False), blend=s.get('blend', True))
         return fx.grade(im, s.get('grade', 'room'))
@@ -195,6 +193,8 @@ class Compositor:
                 dx, dy, rot = dx + a, dy + b_, rot + r
                 zoom *= 1 + 0.035 * st * e
         img = fx.transform(img, zoom, dx, dy, rot, flip=s.get('flip', False))
+        if s['src'] == 'face':
+            rec_overlay(img, t)   # burned-in camcorder OSD stays locked to the frame
         # ---- optics
         if s['src'] != 'face':
             img = fx.halation(img, strength=s.get('halation', 0.25))
