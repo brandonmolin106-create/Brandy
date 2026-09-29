@@ -284,44 +284,9 @@ const FLASHES = [[88.5, .5, 1.5], [150.5, .25, 1.2], [202, .15, .8], [222, .2, 1
 const CHAPTERS = [[0, 'I · The Void'], [40, 'II · A Point of Light'], [88, 'III · Inside the Light'], [150, 'IV · The Road'], [198, 'V · Transformations'], [224, 'VI · Traces'], [300, 'VII · Gravity'], [360, 'VIII · Through the Particle'], [398, 'IX · The Tunnel'], [420, 'X · Collapse'], [465, 'XI · Silence'], [483, 'XII · Ignition'], [495, 'XIII · The Road Beyond'], [524, 'XIV · Endless Destiny']];
 
 /* ---------- narration ---------- */
-const NARR = [
-  [11, 'Before the first light… there was only a question.'],
-  [25, 'Not where does it end. But where does it lead.'],
-  [47, 'Every journey begins smaller than a heartbeat.'],
-  [62, 'A single spark. So small, the dark does not even notice it.'],
-  [77, 'But the dark is wrong.'],
-  [95, 'Look closer.'],
-  [103, 'Inside every light, a universe. Inside every universe… another light.'],
-  [121, 'Cells. Stars. Thoughts. Galaxies. The same pattern, repeating. Reaching.'],
-  [138, 'You were never meant to find the edge of it.'],
-  [155, 'They told you destiny was a destination.'],
-  [165, 'A finish line. One final place to stand.'],
-  [178, 'But every road you walk… bends toward another.'],
-  [190, 'Some paths vanish. Some return. Some begin exactly where the last one ended.'],
-  [200, 'A star collapses… and becomes a door.'],
-  [206.5, 'The door becomes a horizon.'],
-  [214.5, 'And every circle… breaks open into a road.'],
-  [236, 'Listen. The dark is not empty.'],
-  [247, 'It echoes.'],
-  [260, 'Every choice you make leaves a trace of light behind you.'],
-  [279, 'And slowly… the traces begin to take shape.'],
-  [305, 'Something is forming. It has been forming since the very first spark.'],
-  [321, 'Every path. Every ending. Every return.'],
-  [337, 'Pulled together by a gravity you cannot see.'],
-  [366, 'Go deeper.'],
-  [373, 'Through the smallest light… into the largest dark.'],
-  [388, 'Time. Distance. Memory. Choice.'],
-  [402, 'You are not lost. You are in motion.'],
-  [423, 'And then… the world begins to pull inward.'],
-  [436, 'Everything you built. Everything you believed was the end.'],
-  [450, 'It all comes down to one moment.'],
-  [471, 'Breathe.'],
-  [480.2, 'One spark.'],
-  [499, 'This was never the ending.'],
-  [507, 'The ending… was only the beginning of another road.'],
-  [517, 'Destiny was never a place.'],
-  [528, 'It is endless.']
-].map(([t, s]) => ({ t, s, done: false, dur: s.split(/\s+/).length * .5 + 2 }));
+/* narration: 98 lines voiced by an offline neural narrator (see narration/), timed to the picture */
+const VOICE_DATA = /*__VOICE__*/null;
+const NARR = (VOICE_DATA || []).map(v => ({ t: v.t, s: v.s, dur: v.d + .6, d: v.d, soft: v.soft, a: v.a, buf: null, done: false }));
 
 /* =====================================================================
    RENDER LAYERS
@@ -958,7 +923,7 @@ function initAudio() {
   recDest = AC.createMediaStreamDestination(); comp.connect(recDest);
   const conv = AC.createConvolver(); conv.buffer = IR; revIn = AC.createGain(); const revOut = AC.createGain(); revOut.gain.value = .6;
   const revHP = filt('highpass', 90); revIn.connect(revHP); revHP.connect(conv); conv.connect(revOut); revOut.connect(master);
-  newBus(); startBeds();
+  newBus(); startBeds(); initVoice();
 }
 function G(v = 0) { const g = AC.createGain(); g.gain.value = v; return g; }
 function osc(type, f) { const o = AC.createOscillator(); o.type = type; o.frequency.value = f; return o; }
@@ -1045,7 +1010,8 @@ const BED_SCALE = { rumble: .5, drone: .18, metal: .9, tension: .18 };
 function updateBeds() {
   if (!AC) return;
   const now = AC.currentTime;
-  for (const k in BEDS) { const v = K(BED_KEYS[k]) * BED_SCALE[k] * (state === 'playing' ? 1 : 0); const cur = BEDS[k].gain.value; BEDS[k].gain.setTargetAtTime(v, now, Math.abs(v - cur) > .15 ? .012 : .08); }
+  if (evMus) { const m = musicLevel * duck(); evMus.gain.setTargetAtTime(m, now, .25); evMusRev.gain.setTargetAtTime(m, now, .25); }
+  for (const k in BEDS) { const v = K(BED_KEYS[k]) * BED_SCALE[k] * (state === 'playing' ? 1 : 0) * (k === 'rumble' ? 1 : duck()); const cur = BEDS[k].gain.value; BEDS[k].gain.setTargetAtTime(v, now, Math.abs(v - cur) > .15 ? .012 : .08); }
 }
 
 /* ---- the cue sheet: every major visual event gets its sound ---- */
@@ -1232,17 +1198,37 @@ function pickVoice() {
   VOICE = en[0] || vs[0] || null;
 }
 if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+let voiceBus = null, voiceSrcs = [], voiceReady = false;
+function initVoice() {
+  voiceBus = G(1.25); voiceBus.connect(master);
+  const pre = AC.createDelay(1); pre.delayTime.value = .06; const wet = G(.32); voiceBus.connect(pre); pre.connect(wet); wet.connect(revIn);
+  let left = NARR.length;
+  NARR.forEach(n => {
+    const bin = atob(n.a), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    AC.decodeAudioData(u8.buffer).then(b => { n.buf = b; }).catch(() => {}).finally(() => { if (--left === 0) voiceReady = true; });
+  });
+}
+function stopVoice() { voiceSrcs.forEach(s => { try { s.stop(); } catch (e) {} }); voiceSrcs = []; }
 function narrate() {
   for (const n of NARR) {
-    if (!n.done && T >= n.t) {
-      n.done = true;
-      if (OPT.narr && window.speechSynthesis && T < n.t + 1.5) {
-        const u = new SpeechSynthesisUtterance(n.s.replace(/…/g, '...'));
-        if (VOICE) u.voice = VOICE; u.rate = .8; u.pitch = .55; u.volume = 1;
-        speechSynthesis.speak(u);
-      }
+    if (n.done || T < n.t - .3) continue;
+    if (T > n.t + n.d) { n.done = true; continue; }
+    n.done = true;
+    if (!OPT.narr) continue;
+    if (n.buf) {
+      const s = AC.createBufferSource(); s.buffer = n.buf; const g = G(n.soft ? .55 : 1); s.connect(g); g.connect(voiceBus);
+      const when = t0 + n.t, off = Math.max(0, AC.currentTime - when);
+      s.start(Math.max(when, AC.currentTime), off); voiceSrcs.push(s); s.onended = () => { voiceSrcs = voiceSrcs.filter(x => x !== s); };
+    } else if (window.speechSynthesis) { // fallback while clips decode
+      const u = new SpeechSynthesisUtterance(n.s.replace(/…/g, '...')); if (VOICE) u.voice = VOICE; u.rate = .8; u.pitch = .55; speechSynthesis.speak(u);
     }
   }
+}
+// music and beds step back while the narrator speaks
+function duck() {
+  if (!OPT.narr) return 1;
+  for (const n of NARR) if (T > n.t - .25 && T < n.t + n.d + .4) return .5;
+  return 1;
 }
 
 /* =====================================================================
@@ -1254,7 +1240,7 @@ const Q = new URLSearchParams(location.search);
 function seek(t) {
   t = clamp(t, 0, DUR);
   if (window.speechSynthesis) speechSynthesis.cancel();
-  NARR.forEach(n => n.done = n.t < t - .01);
+  NARR.forEach(n => n.done = n.t + n.d < t); if (AC) stopVoice();
   ci = 0; while (ci < CUES.length && CUES[ci].t < t) ci++;
   if (AC) { newBus(); t0 = AC.currentTime - t; }
   pausedAt = t; T = t;
@@ -1272,6 +1258,7 @@ function pause() {
   pausedAt = T; state = 'paused';
   if (window.speechSynthesis) speechSynthesis.pause();
   if (songEl) songEl.pause();
+  NARR.forEach(n => { if (n.t + n.d > T) n.done = false; }); stopVoice();
   updateBeds();
   setTimeout(() => { if (state === 'paused') AC.suspend(); }, 250);
   bPlay.textContent = 'Play';
