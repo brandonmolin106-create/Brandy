@@ -293,9 +293,9 @@ class Shots:
                          gain=1.0 - 0.45 * cold, tint=(0.35, 0.55, 1.0, 0.75 * cold))
         push = ramp(t, 65.5, 71.4)
         tgt = fp.copy()
-        eye = tgt + np.array([0.55 - 0.35 * push, 0.08, 0.95 - 0.55 * push])
-        c = cam(eye, tgt, fov=36, dof=6.0, focus=float(np.linalg.norm(eye - tgt)))
-        barrier = 0.6 + 2.5 * ramp(t, 69.6, 71.2)
+        eye = np.array([0.45 - 0.25 * push, 0.5, 1.45 - 0.35 * push])
+        c = cam(eye, tgt, fov=36 - 8 * push, dof=3.0, focus=float(np.linalg.norm(eye - tgt)))
+        barrier = 0.6 + 1.4 * ramp(t, 69.6, 71.2)
         cupp = A.cup.at(t, cam_pos=c.eye, gain=barrier, tint=(0.5, 0.7, 1.0))
         return Frame(c, bg=merge(A.stars.at(t, gain=0.7), A.neb_ice.at(t, gain=0.25), cupp, fish), bg_dof=1.0,
                      grade=dict(sat=0.85, exposure=0.95))
@@ -323,14 +323,16 @@ class Shots:
         for k, (x0, v, z, ph) in enumerate(speeds):
             x = x0 + v * (t - 77.0) * 1.0 * 2.2
             ppl.append(A.person.at(t * 1.1 + ph, pos=(x, 0, z), yaw=math.pi / 2 if v > 0 else -math.pi / 2, scale=2.4,
-                                   cam_pos=c.eye, col=(1.0, 0.25, 0.15), gain=0.5, walk=1.0, rim=1.4))
+                                   cam_pos=c.eye, col=(1.0, 0.25, 0.15), gain=0.32, walk=1.0, rim=1.6))
         words = []
         for (s, t0, pos) in (('NOT VERY GOOD', 81.48, (-0.25, 3.0, -1.5)), ('CAN\'T DO ANYTHING', 84.18, (0.2, 2.35, -1.8)),
                              ('HA  HA  HA', 86.36, (0.0, 3.55, -2.6))):
             if t > t0 - 0.3:
-                txt = A.text(s, height=0.13, color=RED)
+                txt = A.text(s, height=0.11, color=RED)
                 f = smooth((t - t0 + 0.3) / 0.6)
-                drift = np.array(pos) + np.array([0, -0.25 * (t - t0), 0.1 * (t - t0)])
+                zt = pos[2] + 0.08 * (t - t0)
+                cx = eye[0] * (1.0 - (eye[2] - zt) / eye[2])  # where the view centre crosses this depth
+                drift = np.array([cx + pos[0] * 0.6, pos[1] - 0.18 * (t - t0), zt])
                 words.append(txt.at(t, form=f, center=drift, gain=1.4, jitter=0.004))
         cupp = A.cup.at(t, cam_pos=c.eye, gain=0.8)
         return Frame(c, bg=merge(A.stars.at(t, gain=0.5), A.neb_ember.at(t, gain=0.55), cupp, fish, *ppl, *words),
@@ -468,7 +470,7 @@ class Shots:
         c = cam((0.0, h, 0.01), (0, 0, 0), fov=40, roll=(t - 128.9) * 0.05)
         c.up = np.array([0.0, 0.0, -1.0])
         glow = 0.6 + 1.2 * ramp(t, 133.4, 134.6)
-        oc = A.ocean.at(t, cam=c, light_dir=(0.0, 1.0, 0.2), amp=0.4, bio=1.5, glitter=0.3, gain=1.8, sky=2.0)
+        oc = A.ocean.at(t, cam=c, light_dir=(0.35, 1.0, 0.15), amp=0.45, bio=1.5, glitter=0.6, gain=1.8, sky=2.0)
         ring = trail_ring((0, 0.15, 0), 0.9, t, om, length=5.0, gain=glow, n=2000, size=0.02)
         return Frame(c, bg=merge(oc, fish, ring), fog=0.002, fog_color=(0.3, 0.55, 1.0),
                      grade=dict(exposure=1.0 - 0.15 * ramp(t, 137.5, 138.4)))
@@ -483,7 +485,7 @@ class Shots:
         build = ramp(t, 141.5, 143.4)
         g = A.cup.at(t, cam_pos=c.eye, style='ghost', build=build, water=False, reflect=False, gain=3.0,
                      tint=(0.45, 0.7, 1.0))
-        oc = A.ocean.at(t, cam=c, light_dir=(0.3, 0.3, -1.0), amp=0.25, gain=1.2, sky=1.3)
+        oc = A.ocean.at(t, cam=c, light_dir=(-0.6, 0.35, -1.0), amp=0.3, gain=1.8, sky=2.2, bio=1.6, glitter=1.4)
         return Frame(c, bg=merge(A.stars.at(t), oc, fish, g), fog=0.01, fog_color=(0.3, 0.55, 1.0), bg_dof=1.0,
                      grade=dict(sat=0.9))
 
@@ -530,9 +532,9 @@ class Shots:
         parts = [A.stars.at(t), A.neb_cosmic.at(t, gain=0.5)]
         if t > 169.5:
             fade = ramp(t, 169.8, 171.4) * (1 - ramp(t, 176.0, 178.2))
-            parts.append(A.person.at(t, pos=(0.9, -1.6, -3.0), yaw=-0.3, scale=1.0, walk=0.0, cam_pos=c.eye, col=RED,
-                                     gain=0.9 * fade, dissolve=ramp(t, 176.0, 178.2)))
-        return Frame(c, bg=merge(*parts), avatar=AV('starlight', gain=1.6), bg_dof=2.5, rays=((600, 520), 0.25, 0.8))
+            parts.append(A.neb_ember.at(t, gain=0.5 * fade))  # a red presence: someone else's words
+        return Frame(c, bg=merge(*parts), avatar=AV('starlight', gain=1.6), bg_dof=2.5, rays=((600, 520), 0.25, 0.8),
+                     occl=1.0)
 
     # --- 178.60 the ocean is small? NO. ---
     def ocean_small(self, t, ctx):

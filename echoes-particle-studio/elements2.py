@@ -435,12 +435,18 @@ class Ocean:
             pxk = px / cam.focal_px
         else:
             pxk = px / 2000.0
-        a0 = math.atan2(fwd[0], -fwd[2])
+        fwd = np.asarray(fwd, np.float64)
+        fn = fwd / (np.linalg.norm(fwd) + 1e-12)
+        a0 = math.atan2(fn[0], -fn[2]) if abs(fn[1]) < 0.999 else 0.0
+        # looking down: widen the sampling wedge up to a full circle so the frame never runs out of water
+        down = min(max((-fn[1] - 0.45) / 0.4, 0.0), 1.0)
+        wedge = 1.0 + 1.4 * down * down * (3 - 2 * down)
         ld = np.asarray(light_dir, np.float64)
         ld = ld / np.linalg.norm(ld)
         P = np.array([[p[0], p[1], p[2], p[3], p[4] if len(p) > 4 else 0.0, p[5] if len(p) > 5 else 0.0]
                       for p in pulses], np.float64).reshape(-1, 6)
-        _ocean2(float(eye[0]), float(eye[1]), float(eye[2]), a0, self.d, self.th, self.jit, t, self.waves, amp, ld,
+        th = self.th * wedge if wedge != 1.0 else self.th
+        _ocean2(float(eye[0]), float(eye[1]), float(eye[2]), a0, self.d, th, self.jit, t, self.waves, amp, ld,
                 np.asarray(base_col, np.float64), np.asarray(crest_col, np.float64), np.asarray(spec_col, np.float64),
                 np.asarray(bio_col, np.float64), glitter, bio, P, PERM, GRAD, sky, self.out_p, self.out_c, self.out_s, pxk)
         return self.out_p, self.out_c * gain, self.out_s

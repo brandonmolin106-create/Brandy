@@ -415,11 +415,15 @@ def _coverage(pos, size, cam, out, q, wt):
             yi = int(sy)
             if xi < 0 or yi < 0 or xi >= w or yi >= h:
                 continue
-            out[t, yi, xi] += wt[i]
+            r = size[i] * inv
+            out[t, yi, xi] += wt[i] * 3.14159 * r * r / (q * q)
 
 
-def coverage(cam, pos, size, q=4, blur=1.5, k=1.6, weights=None):
-    """Soft silhouette of a particle set: 1 - exp(-k * weighted particles-per-cell) on a 1/q grid."""
+def coverage(cam, pos, size, q=4, blur=1.5, k=4.0, weights=None):
+    """Soft silhouette of a particle set: 1 - exp(-k * covered area fraction) on a 1/q grid.
+
+    Area-based, so it stays opaque at any camera distance; weights rescale thinned / faded particles.
+    """
     hq, wq = H // q, W // q
     buf = np.zeros((NT, hq, wq), np.float32)
     w = np.ones(len(pos), np.float32) if weights is None else np.ascontiguousarray(weights, np.float32)

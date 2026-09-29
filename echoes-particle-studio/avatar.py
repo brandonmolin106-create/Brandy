@@ -409,10 +409,12 @@ class Bust:
         mrot[:, 0] += sway[0] * 0.02
         mrot[:, 1] -= sway[1] * 0.012
         keep = fx.get('keep', 1.0)
+        ps = fx.get('point_size', 0.7)
         if keep < 1.0:
             sel = self.rand2 < keep
             P, C, S, HW = self._pos_out[sel], self._col_out[sel], self.size[sel], self.head_w[sel]
-            self.last_cov_w = np.concatenate([self.edge_fade[sel], np.ones(len(mp_), np.float32)])
+            # coverage counts the full-size, un-thinned surface so the silhouette stays solid
+            self.last_cov_w = np.concatenate([self.edge_fade[sel] / (keep * ps * ps), np.ones(len(mp_), np.float32)])
             ps = fx.get('point_size', 0.7)
             S = S * ps
             C = C * (1.0 / (keep * ps * ps))

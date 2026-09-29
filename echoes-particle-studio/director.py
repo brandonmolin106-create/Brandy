@@ -13,7 +13,7 @@ FPS = 30
 
 class Frame:
     def __init__(self, cam, bg=None, fg=None, avatar=None, rays=None, grade=None, bloom=None, flash=0.0,
-                 bg_dof=None, fog=0.0, fog_color=(0, 0, 0), occl=0.85, exposure=1.0, shake=0.0):
+                 bg_dof=None, fog=0.0, fog_color=(0, 0, 0), occl=0.96, exposure=1.0, shake=0.0):
         self.cam = cam
         self.bg = bg
         self.fg = fg
