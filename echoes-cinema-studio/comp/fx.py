@@ -304,8 +304,8 @@ def blinds_sweep(img, t, amount, speed=0.35):
         return img
     yy, xx = np.mgrid[0:H // 4, 0:W // 4].astype(np.float32)
     ph = (xx * 0.6 + yy) / (H / 4) * 22 + t * speed * 40
-    bars = (np.sin(ph) > 0.35).astype(np.float32)
+    bars = np.clip((np.sin(ph) - 0.2) * 1.5, 0, 1)
     sweep = np.exp(-(((xx / (W / 4)) - ((t * speed) % 1.6 - 0.3)) / 0.35) ** 2)
-    m = cv2.GaussianBlur(bars * sweep, (0, 0), 1.5)
+    m = cv2.GaussianBlur(bars * sweep, (0, 0), 6.0)
     m = cv2.resize(m, (W, H), interpolation=cv2.INTER_LINEAR)[..., None]
     return img + m * np.array([1.0, 0.85, 0.6], np.float32) * 0.35 * amount

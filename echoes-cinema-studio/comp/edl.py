@@ -218,7 +218,7 @@ def build():
     from overlay import align
     words = json.load(open(os.path.join(PROD, 'words.json')))
     phrases = align(os.path.join(PROD, 'captions.txt'), words)
-    ev['captions'] = typo.Captions(phrases, cx=540, cy=1520, size=66, max_w=900)
+    ev['captions'] = typo.Captions(phrases, cx=540, cy=1390, size=68, max_w=900)
     # sanity: contiguous cover
     E.sort(key=lambda s: s['t0'])
     for a, b in zip(E, E[1:]):

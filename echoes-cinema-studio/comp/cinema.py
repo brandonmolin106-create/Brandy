@@ -20,6 +20,7 @@ import typo
 from edl import build
 
 W, H, FPS = 1080, 1920, 24
+cv2.setNumThreads(1)  # one thread per chunk process; assemble.sh runs several in parallel
 FACE_FPS = 16
 
 
@@ -88,6 +89,24 @@ class Sources:
         return self.face_frame(int(t * FACE_FPS) + 1).copy()
 
 
+_REC = {}
+
+
+def rec_overlay(img, t):
+    """Camcorder OSD on the confession tape: blinking REC dot, tape counter."""
+    if 'f' not in _REC:
+        _REC['f'] = typo.font(typo.MONO, 38)
+        _REC['rec'] = typo.text_mask('REC', _REC['f'])
+    if int(t * 1.6) % 2 == 0:
+        cv2.circle(img, (92, 212), 13, (0.95, 0.08, 0.06), -1, cv2.LINE_AA)
+    typo.paste(img, _REC['rec'], 160, 212, (0.92, 0.92, 0.9), 0.9, shadow=0.4)
+    fr = int(t * 30) % 30
+    s = int(t)
+    tc = f'00:{s // 60:02d}:{s % 60:02d}:{fr:02d}'
+    m = typo.text_mask(tc, _REC['f'])
+    typo.paste(img, m, 60 + m.shape[1] / 2, 262, (0.92, 0.92, 0.9), 0.8, shadow=0.4)
+
+
 def tape_look(img, t, amount=1.0):
     """The confession tape: cold monochrome, crushed, scanlines, occasional tracking wobble."""
     x = fx.grade(img, 'tape')
@@ -125,7 +144,9 @@ class Compositor:
             im = self.src.face(t + s.get('face_offset', 0.0))
             if s.get('freeze') is not None and t >= s['freeze'][0]:
                 im = self.src.face(s['freeze'][0])
-            return tape_look(im, t)
+            im = tape_look(im, t)
+            rec_overlay(im, t)
+            return im
         ct = s.get('ct0', 0.0) + lt * s.get('speed', 1.0)
         im = self.src.clip(src, ct, loop=s.get('loop', False), blend=s.get('blend', True))
         return fx.grade(im, s.get('grade', 'room'))
@@ -142,7 +163,7 @@ class Compositor:
         if s.get('timelapse'):
             day = 0.55 + 0.45 * math.sin(t * s['timelapse'] * 2 * math.pi)
             img *= day
-            img = fx.blinds_sweep(img, t * s['timelapse'], 0.8)
+            img = fx.blinds_sweep(img, t * s['timelapse'], 0.3)
             if s.get('age'):
                 k = min(1, lt / dur)
                 g = img.mean(2, keepdims=True)
