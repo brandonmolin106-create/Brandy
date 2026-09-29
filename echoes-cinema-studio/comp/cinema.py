@@ -151,9 +151,9 @@ class Compositor:
         im = self.src.clip(src, ct, loop=s.get('loop', False), blend=s.get('blend', True))
         return fx.grade(im, s.get('grade', 'room'))
 
-    def frame(self, fi):
+    def frame(self, fi, shot=None):
         t = fi / FPS
-        s = self.shot_at(t)
+        s = shot if shot is not None else self.shot_at(t)
         lt = t - s['t0']
         dur = s['t1'] - s['t0']
         img = self.base(s, t)
@@ -265,10 +265,61 @@ def encode_cmd(path, crf=14):
             path]
 
 
+def segments(comp):
+    out = []
+    for k, s in enumerate(comp.edl):
+        f0, f1 = int(round(s['t0'] * FPS)), int(round(s['t1'] * FPS))
+        if f1 > f0:
+            out.append((k, f0, f1, s))
+    return out
+
+
+def ready(comp, s):
+    """A render source counts once its directory carries a .ready marker (set after QA)."""
+    return s['src'] in ('face', 'black') or os.path.exists(f"{comp.src.renders}/{s['src']}/.ready")
+
+
+def render_segments(comp, outdir, part=0, parts=1, crf=14):
+    os.makedirs(outdir, exist_ok=True)
+    for k, f0, f1, s in segments(comp):
+        if k % parts != part:
+            continue
+        path = f'{outdir}/seg_{k:03d}.mp4'
+        if os.path.exists(path) and os.path.getsize(path) > 0:
+            continue
+        if not ready(comp, s):
+            continue
+        tmp = path + '.part.mp4'
+        p = subprocess.Popen(encode_cmd(tmp, crf), stdin=subprocess.PIPE)
+        t0 = time.time()
+        for fi in range(f0, f1):
+            p.stdin.write((comp.frame(fi, shot=s) * 255 + 0.5).astype(np.uint8).tobytes())
+        p.stdin.close()
+        p.wait()
+        os.replace(tmp, path)
+        print(f"seg {k:03d} {s['src']:>16} {s['t0']:7.2f}-{s['t1']:7.2f}  {(time.time() - t0) / (f1 - f0):.2f}s/frame",
+              flush=True)
+
+
 def main():
     mode = sys.argv[1]
     work = sys.argv[2]
     comp = Compositor(work)
+    if mode == 'segs':
+        outdir = sys.argv[3]
+        part, parts = (int(sys.argv[4]), int(sys.argv[5])) if len(sys.argv) > 5 else (0, 1)
+        render_segments(comp, outdir, part, parts)
+        missing = [k for k, f0, f1, s in segments(comp) if not os.path.exists(f'{outdir}/seg_{k:03d}.mp4')]
+        print('segments missing:', len(missing), flush=True)
+        return
+    if mode == 'concat':
+        outdir, dst = sys.argv[3], sys.argv[4]
+        with open(f'{outdir}/list.txt', 'w') as fh:
+            for k, f0, f1, s in segments(comp):
+                fh.write(f"file '{outdir}/seg_{k:03d}.mp4'\n")
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', f'{outdir}/list.txt',
+                        '-c', 'copy', dst], check=True)
+        return
     if mode == 'still':
         t = float(sys.argv[3])
         img = comp.frame(int(round(t * FPS)))

@@ -83,6 +83,9 @@ def kicker(ctx, loc, target, power=0.25, size=0.02):
     """Small soft light by the lens: catchlight in the eye + front fill for the macros."""
     if 'kick' not in ctx:
         ctx.kick = props.area_light('kicker', loc, (0, 0, 0), size, power, (1.0, 0.86, 0.72))
+        # fill only: its mirror image down the curved glass reads as a white streak
+        ctx.kick.visible_glossy = False
+        ctx.kick.visible_transmission = False
     ctx.kick.location = loc
     d = mathutils.Vector(target) - mathutils.Vector(loc)
     ctx.kick.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
