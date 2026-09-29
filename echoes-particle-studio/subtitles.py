@@ -138,8 +138,9 @@ class Subtitles:
             if t < ph['start'] - 0.05 or t > ph['end'] + 0.35:
                 continue
             nxt = self.phrases[pi + 1]['start'] if pi + 1 < len(self.phrases) else 1e9
-            out_t = min(ph['end'] + 0.35, nxt)
-            fade_out = 1.0 - min(max((t - (out_t - 0.18)) / 0.18, 0.0), 1.0)
+            out_t = min(ph['end'] + 0.35, nxt - 0.02)
+            fd = 0.18 if out_t >= ph['end'] + 0.3 else 0.09  # quick hand-off when speech runs on
+            fade_out = 1.0 - min(max((t - (out_t - fd)) / fd, 0.0), 1.0)
             lift = (1.0 - fade_out) * 18
             sprites, pos = self.layout(pi)
             for i, (w, s) in enumerate(zip(ph['words'], sprites)):

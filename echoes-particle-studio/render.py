@@ -72,9 +72,11 @@ class Renderer:
         fx = dict(keep=spec['keep'], point_size=spec['point'], aura=spec['aura'], aura_frac=spec['aura_frac'],
                   shimmer=spec['shimmer'], voice_glow=spec['voice_glow'])
         pos, col, size, hw = self.bust.pose(E, R, lean, sway, t=t, energy=e, col=base, fx=fx)
+        covw = self.bust.last_cov_w
         if spec.get('glints', 1.0) > 0:
             gp, gc, gs = self.bust.eye_glints(E, R, lean, sway, bright=4.0 * spec['glints'] * (0.6 + 0.4 * e))
             pos = np.concatenate([pos, gp]); col = np.concatenate([col, gc]); size = np.concatenate([size, gs])
+            covw = np.concatenate([covw, np.ones(len(gp), np.float32)])
         if spec['dissolve'] > 1e-4:
             pos, col, size = dissolve(np.ascontiguousarray(pos), np.ascontiguousarray(col), np.ascontiguousarray(size),
                                       self.seed[:len(pos)], min(spec['dissolve'], 1.0), t, spec['lift'], spec['spread'])
@@ -82,7 +84,7 @@ class Renderer:
         if sc != 1.0 or spec['yaw'] or any(spec['pos']):
             pos = (pos * sc) @ rot_y(spec['yaw']).T + np.asarray(spec['pos'], np.float32)
             size = size * sc
-        return pos.astype(np.float32), col.astype(np.float32), size.astype(np.float32)
+        return pos.astype(np.float32), col.astype(np.float32), size.astype(np.float32), covw.astype(np.float32)
 
     def shot_index(self, t):
         idx = 0

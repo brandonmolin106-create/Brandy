@@ -387,7 +387,7 @@ def finish(img, grade, frame_idx=0, out=None):
 
 
 @nb.njit(parallel=True, fastmath=True, cache=True)
-def _coverage(pos, size, cam, out, q):
+def _coverage(pos, size, cam, out, q, wt):
     """Particle coverage (sum of screen disc areas) on a 1/q grid, per-row parallel via chunks."""
     n = pos.shape[0]
     ex, ey, ez = cam[0], cam[1], cam[2]
@@ -415,14 +415,15 @@ def _coverage(pos, size, cam, out, q):
             yi = int(sy)
             if xi < 0 or yi < 0 or xi >= w or yi >= h:
                 continue
-            out[t, yi, xi] += 1.0
+            out[t, yi, xi] += wt[i]
 
 
-def coverage(cam, pos, size, q=4, blur=1.5, k=1.6):
-    """Soft silhouette of a particle set: 1 - exp(-k * particles-per-cell) on a 1/q grid."""
+def coverage(cam, pos, size, q=4, blur=1.5, k=1.6, weights=None):
+    """Soft silhouette of a particle set: 1 - exp(-k * weighted particles-per-cell) on a 1/q grid."""
     hq, wq = H // q, W // q
     buf = np.zeros((NT, hq, wq), np.float32)
-    _coverage(np.ascontiguousarray(pos, np.float32), np.ascontiguousarray(size, np.float32), cam.params(), buf, q)
+    w = np.ones(len(pos), np.float32) if weights is None else np.ascontiguousarray(weights, np.float32)
+    _coverage(np.ascontiguousarray(pos, np.float32), np.ascontiguousarray(size, np.float32), cam.params(), buf, q, w)
     m = buf.sum(0)
     m = cv2.GaussianBlur(m, (0, 0), 1.0)
     m = 1.0 - np.exp(-m * k)

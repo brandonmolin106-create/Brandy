@@ -111,8 +111,9 @@ class Compositor:
         hdr = bg if bg is not None else np.zeros((rc.H, rc.W, 3), np.float32)
         cov = None
         if avatar_parts is not None and len(avatar_parts[0]):
-            cov = rc.coverage(cam, avatar_parts[0], avatar_parts[2])
-            av = self.layer(cam, avatar_parts, max_sigma=24.0)
+            cw = avatar_parts[3] if len(avatar_parts) > 3 else None
+            cov = rc.coverage(cam, avatar_parts[0], avatar_parts[2], weights=cw)
+            av = self.layer(cam, avatar_parts[:3], max_sigma=24.0)
         if F.rays is not None and F.rays[1] > 0:
             src = hdr if cov is None else hdr * (1.0 - cov)
             thr = F.rays[2] if len(F.rays) > 2 else 0.6

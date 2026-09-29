@@ -255,7 +255,7 @@ class Bust:
         def ss(a):
             a = np.clip(a, 0, 1)
             return a * a * (3 - 2 * a)
-        fade = ss((y - y0) / ((y1 - y0) * 0.16)) * ss((x - x0) / ((x1 - x0) * 0.07)) * ss((x1 - x) / ((x1 - x0) * 0.07))
+        fade = ss((y - y0) / ((y1 - y0) * 0.34)) ** 2 * ss((x - x0) / ((x1 - x0) * 0.1)) * ss((x1 - x) / ((x1 - x0) * 0.1))
         fade *= ss((y1 - y) / ((y1 - y0) * 0.03))
         self.edge_fade = fade.astype(np.float32)
 
@@ -412,11 +412,13 @@ class Bust:
         if keep < 1.0:
             sel = self.rand2 < keep
             P, C, S, HW = self._pos_out[sel], self._col_out[sel], self.size[sel], self.head_w[sel]
+            self.last_cov_w = np.concatenate([self.edge_fade[sel], np.ones(len(mp_), np.float32)])
             ps = fx.get('point_size', 0.7)
             S = S * ps
             C = C * (1.0 / (keep * ps * ps))
         else:
             P, C, S, HW = self._pos_out, self._col_out, self.size, self.head_w
+            self.last_cov_w = np.concatenate([self.edge_fade, np.ones(len(mp_), np.float32)])
         pos = np.concatenate([P, mrot.astype(np.float32)])
         colo = np.concatenate([C, mc * fx.get('mouth_gain', 1.0)])
         size = np.concatenate([S, ms])
