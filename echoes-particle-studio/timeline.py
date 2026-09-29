@@ -792,7 +792,7 @@ class Shots:
                     parts.append(txt.at(t, form=app * (1 - dis), center=(0, 0.6 - 0.25 * k, 0), gain=1.2 * (1 - dis)))
             elif kind == 'people':
                 for k in range(3):
-                    parts.append(A.person.at(0, pos=(-1.2 + 1.2 * k, -0.6, -1.0), yaw=0.0, scale=0.7, walk=0, cam_pos=c.eye,
+                    parts.append(A.person.at(0, pos=(-0.72 + 0.72 * k, -0.45, -1.0), yaw=0.0, scale=0.6, walk=0, cam_pos=c.eye,
                                              col=(0.7, 0.3, 0.3), gain=0.7 * app, dissolve=dis))
             elif kind == 'names':
                 txt = A.text('?  ?  ?', height=0.25, color=(0.8, 0.8, 0.9))
@@ -806,7 +806,7 @@ class Shots:
         A = self.A
         # 311.4 everything falls away; 315.1 river of time; 323.3 fade to nothing
         c = cam((0, 0.0, 6.0), (0, 0, 0), fov=45)
-        fallp, fallc, falls = A.dust_big.at(t, gain=0.6 * (1 - ramp(t, 312.5, 315.5)))
+        fallp, fallc, falls = A.dust_big.at(t, gain=0.6 * (1 - ramp(t, 312.5, 315.5)), cam_pos=c.eye, near=4.0)
         fallp = fallp.copy()
         fallp[:, 1] -= (t - 311.4) ** 2 * 0.3
         river_on = ramp(t, 315.3, 317.0) * (1 - ramp(t, 323.5, 327.0))
