@@ -568,7 +568,7 @@ class Shots:
                         base_col=(0.05, 0.05, 0.08), crest_col=(1.0, 0.6, 0.3), bio=0.2)
         txt = A.text('NOT BRIGHT', height=0.42, color=RED)
         f = smooth((t - 191.5) / 0.6) if t < no else 1 - smooth((t - no) / 0.25)
-        word = txt.at(t, form=f, center=(0, 4.3, -8), gain=1.6, jitter=0.006) if t > 191.3 else None
+        word = txt.at(t, form=f, center=(0, 6.6, -8), gain=1.6, jitter=0.006) if t > 191.3 else None
         sxy, _ = screen_of(c, sc)
         return Frame(c, bg=merge(A.stars.at(t, gain=1 - rise * 0.6), oc, s, word), fog=0.003, fog_color=(0.05, 0.02, 0.02),
                      rays=(sxy, 0.45 + 0.9 * flare, 0.95), flash=0.03 * pulse(t, no, 0.01, 0.25), bloom=dict(threshold=2.0, strength=0.35),
@@ -610,14 +610,6 @@ class Shots:
                      dof=6)
         bgp = [A.stars.at(t), A.neb_dawn.at(t, gain=0.35)]
         fgp = []
-        cyaw = float(kf(t, [(206.4, -0.3), (217.7, 0.0)]))
-        for k, (s, ph) in enumerate((('NOT VERY GOOD', 0.0), ('CAN\'T DO ANYTHING', 2.1), ('SMALL', 4.2))):
-            ang = ph + (t - 206.4) * 0.5
-            txt = A.text(s, height=0.026, color=RED)
-            fade = ramp(t, 206.6, 208.0) * (1 - ramp(t, 216.8, 217.7))
-            ctr = (0.42 * math.sin(ang), 0.06 * k - 0.04, 0.42 * math.cos(ang) - 0.06)
-            part = txt.at(t, form=1.0, center=ctr, gain=1.2 * fade, R=rot_y(cyaw))
-            (fgp if ctr[2] > 0 else bgp).append(part)
         for k, t0 in enumerate((212.07, 212.59, 213.29, 213.81)):
             if t > t0:
                 p = np.array([(k - 1.5) * 0.07, 0.2, 0.15])
@@ -704,7 +696,7 @@ class Shots:
                          tint=(0.6, 0.6, 0.7, 0.6 * age), dissolve=gone * 1.0, beat=6 - 4 * age)
         c = cam(orbit((0.02, 0, 0), 1.25 + 0.3 * age, -0.1 + 0.2 * age, 0.1), (0.02, 0, 0), fov=40, dof=3, focus=1.25)
         # star trails: rotate stars around the view axis, draw several time samples
-        spin = (t - 242.5) ** 1.5 * 0.08
+        spin = max(0.0, t - 242.5) ** 1.5 * 0.08
         trails = []
         for k in range(8):
             a = spin - k * 0.012 * (1 + 4 * ramp(t, 243, 246))
