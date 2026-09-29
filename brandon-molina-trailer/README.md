@@ -39,3 +39,20 @@
 (see `build/timeline.py` for the lines), then run `analyze.py`, `select.py`, `audio.py` and
 `video.py`. You also need `ffmpeg`, `opencv-python-headless<5`, `numpy`, `scipy` and `pillow`,
 plus the Inter, JetBrains Mono and Cormorant Garamond fonts in `build/fonts/x/`.
+
+## v2 — "full on"
+
+`trailer_v2_fullon.mp4` is the same cut with everything pushed harder:
+
+- **Motion graphics:** kinetic title words that slam in with RGB split (HEAVIER, ALONE, JUST BE HERE, KEEP GOING,
+  LOOK UP, FALL ASLEEP, NO PRETENDING, THIS MOMENT, BREATHE, STAY), a camera HUD (snapping corner brackets,
+  blinking REC, running timecode, lens data, scan line), and a heartbeat radar ring and reticle around the face.
+- **Video FX:** zoom punch and camera shake on impacts, anamorphic blue lens flares, glitch slices and chromatic
+  aberration on every cut, god-rays as the light breaks through, drifting dust motes, and letterbox bars that
+  slam in for the peak and the title.
+- **Audio FX:** trailer braams on the three big hits, whooshes into every cut, glitch ticks, and a stronger
+  heartbeat. The narrator gets reverse-reverb swells into the key lines, ping-pong echo tails and warm
+  saturation. The voice still stays 10.7 dB or more above the music on every line.
+
+`build/audio_v1.py` and `build/video_v1.py` rebuild v1; `build/audio.py` and `build/video.py` rebuild v2.
+The `*_preview720.mp4` files are smaller 720p previews.

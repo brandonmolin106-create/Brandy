@@ -80,7 +80,7 @@ for k in range(int(48.6 / beat) + 1):
         s = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 9) * g
         i = int(t0 * SR)
         pulse[i:i + n] += s[: max(0, min(n, N - i))]
-pulse_amt = curve([(0, 0.0), (1.0, 0.35), (5, 0.45), (25.8, 0.6), (40.4, 0.8), (48.5, 0.95), (48.6, 0.0), (TOTAL, 0)])
+pulse_amt = curve([(0, 0.0), (1.0, 0.45), (5, 0.55), (25.8, 0.75), (40.4, 0.95), (48.5, 1.1), (48.6, 0.0), (TOTAL, 0)])
 music += np.stack([pulse, pulse]) * pulse_amt * 0.55
 
 # strings: additive detuned saw voices, low-passed; chord progression in D minor
@@ -197,6 +197,50 @@ n = int(4 * SR); tt = np.arange(n) / SR
 s = np.sin(2 * np.pi * note_hz(74) * tt) * np.exp(-tt * 1.3) * 0.06
 place(music, reverb(s, 3.5, 0.6, seed=9), HANDLE_IN)
 
+# trailer braams on the big hits
+def braam(dur, g):
+    n = int(dur * SR); tt = np.arange(n) / SR
+    out = np.zeros(n)
+    for m in [26, 38, 45, 50]:
+        f = note_hz(m) * (1 + 0.003 * np.sin(2 * np.pi * 0.7 * tt))
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        out += sum(np.sin(h * ph) / h for h in range(1, 24))
+    fc = 180 + 2200 * np.exp(-tt * 2.5)
+    y = np.zeros(n); seg = n // 40
+    for j in range(40):
+        a, b = j * seg, (j + 1) * seg if j < 39 else n
+        y[a:b] = lp(out, fc[a])[a:b]
+    y *= np.minimum(1, tt / 0.03) * np.exp(-tt * 0.9) * g / 4
+    return np.tanh(y * 2) / 2
+
+
+for t_hit, g in [(25.8, 0.5), (40.4, 0.7), (48.6, 0.9)]:
+    place(music, reverb(braam(3.2, g), 2.5, 0.35, seed=31), t_hit)
+
+
+def whoosh(dur, g):
+    n = int(dur * SR); tt = np.arange(n) / SR
+    x = rng.standard_normal(n)
+    y = np.zeros(n); seg = n // 16
+    for j in range(16):
+        fc = 400 * 16 ** (j / 15)
+        a, b = j * seg, (j + 1) * seg if j < 15 else n
+        y[a:b] = hp(lp(x, fc * 1.6), fc * 0.5)[a:b]
+    e = np.sin(np.pi * (tt / dur) ** 1.6) ** 2
+    pan = tt / dur
+    return np.stack([y * e * (1 - pan), y * e * pan]) * g
+
+
+cut_times = [c[1] for c in CLIPS] + [INTERLUDE[0], MONTAGE[0], HOLD[1]]
+for tc in cut_times:
+    place(music, whoosh(0.7, 0.35), tc - 0.55)
+# glitch ticks at cuts + montage stutters
+seg_m = (MONTAGE[1] - MONTAGE[0]) / 9
+for tc in [c[1] for c in CLIPS] + [MONTAGE[0] + k * seg_m for k in range(9)]:
+    n = int(0.08 * SR)
+    tk = np.sign(np.sin(2 * np.pi * rng.uniform(900, 2400) * np.arange(n) / SR)) * np.exp(-np.arange(n) / SR * 60) * 0.05
+    place(music, tk, tc)
+
 # reverb bus for the music: spacious
 music = np.stack([music[0], music[1]])
 mw = np.stack([fftconvolve(music[c], ir(3.2, seed=11)[c])[:N] for c in range(2)])
@@ -204,6 +248,7 @@ music = music * 0.85 + mw * 0.35
 
 # ---------------- narration -----------------
 vo = np.zeros((2, N))
+KEY_LINES = {1, 4, 5, 9, 10, 11, 12}
 vo_env = np.zeros(N)
 
 
@@ -223,6 +268,23 @@ for idx, t0, size in VO:
     decay = 0.9 + 3.6 * size
     wet = 0.10 + 0.32 * size
     y = reverb(x, decay, wet, seed=idx)
+    # echo tail: dotted delay taps, darker each repeat
+    if idx in KEY_LINES:
+        for n_, (dt, g_) in enumerate([(0.375, 0.28), (0.75, 0.16), (1.125, 0.09)]):
+            e = lp(x, 3000 - 700 * n_) * g_
+            e = np.concatenate([np.zeros(int(dt * SR)), e])[: len(x)]
+            ew = reverb(e, decay, 0.6, seed=idx + 20)
+            ew[0] *= 1.0 if n_ % 2 == 0 else 0.4
+            ew[1] *= 0.4 if n_ % 2 == 0 else 1.0
+            y += ew
+        # reverse-reverb swell leading into the first word
+        head = x[: int(0.7 * SR)]
+        rr = reverb(np.concatenate([head, np.zeros(int(2.5 * SR))]), 2.8, 1.0, seed=idx + 40)
+        rr = rr - np.stack([np.concatenate([head, np.zeros(int(2.5 * SR))])] * 2) * 0.65
+        rr = rr[:, ::-1] * 0.35
+        place(vo, rr, t0 - rr.shape[1] / SR + 0.05)
+    # warm saturation on the voice
+    y = np.tanh(y * 1.4) / 1.4
     place(vo, y, t0)
     i = int(t0 * SR)
     j = min(N, i + int((len(x) / SR - 4.5 + 0.3) * SR))

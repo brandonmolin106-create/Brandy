@@ -166,6 +166,182 @@ HANDLE = text_img('@brandonmolina651', F_HANDLE, 6)
 CLOCK = [text_img(s, F_MONO, 4, fill=(170, 185, 210)) for s in ['2:47 AM', '2:47 AM ·  can\'t sleep']]
 COUNTER = [text_img(f'{i + 1:02d} / 09', F_MONO_S, 6, fill=(170, 185, 210)) for i in range(9)]
 
+
+# ================= v2: full-on FX =================
+F_KINE = font('cormorant-garamond-latin-600-normal.woff', 150)
+F_HUD = font('jetbrains-mono-latin-400-normal.woff', 24)
+KINETIC = [  # (start, end, word)
+    (5.9, 9.8, 'HEAVIER'), (11.5, 15.0, 'ALONE'), (16.0, 18.6, 'NO PERFECT WORDS'),
+    (19.7, 23.0, 'JUST BE HERE'), (26.4, 29.8, 'KEEP GOING'), (30.5, 33.0, 'LOOK UP'),
+    (34.2, 37.4, 'FALL ASLEEP'), (38.1, 40.2, 'NO NEED TO ANSWER'), (41.0, 44.4, 'NO PRETENDING'),
+    (45.7, 48.5, 'THIS MOMENT'), (50.7, 53.2, 'BREATHE'), (53.7, 55.8, 'STAY'),
+]
+KIN_IMG = []
+for s0, s1, w_ in KINETIC:
+    a, c = text_img(w_, F_KINE, 18)
+    if a.shape[1] > W * 0.9:
+        a = cv2.resize(a, None, fx=W * 0.9 / a.shape[1], fy=W * 0.9 / a.shape[1], interpolation=cv2.INTER_AREA)
+    KIN_IMG.append((s0, s1, a, c))
+
+REC = text_img('REC', F_HUD, 4, fill=(230, 80, 80))
+HUD_TXT = [text_img(s_, F_HUD, 3, fill=(160, 175, 200)) for s_ in ['ISO 3200', 'F/1.4', '24MM', 'NIGHT']]
+DIGITS = {}
+
+
+def hud_text(s_):
+    if s_ not in DIGITS:
+        DIGITS[s_] = text_img(s_, F_HUD, 3, fill=(160, 175, 200))
+    return DIGITS[s_]
+
+
+# dust motes
+MOTES = rng.random((140, 5))
+
+# god-rays from the top right, modulated by angle noise
+ang = np.arctan2(yy - (-H * 0.1), xx - W * 0.9)
+ray_noise = np.interp(ang, np.linspace(-np.pi, np.pi, 720), rng.random(720) ** 3)
+RAYS = (cv2.GaussianBlur(ray_noise.astype(np.float32), (0, 0), 2.5) * np.exp(-np.hypot(xx - W * 0.9, yy + H * 0.1) / (H * 0.9)))[..., None] * np.array([1.0, 0.85, 0.6], np.float32)
+
+
+def rgb_split(img, k):
+    k = int(round(k))
+    if k < 1:
+        return img
+    out = img.copy()
+    out[:, k:, 0] = img[:, :-k, 0]
+    out[:, :-k, 2] = img[:, k:, 2]
+    return out
+
+
+def glitch(img, amt, seed):
+    r = np.random.default_rng(seed)
+    out = img.copy()
+    for _ in range(int(6 + 14 * amt)):
+        y0 = r.integers(0, H - 40); h = r.integers(6, int(20 + 140 * amt))
+        dx = int(r.normal(0, 60 * amt))
+        out[y0:y0 + h] = np.roll(img[y0:y0 + h], dx, axis=1)
+        if r.random() < 0.3:
+            out[y0:y0 + h] = out[y0:y0 + h] * 1.12 + 0.03
+    return out
+
+
+def impact_env(t, dur=0.5, rate=6):
+    a = 0.0
+    for th, g in IMPACTS:
+        if th <= t < th + dur * 2:
+            a = max(a, g * np.exp(-(t - th) * rate))
+    return a
+
+
+def cut_env(t):
+    """0..1 envelope right after every cut"""
+    cuts = [c[1] for c in CLIPS] + [INTERLUDE[0], HOLD[1]]
+    seg_m = (MONTAGE[1] - MONTAGE[0]) / 9
+    cuts += [MONTAGE[0] + k * seg_m for k in range(9)]
+    a = 0.0
+    for c in cuts:
+        if c <= t < c + 0.2:
+            a = max(a, 1 - (t - c) / 0.2)
+    return a
+
+
+def brackets(img, a, inset, col=(0.8, 0.85, 0.95)):
+    L_ = 70; th = 3
+    x0, y0, x1, y1 = inset, int(inset * 1.6), W - inset, H - int(inset * 1.6)
+    col = np.array(col, np.float32) * a
+    for (x, y, dx, dy) in [(x0, y0, 1, 1), (x1, y0, -1, 1), (x0, y1, 1, -1), (x1, y1, -1, -1)]:
+        xa, xb = sorted([x, x + dx * L_]); ya, yb = sorted([y, y + dy * th])
+        img[ya:yb, xa:xb] += col
+        xa, xb = sorted([x, x + dx * th]); ya, yb = sorted([y, y + dy * L_])
+        img[ya:yb, xa:xb] += col
+    return img
+
+
+def fx(img, t):
+    story = CLIPS[0][1] <= t < SKY_START
+    # god-rays as the light breaks through
+    L = light_level(t)
+    if L > 0.1 and t < SKY_START:
+        sweep = 0.8 + 0.2 * np.sin(t * 0.9)
+        img = img + RAYS * 0.45 * (L - 0.1) * sweep * (1 - 0.6 * smooth(48.6, 50.0, t))
+    # dust motes drifting in the light
+    if t < TOTAL - 1:
+        for mx, my, ms, mp, mb in MOTES:
+            x = (mx * W + 40 * np.sin(t * 0.3 + mp * 6)) % W
+            y = (my * H - t * (15 + 40 * ms)) % H
+            r_ = 1 + 3 * ms
+            b = (0.15 + 0.5 * mb) * (0.5 + 0.5 * np.sin(t * 2 + mp * 9)) * (0.4 + L)
+            cv2.circle(img, (int(x), int(y)), int(r_), (b * 0.9, b * 0.9, b), -1, cv2.LINE_AA)
+    # heartbeat radar ring around the face during the story
+    if story and not (MONTAGE[0] <= t < MONTAGE[1]):
+        ph = ((t - 0.3) % 1.05) / 1.05
+        rad = int(180 + 520 * ph)
+        a = (1 - ph) ** 2 * 0.35 * (0.6 + L)
+        cv2.circle(img, (W // 2, int(H * 0.40)), rad, (0.6 * a, 0.75 * a, a), 2, cv2.LINE_AA)
+        # reticle ticks
+        for k in range(4):
+            an = k * np.pi / 2 + t * 0.2
+            c_, s_ = np.cos(an), np.sin(an)
+            p1 = (int(W / 2 + c_ * 300), int(H * 0.40 + s_ * 300)); p2 = (int(W / 2 + c_ * 330), int(H * 0.40 + s_ * 330))
+            cv2.line(img, p1, p2, (0.35, 0.4, 0.5), 2, cv2.LINE_AA)
+    # HUD: brackets, REC, timecode, camera data
+    if story:
+        cin = min([t - c[1] for c in CLIPS + [(0, INTERLUDE[0]), (0, MONTAGE[0]), (0, HOLD[1])] if t >= c[1]] + [9])
+        snap = 1 + 0.4 * np.exp(-cin * 10) * np.cos(cin * 30)
+        inset = int(50 * snap)
+        ha = 0.55 * (1 - smooth(TITLE_IN - 1, TITLE_IN, t))
+        img = brackets(img, ha, inset)
+        if int(t * 2) % 2 == 0:
+            cv2.circle(img, (W - 150, int(H * 0.085)), 9, (0.9 * ha * 1.6, 0.2 * ha, 0.2 * ha), -1, cv2.LINE_AA)
+        ra_, rc_ = REC
+        img = put_text(img, ra_, rc_, W - 105, H * 0.085, ha * 1.4)
+        fr_ = int(t * FPS)
+        tc = f'00:{fr_ // 1800:02d}:{(fr_ // 30) % 60:02d}:{fr_ % 30:02d}'
+        ta_, tcol = hud_text(tc)
+        img = put_text(img, ta_, tcol, W - 170, H * 0.915, ha * 1.4)
+        for k, (ta2, tc2) in enumerate(HUD_TXT):
+            img = put_text(img, ta2, tc2, 60 + ta2.shape[1] / 2 + k * 0, H * 0.87 + k * 30, ha * 0.9)
+        # scanning line
+        sy = int((t * 260) % H)
+        img[sy:sy + 2] += 0.05 * ha
+    # kinetic words: slam in, drift, dissolve
+    for s0, s1, a_, c_ in KIN_IMG:
+        if s0 <= t < s1:
+            lt = t - s0
+            ain = smooth(0, 0.18, lt); aout = 1 - smooth(s1 - s0 - 0.5, s1 - s0, lt)
+            sc = 1 + 0.35 * np.exp(-lt * 9) + 0.03 * lt
+            aa = cv2.resize(a_, None, fx=sc, fy=sc)
+            y_ = H * 0.19
+            op = ain * aout * 0.92
+            layer = put_text(np.zeros_like(img), aa, c_, W / 2, y_ - 20 * lt, 1.0, glow=0.6, blur=(1 - ain) * 8 + (1 - aout) * 6)
+            layer = rgb_split(layer, 14 * np.exp(-lt * 6) + 2)
+            img = img + layer * op
+    # anamorphic flare on impacts
+    ie = impact_env(t)
+    if ie > 0.01:
+        fy = int(H * 0.40)
+        streak = np.exp(-((yy[:, :1] - fy) / 6) ** 2) * np.exp(-((xx[:1] - W / 2) / (W * 0.6)) ** 2)
+        img = img + streak[..., None] * np.array([0.35, 0.6, 1.0], np.float32) * ie * 2.2
+    # zoom punch + camera shake on impacts
+    if ie > 0.01:
+        z = 1 + 0.07 * ie
+        r = np.random.default_rng(int(t * 1000))
+        dx, dy = r.normal(0, 28 * ie, 2)
+        M = np.float32([[z, 0, (1 - z) * W / 2 + dx], [0, z, (1 - z) * H / 2 + dy]])
+        img = cv2.warpAffine(img, M, (W, H), borderMode=cv2.BORDER_REFLECT)
+    # glitch slices + RGB split on cuts
+    ce = cut_env(t)
+    if ce > 0.05 and story:
+        img = glitch(img, ce, int(t * 30))
+    split = 1.5 + 16 * ie + 10 * ce + (4 if MONTAGE[0] <= t < MONTAGE[1] else 0)
+    img = rgb_split(img, split)
+    # letterbox bars slam in for the peak
+    lb = smooth(40.2, 40.5, t) * (1 - smooth(48.4, 48.8, t)) + smooth(55.6, 56.4, t) * (1 - smooth(60.6, 61.2, t))
+    if lb > 0:
+        bh = int(H * 0.085 * lb)
+        img[:bh] *= 0.02; img[H - bh:] *= 0.02
+    return img
+
 # ---------------- clips ----------------
 class Clip:
     def __init__(self, p, dur, base_zoom=1.22):
@@ -250,7 +426,7 @@ def flash_amt(t):
     a = 0.0
     for th, g in IMPACTS:
         if th <= t < th + 0.8:
-            a += g * np.exp(-(t - th) * 7)
+            a += 0.7 * g * np.exp(-(t - th) * 9)
     for th in SOFT_HITS:
         if th <= t < th + 0.5:
             a += 0.18 * np.exp(-(t - th) * 10)
@@ -425,6 +601,7 @@ def frame(t):
         ln = int(W * 0.18 * smooth(HANDLE_IN + 0.5, HANDLE_IN + 1.8, t))
         img[int(H * 0.535):int(H * 0.535) + 2, W // 2 - ln // 2:W // 2 + ln // 2] += 0.4 * a
 
+    img = fx(img, t)
     # grain + final fade
     img = img + GRAIN[int(t * FPS) % 6] * 0.022
     img *= 1 - smooth(*FADE_OUT, t)
