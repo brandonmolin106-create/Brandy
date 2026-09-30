@@ -193,6 +193,34 @@ def build():
         X(tk, heartbeat(1.0), 0.55, send=0.3)
     X(d0 + 17.0, screech(2.5), 0.16, width=1, send=0.6)
 
+    # ---- v9: "THE WORLDS ANSWER" chapter score
+    if hasattr(T, "CHAPTER"):
+        c0, c1 = T.CHAPTER
+        for i, (tw, w) in enumerate(T.CHAPTER_CARDS):
+            X(tw - 0.3, reverse_swell(0.3), 0.45, width=1)
+            X(tw, card_slam(1.1 + 0.2 * i), 0.85, width=1, send=0.6)
+        HIT(c0, 1.0, pre=0.01)
+        chords = [["D3", "F3", "A3", "D4"], ["A#2", "D3", "F3", "A#3"], ["G2", "A#2", "D3", "G3"],
+                  ["A2", "C#3", "E3", "A3"], ["D3", "F3", "A3", "C4"], ["F2", "A2", "C3", "F3"],
+                  ["A2", "C#3", "E3", "A3"]]
+        roots = ["D1", "A#0", "G1", "A1", "D1", "F1", "A1"]
+        gs = [t for t, _ in T.CH_GROUPS] + [c1 - 20.0]
+        for g, (tg, line) in enumerate(T.CH_GROUPS):
+            dur = gs[g + 1] - tg
+            HIT(tg, 0.8, pre=0.5)
+            X(tg, braam2(NOTE[roots[g]], 5.0, 1.2), 0.5, width=1, send=0.6)
+            M(tg, choir(chords[g], dur + 1.0, att=0.6, rel=1.5), 0.26, width=1, send=0.8)
+            M(tg, pad(chords[g], dur + 1.0, fc=2600, att=0.4, rel=1.5), 0.14, width=1, send=0.7)
+            for k, tk in enumerate(np.arange(tg, tg + dur, BEAT)):
+                X(tk, taiko(1.4 if k % 4 == 0 else 0.8, 95 if k % 4 == 0 else 140, 48 if k % 4 == 0 else 75),
+                  (0.45 if k % 4 == 0 else 0.18) * (0.8 + 0.2 * g / 6), pan=0.0 if k % 4 == 0 else rng.uniform(-0.4, 0.4),
+                  send=0.5)
+        grid(c1 - 20.0, c1 - 4.0, ["D2", "D2", "A#1", "A1", "D2", "C2"], 1.15, fast=True, rolls=True)
+        X(c1 - 16.0, shepard(12.0, 40, 7, 0.2, 1.0), 0.34, width=1, send=0.3)
+        for k, tk in enumerate(np.arange(c1 - 6.0, c1 - 0.6, BEAT / 8)):
+            X(tk, taiko(0.35, 190, 110), 0.12 + 0.5 * ((tk - c1 + 6.0) / 5.4) ** 2, pan=0.4 if k % 2 else -0.4, send=0.3)
+        M(c1 - 4.0, tremolo(["D4", "D#4", "A3", "G#3"], 3.5, rate=18, att=1.0, rel=0.3), 0.14, width=1, send=0.5)
+
     # ---- v8: ENDLESS / DESTINY slams, and an endless Shepard ascent under the infinite zoom
     for i, (tw, w) in enumerate(getattr(T, "DESTINY_CARDS", ())):
         X(tw - 0.35, reverse_swell(0.35), 0.45, width=1)
@@ -250,6 +278,9 @@ def voice_track():
         st = pan_st(x)
         if idx in (2, 7, 19, 8, 24, 27, 30, 32):
             st = echo(x, 0.38, 0.38, 4)
+        if idx >= 100:                                   # the Echo: a second voice, answered by itself
+            x = sosfilt(sos_lp(5200, 2), x) * 1.1
+            st = echo(x, 0.29, 0.5, 6)
         vg = 1.25 if idx in (20, 27) else 0.62          # the word-card lines must punch through their slams
         vb.add(t0, st, vg)
         wet.add(t0, st, 0.14 * vg / 0.62)

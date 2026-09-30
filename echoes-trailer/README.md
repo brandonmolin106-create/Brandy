@@ -138,3 +138,11 @@ TRAILER_TIMELINE=timeline5 TRAILER_OUT=out5 python3 audio3.py
 `timeline6.py` = v5 + whip-pan motion blur on every hard cut, meteor showers across the skies, a ring of
 energy particles orbiting the finished emblem, lens dirt lit up by every flash, searchlights sweeping over
 the city, and aurora curtains over the snowfield. `./make_video6hd.sh` renders it at 1080p (4x faster).
+
+## v9: "THE WORLDS ANSWER" (10:00, 1080p)
+
+`timeline9.py` opens two new minutes after the monuments: the finished emblem stands in every one of 19
+worlds in turn, cut to a fixed rhythm, while a second voice - the Echo - answers the narrator world by world
+(ice, desert, cities, caves, ruins, sea, sky), then a hyper recap into the name. The Echo lines
+(`assets/voice/101-110.wav`) are generated locally with Piper (en_US-ryan-high), since the Higgsfield
+credits ran out; it is deliberately a different, deeper voice with its own echo.
