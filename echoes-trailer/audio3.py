@@ -207,8 +207,9 @@ def build():
         gs = [t for t, _ in T.CH_GROUPS] + [c1 - 20.0]
         for g, (tg, line) in enumerate(T.CH_GROUPS):
             dur = gs[g + 1] - tg
-            HIT(tg, 0.8, pre=0.5)
-            X(tg, braam2(NOTE[roots[g]], 5.0, 1.2), 0.5, width=1, send=0.6)
+            if g > 0:                                    # the title cards already slam the first world in
+                HIT(tg, 0.8, pre=0.5)
+            X(tg, braam2(NOTE[roots[g]], 5.0, 1.2), 0.5 if g else 0.3, width=1, send=0.6)
             M(tg, choir(chords[g], dur + 1.0, att=0.6, rel=1.5), 0.26, width=1, send=0.8)
             M(tg, pad(chords[g], dur + 1.0, fc=2600, att=0.4, rel=1.5), 0.14, width=1, send=0.7)
             for k, tk in enumerate(np.arange(tg, tg + dur, BEAT)):
@@ -281,7 +282,7 @@ def voice_track():
         if idx >= 100:                                   # the Echo: a second voice, answered by itself
             x = sosfilt(sos_lp(5200, 2), x) * 1.1
             st = echo(x, 0.29, 0.5, 6)
-        vg = 1.25 if idx in (20, 27) else 0.62          # the word-card lines must punch through their slams
+        vg = 1.25 if idx in (20, 27) else (1.3 if idx == 101 else 0.62)          # the word-card lines must punch through their slams
         vb.add(t0, st, vg)
         wet.add(t0, st, 0.14 * vg / 0.62)
         envx = np.convolve(np.abs(x), np.ones(960) / 960, "same")

@@ -4,6 +4,7 @@ Two minutes open up right after the monuments (v8 364 s): the finished emblem st
 turn, cut to a fixed rhythm, while a second voice - the Echo - answers the narrator world by world. Then
 a hyper recap and dead air before the name. Everything after the insert moves 120 s later.
 """
+from timeline8 import *  # noqa: F401,F403 (AXIS, Y_* and everything not re-timed below)
 import timeline8 as T8
 from timeline2 import Shot, cam
 from timeline8 import FPS, H, W, V5, V6, V7, V8  # noqa: F401
@@ -118,12 +119,12 @@ CUTS = sorted(CUTS + CH_CUTS)
 STRIKES = sorted(STRIKES + CH_STRIKES)
 EXTRA_STRIKES = sorted(EXTRA_STRIKES + CH_STRIKES)
 SHOCKWAVES += [(t, 0.25) for t, k in CH_STRIKES if k == "emblem"]
-IMPACTS = sorted(IMPACTS + [(t, 0.9) for t, w in CHAPTER_CARDS] + [(t, 0.8) for t, _ in CH_GROUPS]
+IMPACTS = sorted(IMPACTS + [(t, 0.9) for t, w in CHAPTER_CARDS] + [(t, 0.8) for t, _ in CH_GROUPS[1:]]
                  + [(t, 0.35) for t in CH_CUTS] + [(t, 0.45) for t, k in CH_STRIKES if k == "emblem"])
 SURGES = sorted(SURGES + [(t, 1.0) for t in CH_CUTS])
 SWEEPS = sorted(SWEEPS + [(t + 0.5, t + 3.5) for t in CH_CUTS if t < E0 + ADD - 15])
 PRE_HIT_SILENCE = sorted(PRE_HIT_SILENCE + [(E0 + ADD - 0.6, E0 + ADD)])
-VOICE = sorted(VOICE + [(101, E0 + 0.9)] + [(n, t + 0.8) for t, n in CH_GROUPS]
+VOICE = sorted(VOICE + [(101, E0 + 2.0)] + [(n, t + 0.8) for t, n in CH_GROUPS]
                + [(109, E0 + ADD - 11.5), (110, E0 + ADD - 3.4)], key=lambda v: v[1])
 
 
