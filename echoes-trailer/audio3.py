@@ -193,6 +193,16 @@ def build():
         X(tk, heartbeat(1.0), 0.55, send=0.3)
     X(d0 + 17.0, screech(2.5), 0.16, width=1, send=0.6)
 
+    # ---- v8: ENDLESS / DESTINY slams, and an endless Shepard ascent under the infinite zoom
+    for i, (tw, w) in enumerate(getattr(T, "DESTINY_CARDS", ())):
+        X(tw - 0.35, reverse_swell(0.35), 0.45, width=1)
+        X(tw, card_slam(1.2 + 0.2 * i), 0.9 + 0.1 * i, width=1, send=0.6)
+        X(tw, braam2(NOTE[["D1", "A1"][i % 2]], 2.5, 1.5), 0.5, width=1, send=0.6)
+    if hasattr(T, "DROSTE"):
+        d0, d1 = T.DROSTE
+        X(d0, shepard(d1 - d0, 40, 7, 0.15, 0.6), 0.3, width=1, send=0.4)
+        M(d0, choir(["D4", "F4", "A4", "D5"], d1 - d0, att=2.0, rel=3.0), 0.22, width=1, send=0.8)
+
     # ---- v5: lightning on the logo in every city / desert / canyon shot
     for ts, kind in getattr(T, "EXTRA_STRIKES", ()):
         X(ts, thunder(6.0, 0.25 if kind != "sky" else 0.6), 0.55, width=1, send=0.4)

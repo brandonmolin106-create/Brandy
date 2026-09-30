@@ -788,6 +788,52 @@ def warp_stream(img, t, W, H, sc, amt):
     img += cv2.resize(lay, (W, H), interpolation=cv2.INTER_LINEAR).astype(np.float32) * np.float32(1 / 255)
 
 
+def droste(F, sx, sy, W, H, phase, amt):
+    """Endless zoom: the frame nested inside its own star, forever. `phase` counts K-fold zooms."""
+    K = 5.0
+    C = F.astype(np.float32)
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    rr = np.sqrt((xx - sx) ** 2 + (yy - sy) ** 2)
+    rin = 0.42 * H / K
+    m = np.clip((rin - rr) / (rin * 0.35), 0, 1)[..., None]
+    Mn = np.float32([[1 / K, 0, sx * (1 - 1 / K)], [0, 1 / K, sy * (1 - 1 / K)]])
+    for _ in range(4):
+        C = C * (1 - m) + cv2.warpAffine(C, Mn, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT) * m
+    portal = np.clip((0.46 * H - rr) / (0.12 * H), 0, 1)[..., None]
+    C = C * (0.08 + 0.92 * portal)
+    z = K ** (phase % 1.0)
+    Mz = np.float32([[z, 0, sx * (1 - z)], [0, z, sy * (1 - z)]])
+    D = cv2.warpAffine(C, Mz, (W, H), flags=cv2.INTER_LINEAR)
+    return np.clip(F.astype(np.float32) * (1 - amt) + D * amt, 0, 255).astype(np.uint8)
+
+
+def draw_threads(lay, gq, t, ec, R, W, H, sc, vis, seed):
+    """Threads of destiny: golden filaments from the edges of the world into the emblem, pulses racing inward."""
+    rng = np.random.default_rng(1000 + seed)
+    u = np.linspace(0, 1, 70, dtype=np.float32)[:, None]
+    for i in range(8):
+        a = rng.uniform(0, 2 * math.pi)
+        p0 = np.float32([W / 2 + math.cos(a) * W * 0.75, H / 2 + math.sin(a) * H * 0.75])
+        p3 = np.float32([ec[0] + rng.uniform(-0.3, 0.3) * R, ec[1] + rng.uniform(-0.4, 0.4) * R])
+        w1 = np.float32([math.sin(t * 0.7 + i) * 0.12 * W, math.cos(t * 0.6 + i * 1.7) * 0.12 * H])
+        p1 = p0 + (p3 - p0) * 0.33 + w1
+        p2 = p0 + (p3 - p0) * 0.66 - w1 * 0.6
+        pts = ((1 - u) ** 3) * p0 + 3 * ((1 - u) ** 2) * u * p1 + 3 * (1 - u) * (u ** 2) * p2 + (u ** 3) * p3
+        base = float(55 * vis)
+        cv2.polylines(lay, [(pts * 16).astype(np.int32)], False, (base * 1.0, base * 0.8, base * 0.45),
+                      max(1, int(1.2 * sc * 2)), cv2.LINE_AA, 4)
+        up = (t * 0.45 + i * 0.37) % 1.0
+        k0 = int(up * 69)
+        seg = pts[max(0, k0 - 6):k0 + 1]
+        if len(seg) > 1:
+            v = float(255 * vis)
+            cv2.polylines(lay, [(seg * 16).astype(np.int32)], False, (v, v * 0.85, v * 0.55),
+                          max(1, int(2.2 * sc * 2)), cv2.LINE_AA, 4)
+            hx, hy_ = seg[-1]
+            cv2.circle(gq, (int(hx / 4 * 16), int(hy_ / 4 * 16)), int(2.5 * 16), (0.35 * vis, 0.26 * vis, 0.1 * vis),
+                       -1, cv2.LINE_AA, 4)
+
+
 # ----------------------------------------------------------------------------- frame
 def render2(t, A):
     W, H, sc = A.W, A.H, A.sc
@@ -1045,6 +1091,8 @@ def render2(t, A):
                 px = ec[0] + math.cos(a2) * O["r"][i] * R0
                 py = ec[1] + math.sin(a2) * O["r"][i] * R0 * O["tilt"][i]
                 draw_dot(lay, px, py, O["sz"][i] * sc * 2.6 * (1 - 0.25 * k), 255 * dep[i] * vis * (1 - 0.3 * k), GOLD8)
+    if getattr(T, "V8", False) and not nologo and vis > 0.3 and (env in SCENIC or env == "void") and t > T.GROW[0]:
+        draw_threads(lay, gq, t, ec, A.emb_h * a * 0.5, W, H, sc, min(1.0, vis), shot.seed + int(shot.t0 * 10))
     ember_amt = 0.9 * smooth(span(t, T.COMPLETE, T.COMPLETE + 1.5)) * (1 - smooth(span(t, T.LOCKUP[0] - 2, T.LOCKUP[0] + 2)))
     ember_amt = max(ember_amt, 0.8 * smooth(span(t, T.SLAM, T.SLAM + 1.0)) * (1 - smooth(span(t, *T.FADE_END))))
     if env == "forest":
@@ -1180,6 +1228,9 @@ def render2(t, A):
             kk = 1 + sgn * 0.006 * ca
             M = np.float32([[kk, 0, W / 2 * (1 - kk)], [0, kk, H / 2 * (1 - kk)]])
             out[..., c] = cv2.warpAffine(np.ascontiguousarray(out[..., c]), M, (W, H), borderMode=cv2.BORDER_REPLICATE)
+    if getattr(T, "V8", False) and T.DROSTE[0] <= t < T.DROSTE[1]:
+        ph = ((t - T.DROSTE[0]) / 2.6) ** 1.3
+        out = droste(out, sx, sy, W, H, ph, smooth(span(t, T.DROSTE[0], T.DROSTE[0] + 1.5)))
     bar = int(A.bar * (1 - ease_io(span(t, T.LOCKUP[0] - 1, T.LOCKUP[1]))))
     if bar > 0:
         out[:bar] = 0
