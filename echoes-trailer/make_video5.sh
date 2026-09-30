@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 export TRAILER_TIMELINE=timeline5
 export GLIBC_TUNABLES=glibc.malloc.mmap_threshold=4294967296:glibc.malloc.trim_threshold=17179869184
 TOTAL=$(python3 -c "import timeline5 as T; print(int(T.DURATION*T.FPS))")
-SEGS=${SEGS:-16}
+SEGS=${SEGS:-48}
 JOBS=${JOBS:-4}
 mkdir -p out5/seg out5/logs
 STEP=$(( (TOTAL + SEGS - 1) / SEGS ))
