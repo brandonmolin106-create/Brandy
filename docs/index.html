@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Echoes in the Dark is a father and son multimedia studio making songs that mean something. Where Sound Meets Shadow.">
+<meta name="theme-color" content="#07080d">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Echoes in the Dark">
+<meta property="og:title" content="Echoes in the Dark">
+<meta property="og:description" content="Where Sound Meets Shadow. Songs that mean something.">
+<meta property="og:image" content="https://brandonmolin106-create.github.io/Brandy/og.jpg">
+<meta property="og:url" content="https://brandonmolin106-create.github.io/Brandy/">
+<link rel="canonical" href="https://brandonmolin106-create.github.io/Brandy/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Echoes in the Dark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="preload" as="image" href="logo-mark.svg">
+</head>
+<body>
+<style>
+  :root{
+    color-scheme:dark;
+    --void:#07080d;
+    --surface:#0d0f16;
+    --ivory:#f1ece2;
+    --mist:#a29e92;
+    --dim:#6d6a62;
+    --line:rgba(241,236,226,.12);
+    --line-strong:rgba(241,236,226,.28);
+    --gold:#d4b062;
+    --gold-bright:#f0d48a;
+    --gold-glow:rgba(212,176,98,.35);
+    --font-display:'Jost','Futura','Century Gothic','Avenir Next',sans-serif;
+    --font-body:'EB Garamond','Garamond','Georgia','Times New Roman',serif;
+    --nav-h:72px;
+    --logo-h:clamp(170px,28vh,250px);
+    --ease-out:cubic-bezier(.2,.7,.2,1);
+    --ease-expo:cubic-bezier(.16,1,.3,1);
+    --ease-inout:cubic-bezier(.76,0,.24,1);
+    --ease-ink:cubic-bezier(.65,0,.35,1);
+    --ease-flood:cubic-bezier(.7,0,.3,1);
+    --ease-star:cubic-bezier(.34,1.56,.64,1);
+    --ease-cut-in:cubic-bezier(.4,0,1,1);
+    --ease-cut-out:cubic-bezier(0,0,.2,1);
+    --intro:0s;
+  }
+  html:not(.js){--intro:3.6s}
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--void);
+    color:var(--ivory);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:1px solid var(--gold);outline-offset:4px}
+  .sprite{position:absolute;width:0;height:0;overflow:hidden}
+  .lb{fill:var(--ivory)}
+  .ls{fill:var(--gold)}
+
+  /* ---------- sky ---------- */
+  .haze{position:fixed;inset:-6%;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% -10%,rgba(212,176,98,.1),transparent 65%),
+      radial-gradient(ellipse 55% 45% at 85% 95%,rgba(18,24,48,.95),transparent 65%),
+      radial-gradient(ellipse 45% 40% at 8% 65%,rgba(18,24,48,.8),transparent 65%);
+    animation:drift 38s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(1.5%,-1.2%,0) scale(1.04)}}
+  #sky{position:fixed;inset:0;z-index:1;pointer-events:none;width:100%;height:100%}
+  .page{position:relative;z-index:2}
+
+  /* ---------- intro: black leader, lamp, ink, light, iris ---------- */
+  #intro{position:fixed;inset:0;z-index:100;display:grid;place-items:center}
+  #intro .ibg{position:absolute;inset:0;background:#000;transition:opacity .35s var(--ease-cut-out)}
+  #intro.done .ibg{opacity:0}
+  #intro.fast .ibg{transition-duration:.45s}
+  #intro.done{pointer-events:none}
+  #intro.gone{visibility:hidden}
+  #intro.iris .ibg{-webkit-mask-image:radial-gradient(circle at var(--sx,50%) var(--sy,40%),transparent calc(var(--iris,0px) - 12vmax),#000 var(--iris,0px));mask-image:radial-gradient(circle at var(--sx,50%) var(--sy,40%),transparent calc(var(--iris,0px) - 12vmax),#000 var(--iris,0px))}
+  #intro .lamp{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:calc(-.353 * var(--logo-h) - 1.5px) 0 0 -1.5px;border-radius:50%;background:#fff;opacity:0;box-shadow:0 0 12px 3px rgba(240,212,138,.7),0 0 30px 8px rgba(240,212,138,.25)}
+  #intro.show .lamp{animation:lamp .5s linear .15s both}
+  #intro.lit .lamp,#intro.solid .lamp{animation:lampOut .25s linear both}
+  @keyframes lamp{0%{opacity:0}14%{opacity:.7}28%{opacity:.15}48%{opacity:1}71%{opacity:.8}100%{opacity:1}}
+  @keyframes lampOut{to{opacity:0}}
+  #intro .istreak{position:absolute;left:50%;top:50%;width:min(64vw,640px);height:2px;margin:calc(-.353 * var(--logo-h) - 1px) 0 0 calc(min(64vw,640px) / -2);opacity:0;transform:scaleX(0);pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(240,212,138,0) 18%,rgba(255,246,220,.95) 50%,rgba(240,212,138,0) 82%,transparent)}
+  #intro.show .istreak{animation:streak 1.1s var(--ease-expo) .52s both}
+  @keyframes streak{0%{opacity:0;transform:scaleX(0)}30%{opacity:1}100%{opacity:0;transform:scaleX(1)}}
+  #intro .spike{position:absolute;left:50%;top:50%;background:linear-gradient(90deg,transparent,rgba(255,246,220,.9),transparent);opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(0)}
+  #intro .spike.h{width:150px;height:1px;margin-top:calc(-.353 * var(--logo-h))}
+  #intro .spike.v{width:1px;height:96px;margin-top:calc(-.353 * var(--logo-h));background:linear-gradient(180deg,transparent,rgba(255,246,220,.9),transparent)}
+  #intro.lit .spike{animation:spike .8s var(--ease-expo) .06s both}
+  @keyframes spike{0%{opacity:0;transform:translate(-50%,-50%) scale(0)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+  #intro .imove{position:relative;transform-origin:0 0;transition:transform .95s var(--ease-inout)}
+  #intro.travel .imove{will-change:transform}
+  #intro .imark{position:relative;height:var(--logo-h);aspect-ratio:299.56/343.72}
+  .ilogo{position:absolute;inset:0;width:100%;height:100%;overflow:visible;display:block}
+  #intro .ink{opacity:.95;transition:opacity .5s var(--ease-cut-in)}
+  #intro .ink use{fill:none;stroke:var(--ivory);stroke-width:1.5;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .95s var(--ease-ink)}
+  #intro.draw .ink use{stroke-dashoffset:0}
+  #intro.flooded .ink,#intro.solid .ink{opacity:0}
+  #intro .ifill{position:absolute;inset:0;--w:-16%;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 var(--w),transparent calc(var(--w) + 16%));mask-image:linear-gradient(180deg,#000 0,#000 var(--w),transparent calc(var(--w) + 16%))}
+  #intro.solid .ifill{-webkit-mask-image:none;mask-image:none}
+  #intro .ls{opacity:0;transform:scale(.3);transform-box:fill-box;transform-origin:center;transition:opacity .3s,transform .45s var(--ease-star)}
+  #intro.lit .ls,#intro.solid .ls{opacity:1;transform:none}
+  #intro .iflare{position:absolute;left:49.6%;top:14.7%;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;pointer-events:none;mix-blend-mode:screen;opacity:0;
+    background:radial-gradient(circle,rgba(240,212,138,.7),rgba(240,212,138,0) 62%)}
+  #intro.lit .iflare,#intro.solid .iflare{animation:burst .95s var(--ease-out) both,flare 3.6s ease-in-out .95s infinite}
+  @keyframes burst{0%{opacity:0;transform:scale(.3)}45%{opacity:1;transform:scale(1.8)}100%{opacity:.55;transform:scale(1)}}
+  #intro .skip{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);font-family:var(--font-display);font-size:.6rem;letter-spacing:.36em;text-transform:uppercase;color:var(--dim);background:none;border:0;cursor:pointer;padding:10px 14px;opacity:0;transition:opacity .6s .9s,color .3s}
+  #intro.show .skip{opacity:.75}
+  #intro.done .skip{opacity:0;transition-delay:0s}
+  #intro .skip:hover,#intro .skip:focus-visible{color:var(--ivory)}
+  html:not(.js) #intro .ifill{-webkit-mask-image:none;mask-image:none}
+  html:not(.js) #intro .ls{opacity:1;transform:none}
+  html:not(.js) #intro .ink{opacity:0}
+  html:not(.js) #intro .imark{animation:iin 1.4s var(--ease-expo) .1s both}
+  html:not(.js) #intro{animation:ihide .9s var(--ease-inout) 3.2s both}
+  @keyframes iin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+  @keyframes ihide{to{opacity:0;visibility:hidden}}
+
+  /* ---------- curtain for page changes ---------- */
+  #cut{position:fixed;inset:0;z-index:90;background:#000;opacity:0;pointer-events:none;transition:opacity .42s var(--ease-cut-out)}
+  #cut.on{opacity:1;transition:opacity .18s var(--ease-cut-in)}
+
+  /* ---------- progress ---------- */
+  #progress{position:fixed;top:env(safe-area-inset-top,0px);left:0;width:100%;height:2px;z-index:52;background:linear-gradient(90deg,var(--gold) 0,var(--gold) calc(100% - 28px),#fff6d8);transform:scaleX(0);transform-origin:left;pointer-events:none;opacity:.9}
+
+  /* ---------- nav ---------- */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:50;padding-top:env(safe-area-inset-top,0px);
+    border-bottom:1px solid transparent;transition:background .5s,border-color .5s;
+    animation:navIn 1.1s var(--ease-expo) var(--ad,calc(var(--intro) + .15s)) both}
+  @keyframes navIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+  .nav.scrolled{background:rgba(7,8,13,.74);border-bottom-color:var(--line);
+    backdrop-filter:blur(16px) saturate(130%);-webkit-backdrop-filter:blur(16px) saturate(130%)}
+  .nav-inner{max-width:1180px;margin:0 auto;padding:0 24px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ivory)}
+  html.js .brand{opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .7s var(--ease-expo),transform .7s var(--ease-expo)}
+  html.js .brand.on{opacity:1;transform:none;pointer-events:auto}
+  .brand img{height:36px;width:auto}
+  .brand span{font-family:var(--font-display);font-weight:300;letter-spacing:.32em;font-size:.76rem;text-transform:uppercase;white-space:nowrap}
+  .nav-links{display:flex;gap:36px;list-style:none;margin:0;padding:0}
+  .nav-links a{font-family:var(--font-display);font-weight:400;font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mist);text-decoration:none;position:relative;padding:8px 0;transition:color .4s;display:inline-block}
+  .nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease-expo)}
+  .nav-links a.active{color:var(--ivory)}
+  .nav-links a.active::after{transform:scaleX(1);transform-origin:left}
+  .nav-social{display:none;gap:6px}
+  .nav-social a{width:34px;height:34px;display:grid;place-items:center;color:var(--dim);transition:color .4s,transform .7s var(--ease-expo)}
+  .nav-social a svg{width:15px;height:15px;fill:currentColor}
+  .burger{display:none;width:44px;height:44px;background:none;border:0;cursor:pointer;position:relative;z-index:60;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:0}
+  .burger span{display:block;width:24px;height:1px;background:var(--ivory);transition:transform .5s var(--ease-expo),opacity .3s}
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0;transform:scaleX(.2)}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  @media(min-width:1100px){.nav-social{display:flex}}
+  @media(max-width:900px){.burger{display:flex}.nav-links{display:none}}
+  @media(max-width:400px){.brand span{font-size:.62rem;letter-spacing:.24em}.brand img{height:30px}}
+
+  .mobile-menu{position:fixed;inset:0;z-index:45;background:rgba(7,8,13,.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;
+    padding:calc(var(--nav-h) + env(safe-area-inset-top,0px)) 24px 40px;opacity:0;transition:opacity .45s}
+  .mobile-menu.open{opacity:1}
+  .mobile-menu a.mlink{font-family:var(--font-display);font-weight:200;font-size:2rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ivory);text-decoration:none;padding:12px;
+    opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease-expo),transform .7s var(--ease-expo),color .3s;transition-delay:calc(.07s * var(--i))}
+  .mobile-menu.open a.mlink{opacity:1;transform:none}
+  .mobile-menu .social-row{margin-top:36px;opacity:0;transition:opacity .6s .45s}
+  .mobile-menu.open .social-row{opacity:1}
+  body.menu-open{overflow:hidden}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;min-height:min(92svh,940px);display:grid;place-items:center;text-align:center;padding:calc(var(--nav-h) + 48px) 24px 150px}
+  .hero-inner{display:flex;flex-direction:column;align-items:center}
+  html.js:not(.ready) .hero .anim{animation-play-state:paused}
+  html.js:not(.ready) .nav{animation-play-state:paused}
+  .eyebrow-top{font-family:var(--font-display);font-size:.66rem;letter-spacing:.36em;text-transform:uppercase;color:var(--gold);margin:0 0 8px;animation:rise 1.3s var(--ease-expo) var(--ad,calc(var(--intro) + .35s)) both}
+  .echo{position:relative;width:min(420px,84vw);aspect-ratio:1;display:grid;place-items:center}
+  .umbra{position:absolute;inset:6%;border-radius:50%;background:radial-gradient(closest-side,rgba(7,8,13,.9),rgba(7,8,13,0));pointer-events:none;opacity:0;transition:opacity 1.2s var(--ease-out) .3s}
+  html.landed .umbra,html:not(.js) .umbra{opacity:.9}
+  .mark-wrap{position:relative;animation:ignite 1.7s var(--ease-out) calc(var(--intro) - .3s) both;touch-action:manipulation;transition:transform .9s var(--ease-expo)}
+  html.js:not(.landed) .mark-wrap{animation:none;opacity:0}
+  html.landed .mark-wrap{animation:breathe 9s cubic-bezier(.45,.05,.55,.95) 1.2s infinite;cursor:pointer}
+  .mark-wrap.press{transform:scale(.985) translateY(1px)!important;transition:transform .12s var(--ease-cut-in)}
+  @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .mark{height:var(--logo-h);width:auto;filter:drop-shadow(0 0 26px rgba(241,236,226,.14))}
+  .flare{position:absolute;left:49.6%;top:14.7%;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
+    background:radial-gradient(circle,rgba(240,212,138,.6),rgba(240,212,138,0) 62%);animation:flare 3.6s ease-in-out infinite}
+  .flare.struck{animation:burst .95s var(--ease-out) both,flare 3.6s ease-in-out .95s infinite}
+  @keyframes flare{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+  @keyframes ignite{from{opacity:0;transform:scale(.9) translateY(12px)}to{opacity:1;transform:none}}
+
+  .wordmark{font-family:var(--font-display);font-weight:200;text-transform:uppercase;font-size:clamp(1.5rem,5.2vw,3.6rem);letter-spacing:.42em;padding-left:.42em;margin:8px 0 0;line-height:1.15}
+  .wordmark .ch{display:inline-block;letter-spacing:inherit;
+    background:linear-gradient(100deg,var(--ivory) 44%,#ffffff 50%,var(--ivory) 56%);background-size:300% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:sheen 11s linear calc(6s - var(--i) * .05s) infinite;
+    transition:opacity .9s var(--ease-expo),transform .9s var(--ease-expo),filter .9s var(--ease-expo);transition-delay:calc(var(--wd,60ms) + var(--i) * 34ms)}
+  html.js:not(.ready) .wordmark .ch{opacity:0;transform:translateY(.35em);filter:blur(6px)}
+  @keyframes sheen{0%,72%{background-position:100% 0}100%{background-position:-60% 0}}
+  .tagline{font-family:var(--font-body);font-style:italic;font-size:clamp(1.25rem,2.5vw,1.8rem);color:var(--ivory);margin:22px 0 0;display:flex;align-items:center;justify-content:center;gap:18px;
+    animation:focus 1.3s var(--ease-expo) var(--ad,calc(var(--intro) + .85s)) both}
+  @keyframes focus{from{opacity:0;filter:blur(5px);transform:scale(.985)}to{opacity:1;filter:blur(0);transform:none}}
+  .tagline::before,.tagline::after{content:'';width:clamp(22px,6vw,64px);height:1px;background:linear-gradient(90deg,transparent,var(--gold));transform:scaleX(0);transform-origin:right;animation:lineIn 1.4s var(--ease-expo) calc(var(--ad,calc(var(--intro) + .85s)) + .25s) both}
+  .tagline::after{background:linear-gradient(90deg,var(--gold),transparent);transform-origin:left}
+  @keyframes lineIn{to{transform:scaleX(1)}}
+  .sub{font-family:var(--font-display);font-weight:300;letter-spacing:.22em;text-transform:uppercase;font-size:.78rem;color:var(--mist);margin:16px 0 0;animation:rise 1.3s var(--ease-expo) var(--ad,calc(var(--intro) + 1.05s)) both}
+  .cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:40px;animation:rise 1.3s var(--ease-expo) var(--ad,calc(var(--intro) + 1.2s)) both}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .scroll-cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--dim);font-family:var(--font-display);font-size:.6rem;letter-spacing:.34em;text-transform:uppercase;text-decoration:none;animation:rise 1s var(--ease-expo) var(--ad,calc(var(--intro) + 1.9s)) both}
+  .scroll-cue i{display:block;width:1px;height:46px;background:var(--line);position:relative;overflow:hidden}
+  .scroll-cue i::after{content:'';position:absolute;left:0;top:-50%;width:1px;height:50%;background:var(--gold);animation:drop 2.2s ease-in-out infinite}
+  @keyframes drop{0%{top:-50%}100%{top:110%}}
+
+  .btn{position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;gap:12px;padding:15px 28px;border:1px solid var(--line-strong);color:var(--ivory);
+    font-family:var(--font-display);font-size:.7rem;letter-spacing:.26em;text-transform:uppercase;text-decoration:none;background:transparent;cursor:pointer;touch-action:manipulation;
+    transition:color .4s,border-color .4s,box-shadow .4s,transform .7s var(--ease-expo)}
+  .btn svg{width:16px;height:16px;fill:currentColor;flex:none}
+  .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:rgba(212,176,98,.13);transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease-expo)}
+  .btn.gold{border-color:var(--gold);color:var(--gold)}
+  .btn:active{transform:scale(.985);transition-duration:.12s}
+  .btn.pulse{animation:pulse .9s var(--ease-out) 1}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,176,98,.45)}100%{box-shadow:0 0 0 18px rgba(212,176,98,0)}}
+
+  /* ---------- sections ---------- */
+  .section{padding:120px 24px;position:relative;scroll-margin-top:calc(var(--nav-h) - 8px)}
+  .wrap{max-width:1120px;margin:0 auto}
+  .grid-2{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.6fr);gap:64px;align-items:start}
+  .eyebrow{font-family:var(--font-display);font-size:.68rem;letter-spacing:.36em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:14px;margin:0}
+  .eyebrow::before{content:'';width:30px;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease-expo) .25s}
+  .in .eyebrow::before,html:not(.js) .eyebrow::before{transform:scaleX(1)}
+  h2{font-family:var(--font-display);font-weight:300;font-size:clamp(2rem,4vw,3rem);line-height:1.12;letter-spacing:.02em;margin:18px 0 0;text-wrap:balance}
+  .lede{font-size:1.32rem;line-height:1.6;color:var(--ivory);max-width:60ch;margin:0}
+  p{max-width:65ch}
+  .divider{display:flex;align-items:center;gap:18px;max-width:1120px;margin:0 auto;padding:0 24px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent)}
+  .js .divider::before{transform:scaleX(0);transform-origin:right;transition:transform 1.4s var(--ease-expo) .2s}
+  .js .divider::after{transform:scaleX(0);transform-origin:left;transition:transform 1.4s var(--ease-expo) .2s}
+  .js .divider.in::before,.js .divider.in::after{transform:scaleX(1)}
+  .dstar{display:grid;place-items:center;flex:none;position:relative}
+  .js .dstar{opacity:0;transform:scale(.4);transition:opacity .7s var(--ease-star),transform .7s var(--ease-star)}
+  .js .divider.in .dstar{opacity:1;transform:none}
+  .dstar::after{content:'';position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:1px solid rgba(212,176,98,.5);opacity:0;transform:scale(.4)}
+  .js .divider.in .dstar::after{animation:ping 1.3s var(--ease-out) .25s 1}
+  @keyframes ping{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(2.6)}}
+  .dstar svg{width:14px;height:14px;fill:var(--gold);animation:twinkle 3.2s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.45;transform:scale(.85) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(45deg)}}
+
+  .js .reveal{opacity:0;transform:translateY(24px);transition:opacity 1.1s var(--ease-expo),transform 1.1s var(--ease-expo);transition-delay:var(--d,0s)}
+  .js .reveal.in{opacity:1;transform:none}
+  .js .soft .lede,.js .soft p{filter:blur(6px);transition:filter 1.2s var(--ease-expo);transition-delay:var(--d,0s)}
+  .js .soft.in .lede,.js .soft.in p{filter:blur(0)}
+  .js .words .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.1em;margin-bottom:-.1em}
+  .js .words .w>span{display:inline-block;transform:translateY(112%);transition:transform 1s var(--ease-expo);transition-delay:calc(var(--i) * .04s)}
+  .js .words.in .w>span{transform:none}
+
+  .pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:72px;padding-top:56px;border-top:1px solid var(--line)}
+  .pillar{position:relative;padding-left:26px}
+  .pillar svg{position:absolute;left:0;top:6px;width:12px;height:12px;fill:var(--gold);transition:transform .7s var(--ease-star) .3s,opacity .5s .3s}
+  .js .pillar:not(.in) svg{transform:scale(.3);opacity:0}
+  .pillar::before{content:'';position:absolute;left:5px;top:26px;width:1px;height:calc(100% - 26px);background:linear-gradient(180deg,rgba(212,176,98,.7),transparent);transform:scaleY(0);transform-origin:top;transition:transform 1.3s var(--ease-ink) .5s}
+  .pillar.in::before,html:not(.js) .pillar::before{transform:scaleY(1)}
+  .pillar h3{font-family:var(--font-display);font-weight:400;font-size:.86rem;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  .pillar p{margin:0;color:var(--mist);font-size:1.05rem;line-height:1.55}
+
+  .platforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:16px;margin-top:56px;perspective:1100px}
+  .platform{position:relative;display:flex;flex-direction:column;gap:18px;min-height:210px;padding:28px 24px;border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(241,236,226,.035),rgba(241,236,226,0));text-decoration:none;color:var(--ivory);overflow:hidden;touch-action:manipulation;
+    --mx:50%;--my:50%;
+    transition:transform .9s var(--ease-expo),border-color .4s,box-shadow .4s}
+  .js .platform.reveal.in{transition:opacity 1.1s var(--ease-expo),transform .3s ease-out,border-color .4s,box-shadow .4s}
+  .platform::before{content:'';position:absolute;inset:0;background:radial-gradient(240px circle at var(--mx) var(--my),rgba(212,176,98,.14),transparent 62%);opacity:0;transition:opacity .5s;pointer-events:none}
+  .platform::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease-expo)}
+  .platform:active{transform:scale(.992)!important;border-color:rgba(212,176,98,.5)}
+  .platform:active::after{transform:scaleX(1)}
+  .platform>*{position:relative}
+  .platform .icon{width:30px;height:30px;fill:var(--mist);transition:fill .3s,transform .6s var(--ease-expo)}
+  .platform .name{font-family:var(--font-display);font-size:.8rem;letter-spacing:.26em;text-transform:uppercase}
+  .platform .desc{color:var(--mist);font-size:1rem;line-height:1.45;margin:0}
+  .platform .go{margin-top:auto;display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);transition:color .3s}
+  .platform .go svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s var(--ease-expo)}
+
+  .person{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.6fr);gap:64px;padding:72px 0;border-top:1px solid var(--line)}
+  .person.first{border-top:0;padding-top:24px}
+  .monogram{width:124px;height:124px;border-radius:50%;display:grid;place-items:center;position:relative;font-family:var(--font-display);font-weight:200;font-size:3.1rem;color:var(--ivory)}
+  .monogram::before{content:'';position:absolute;inset:-9px;border-radius:50%;border:1px dashed rgba(212,176,98,.5);animation:spin 46s linear infinite;opacity:0;transition:opacity 1s 2s}
+  .in .monogram::before,html:not(.js) .monogram::before{opacity:.6}
+  .ring-svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .ring-svg circle{fill:none;stroke:var(--line-strong);stroke-width:1;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.8s var(--ease-ink) .2s}
+  .in .ring-svg circle,html:not(.js) .ring-svg circle{stroke-dashoffset:0}
+  .mstar{position:absolute;top:-7px;left:50%;margin-left:-7px;width:14px;height:14px;fill:var(--gold);opacity:0;transform:scale(.5);transition:opacity .6s var(--ease-star) 2s,transform .6s var(--ease-star) 2s}
+  .in .mstar,html:not(.js) .mstar{opacity:1;transform:none;animation:twinkle 3.2s ease-in-out 2.6s infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .person h3{font-family:var(--font-display);font-weight:300;font-size:1.95rem;margin:28px 0 8px;letter-spacing:.04em;position:relative;display:inline-block}
+  .person h3::after{content:'';position:absolute;left:0;bottom:-6px;width:100%;height:1px;background:linear-gradient(90deg,var(--gold),transparent);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--ease-ink) .55s}
+  .reveal.in h3::after,html:not(.js) .person h3::after{transform:scaleX(1)}
+  .role{font-family:var(--font-display);font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin:0;line-height:1.8}
+  .bio p{margin:0 0 1.15em;font-size:1.13rem;line-height:1.72;color:rgba(241,236,226,.88)}
+  .bio p:last-child{margin-bottom:0}
+  .bio .quote{font-family:var(--font-display);font-weight:200;font-size:clamp(1.8rem,3.6vw,2.7rem);color:var(--gold-bright);letter-spacing:.06em;margin:30px 0;padding-left:22px;border-left:1px solid var(--gold);line-height:1.2;max-width:none}
+  .js .quote .w>span{background:linear-gradient(100deg,var(--gold-bright) 44%,#fff7dc 50%,var(--gold-bright) 56%);background-size:300% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 10s linear calc(4s - var(--i) * .25s) infinite}
+
+  .contact-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:64px;margin-top:56px}
+  .form{display:flex;flex-direction:column;gap:22px}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .field{display:flex;flex-direction:column;gap:9px;position:relative}
+  .field label{font-family:var(--font-display);font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mist);transition:color .4s}
+  .field:focus-within label{color:var(--gold)}
+  .field input,.field textarea{width:100%;background:rgba(241,236,226,.035);border:1px solid var(--line);color:var(--ivory);font-family:var(--font-body);font-size:1.05rem;padding:14px 16px;border-radius:0;
+    transition:border-color .4s,box-shadow .4s,background .4s}
+  .field textarea{min-height:160px;resize:vertical}
+  .field :is(input,textarea):focus{outline:none;border-color:rgba(212,176,98,.55);box-shadow:0 0 0 3px rgba(212,176,98,.1);background:rgba(241,236,226,.055)}
+  .field::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .32s var(--ease-cut-in)}
+  .field:focus-within::after{transform:scaleX(1);transform-origin:left;transition:transform .5s var(--ease-ink)}
+  .form-foot{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .status{font-size:1rem;color:var(--mist);margin:0;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;max-width:none}
+  .status.show{opacity:1;transform:none}
+  .status.err{color:#e2a7a7}
+  .status a{color:var(--gold)}
+  .aside .block{padding:24px 0;border-top:1px solid var(--line)}
+  .aside .block:first-child{border-top:0;padding-top:0}
+  .aside h3{font-family:var(--font-display);font-weight:400;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+  .aside p{margin:0;color:var(--mist);font-size:1.05rem}
+  .aside p a{color:var(--ivory);text-decoration:none;border-bottom:1px solid var(--line-strong);transition:border-color .4s,color .4s}
+  .social-row{display:flex;gap:10px;flex-wrap:wrap}
+  .social-row a{width:46px;height:46px;border:1px solid var(--line);display:grid;place-items:center;color:var(--mist);touch-action:manipulation;transition:color .4s,border-color .4s,transform .7s var(--ease-expo),box-shadow .4s}
+  .social-row a svg{width:18px;height:18px;fill:currentColor}
+  .social-row a:active{transform:scale(.96);transition-duration:.12s}
+
+  /* hover craft: only where a real pointer exists */
+  @media (hover:hover) and (pointer:fine){
+    html.js .brand.on:hover{opacity:.82}
+    .nav-links a:hover{color:var(--ivory)}
+    .nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+    .nav-social a:hover{color:var(--gold);transform:translateY(-1px)}
+    .mobile-menu a.mlink:hover{color:var(--gold)}
+    .btn:hover::before{transform:scaleX(1);transform-origin:left}
+    .btn:hover{border-color:var(--gold);color:var(--gold-bright);box-shadow:0 0 34px rgba(212,176,98,.14);transform:translateY(-2px)}
+    .platform:hover::before{opacity:1}
+    .platform:hover{border-color:rgba(212,176,98,.5);box-shadow:0 26px 60px rgba(0,0,0,.45),0 0 44px rgba(212,176,98,.07)}
+    .platform:hover::after{transform:scaleX(1)}
+    .platform:hover .icon{fill:var(--gold);transform:scale(1.1) translateZ(20px)}
+    .platform:hover .go{color:var(--gold-bright)}
+    .platform:hover .go svg{transform:translate(3px,-3px)}
+    .person:hover .monogram::before{animation-duration:14s;opacity:1;transition-delay:0s}
+    .aside p a:hover{color:var(--gold);border-color:var(--gold)}
+    .social-row a:hover{color:var(--gold);border-color:var(--gold);transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.35)}
+    footer li a:hover{color:var(--ivory);transform:translateX(6px)}
+    .back:hover{color:var(--gold)}
+    .back:hover svg{transform:translateX(-4px)}
+    .totop:hover{color:var(--gold);transform:translateY(-3px)}
+  }
+
+  /* ---------- legal ---------- */
+  .legal-wrap{max-width:760px;margin:0 auto;padding:calc(var(--nav-h) + 72px) 24px 110px}
+  .legal .mark-small{height:64px;width:auto;margin-bottom:28px}
+  .legal h1{font-family:var(--font-display);font-weight:300;font-size:clamp(2.2rem,5vw,3.4rem);margin:16px 0 0;line-height:1.1;text-wrap:balance}
+  .legal .meta{display:flex;flex-wrap:wrap;gap:14px 40px;margin:28px 0 40px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .legal .meta div{font-family:var(--font-display);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+  .legal .meta b{display:block;color:var(--ivory);font-weight:400;letter-spacing:.06em;font-size:.92rem;margin-top:5px;text-transform:none}
+  .legal .intro{font-size:1.25rem;line-height:1.6}
+  .legal h2{font-family:var(--font-display);font-weight:400;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:46px 0 12px;display:flex;gap:16px;align-items:baseline;line-height:1.3;text-wrap:initial}
+  .legal h2 .n{font-weight:300;color:var(--dim);font-size:.82rem;letter-spacing:.1em}
+  .legal p{margin:0 0 1em;color:rgba(241,236,226,.88)}
+  .legal ul{margin:0 0 1em;padding-left:1.3em}
+  .legal li{margin:6px 0;color:rgba(241,236,226,.88)}
+  .legal li::marker{color:var(--gold)}
+  .back{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:.66rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mist);text-decoration:none;transition:color .3s}
+  .back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s var(--ease-expo)}
+  .legal .end{margin-top:56px;padding-top:28px;border-top:1px solid var(--line)}
+  .view.enter{animation:viewIn .8s var(--ease-expo) both}
+  @keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  /* ---------- footer ---------- */
+  footer{position:relative;z-index:2;border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(7,8,13,0),rgba(7,8,13,.9));padding:72px 24px 40px;overflow:hidden}
+  .foot-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px}
+  .foot-brand{position:relative}
+  .foot-brand::before{content:'';position:absolute;left:32px;top:32px;width:180px;height:180px;margin:-90px 0 0 -90px;border-radius:50%;border:1px solid rgba(212,176,98,.35);opacity:0;pointer-events:none}
+  .foot-grid.in .foot-brand::before,html:not(.js) .foot-brand::before{animation:echo 9s var(--ease-out) infinite}
+  @keyframes echo{0%{transform:scale(.38);opacity:0}10%{opacity:.75}100%{transform:scale(1.12);opacity:0}}
+  .foot-brand img{height:64px;width:auto;position:relative}
+  .foot-brand .fw{font-family:var(--font-display);font-weight:300;letter-spacing:.3em;text-transform:uppercase;font-size:.72rem;margin:18px 0 0}
+  .foot-brand p{color:var(--mist);font-style:italic;margin:10px 0 0;max-width:36ch}
+  footer h3{font-family:var(--font-display);font-weight:400;font-size:.64rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:0 0 16px}
+  footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  footer li a{color:var(--mist);text-decoration:none;font-family:var(--font-display);font-size:.84rem;letter-spacing:.1em;display:inline-block;transition:color .3s,transform .5s var(--ease-expo)}
+  .foot-bottom{max-width:1120px;margin:52px auto 0;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--font-display);font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+
+  .totop{position:fixed;right:22px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:40;width:48px;height:48px;border:0;border-radius:50%;background:rgba(7,8,13,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--ivory);display:grid;place-items:center;cursor:pointer;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .4s,transform .5s var(--ease-expo),color .3s;padding:0}
+  .totop.show{opacity:1;transform:none;pointer-events:auto}
+  .totop .tt-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .totop .tt-ring circle{fill:none;stroke-width:1.2}
+  .totop .tt-bg{stroke:var(--line-strong)}
+  .totop .tt-fg{stroke:var(--gold);stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .12s linear}
+  .totop .tt-icon{position:relative;width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transform:rotate(180deg)}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:900px){
+    .grid-2,.person,.contact-grid{grid-template-columns:1fr;gap:36px}
+    .person{padding:56px 0}
+    .foot-grid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:640px){
+    body{font-size:17px}
+    .section{padding:88px 20px}
+    .hero{padding:calc(var(--nav-h) + 24px) 20px 130px}
+    .pillars{grid-template-columns:1fr;gap:28px;margin-top:56px;padding-top:40px}
+    .form-row{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr;gap:32px}
+    .legal-wrap{padding-top:calc(var(--nav-h) + 40px)}
+    .divider{padding:0 20px}
+    .mobile-menu a.mlink{font-size:1.5rem}
+    #intro .ink use{stroke-width:1.9}
+    .js .soft .lede,.js .soft p{filter:none;color:rgba(241,236,226,0);transition:color 1.4s var(--ease-expo);transition-delay:var(--d,0s)}
+    .js .soft.in .lede{color:var(--ivory)}
+    .js .soft.in p{color:rgba(241,236,226,.88)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+    .js .reveal,.js .words .w>span,.js .dstar,.js .soft .lede,.js .soft p,.mstar,.pillar svg{opacity:1!important;transform:none!important;filter:none!important}
+    .js .divider::before,.js .divider::after,.pillar::before,.person h3::after{transform:none!important}
+    html.js:not(.ready) .wordmark .ch{opacity:1;transform:none;filter:none}
+    .flare,.istreak,.lamp,.spike,.foot-brand::before,.umbra{display:none}
+    #intro .ifill{-webkit-mask-image:none;mask-image:none}
+    #intro .ls{opacity:1;transform:none}
+    #intro .ink{opacity:0}
+  }
+</style>
+
+<svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-spotify" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></symbol>
+  <symbol id="i-youtube" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></symbol>
+  <symbol id="i-tiktok" viewBox="0 0 24 24"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></symbol>
+  <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 0Q13 11 24 12Q13 13 12 24Q11 13 0 12Q11 11 12 0Z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="logo-body" viewBox="0 0 299.56 343.72"><path fill-rule="evenodd" d="M161.53,2.00L161.25,2.31 162.47,4.28 169.31,13.70 170.75,15.39 171.34,16.52 176.87,24.62 180.19,30.02 182.75,34.97 185.00,40.59 185.39,43.19 186.00,45.06 186.19,47.14 185.87,55.81 185.30,58.34 185.06,60.77 184.06,63.92 182.37,67.34 180.64,70.22 177.64,74.33 173.09,79.62 168.19,87.92 166.30,92.14 164.84,96.22 164.14,98.61 163.06,103.81 162.53,108.75 162.42,117.38 162.56,189.00 163.03,242.81 163.69,253.75 164.20,252.81 165.50,248.41 166.89,245.23 167.37,243.28 168.70,240.30 170.45,235.58 174.63,226.53 178.27,219.53 182.09,213.03 186.86,206.05 192.81,198.25 200.22,189.53 207.37,182.66 212.53,178.20 217.61,174.30 226.03,168.45 231.67,164.17 233.86,162.83 238.14,159.39 245.22,153.17 250.56,147.67 254.31,143.31 259.59,136.09 264.47,128.31 266.31,126.16 266.87,126.00 268.50,127.45 272.94,132.38 274.25,134.22 274.17,134.92 273.47,136.56 270.83,140.62 267.08,147.00 260.75,155.53 256.63,160.42 252.87,164.28 246.97,169.84 239.37,175.81 232.34,180.77 228.50,183.88 222.86,187.92 214.84,194.72 207.25,201.84 202.42,207.00 192.33,220.33 187.87,227.12 184.56,232.81 179.58,242.73 176.37,249.94 175.94,251.42 174.58,254.20 174.19,255.66 172.89,258.47 171.42,263.02 170.00,268.70 169.25,270.55 168.30,274.17 168.19,275.36 167.31,277.98 167.17,279.66 166.03,284.53 164.81,291.66 164.70,293.50 164.14,296.22 163.94,299.80 163.37,302.75 162.92,307.75 162.39,321.53 162.25,334.56 162.44,341.03 162.70,341.36 163.22,341.50 180.94,323.97 207.66,297.02 212.52,291.86 214.45,290.17 220.33,284.05 227.11,277.52 239.56,264.80 265.42,238.97 274.34,229.78 281.42,221.53 286.47,214.31 289.52,208.88 291.45,204.48 293.63,198.41 295.87,189.31 296.95,182.70 297.47,176.28 297.56,170.28 297.11,162.70 296.22,156.62 294.94,150.58 293.67,146.12 291.22,140.05 288.08,134.12 283.06,126.53 278.80,121.06 273.84,115.47 265.06,106.42 239.02,80.36 222.58,63.42 212.36,53.25 209.34,49.95 193.97,34.61 188.44,28.69 182.86,23.47 177.70,17.84 164.91,4.95ZM281.17,147.86L282.02,149.00 282.44,150.80 283.19,152.61 284.95,160.58 285.61,166.92 285.75,170.34 285.61,175.78 284.95,181.78 284.06,187.59 283.42,189.41 282.87,191.86 282.39,192.86 282.06,194.78 281.42,196.23 280.81,198.41 277.91,204.59 274.13,211.22 270.34,216.44 264.53,223.03 232.55,255.33 226.06,261.56 214.95,272.91 205.31,283.28 203.00,285.27 202.41,285.38 202.34,284.84 202.86,283.41 203.19,281.05 203.81,279.77 204.19,278.19 206.97,270.73 211.77,260.52 218.50,248.44 223.89,241.17 228.63,235.50 234.42,230.00 250.28,216.38 252.47,214.25 256.17,209.75 258.25,206.75 260.30,203.33 263.78,196.48 265.94,190.53 266.52,187.56 267.61,183.94 267.59,183.44 267.03,183.25 257.66,188.77 253.80,191.86 252.44,193.38 251.37,194.97 249.63,198.58 247.73,201.73 244.17,206.17 239.37,210.75 232.06,216.47 226.55,221.22 218.09,229.97 213.53,235.59 207.34,244.97 205.36,248.30 201.63,255.38 197.69,264.00 192.56,279.34 192.06,281.55 191.44,283.00 191.19,285.06 190.17,289.33 189.45,294.81 189.09,296.17 188.91,298.78 188.69,299.38 176.73,311.84 174.78,313.50 173.56,314.06 173.37,313.03 173.84,305.03 175.30,291.59 176.37,285.41 176.87,284.12 177.25,281.86 178.25,278.05 178.86,276.64 179.19,274.67 179.81,273.09 180.19,271.11 180.83,269.33 181.37,266.66 183.31,261.47 184.92,257.92 185.37,256.22 186.52,254.14 189.00,248.23 194.31,238.12 198.11,232.02 202.84,225.12 207.72,218.66 213.81,211.75 220.23,205.28 225.84,200.19 231.16,195.73 237.63,191.02 244.30,186.67 251.36,181.27 257.33,176.19 262.25,171.50 270.78,161.75 275.27,155.55 279.95,148.30 280.63,147.69ZM232.56,91.00L235.37,94.00 238.03,96.42 239.06,97.78 238.66,99.39 235.80,106.22 233.50,110.53 231.50,113.73 226.97,119.89 219.84,126.97 215.53,130.55 206.09,137.22 203.30,139.59 198.59,144.22 197.80,144.73 197.31,144.81 197.03,144.02 197.06,142.06 198.42,135.81 200.44,131.22 202.23,128.11 204.09,125.69 205.30,124.48 215.09,116.75 220.25,111.44 222.48,108.48 226.09,102.86 229.95,95.64 231.56,91.83 231.97,91.28ZM216.47,75.00L220.50,79.22 221.58,80.66 222.23,81.84 222.47,82.78 218.87,91.75 217.22,94.88 214.94,98.50 211.00,103.84 207.31,107.59 198.09,115.64 195.37,118.59 192.66,121.97 191.39,123.94 191.13,124.83 189.55,127.88 187.37,133.94 187.00,136.33 186.30,138.67 185.64,145.72 185.50,163.25 185.58,168.88 185.97,174.50 186.28,174.50 186.95,173.98 188.91,171.08 195.20,163.50 203.14,155.25 207.34,151.19 213.20,146.45 224.70,138.00 229.53,133.84 233.69,129.72 237.22,125.59 239.75,122.22 242.37,117.81 244.37,114.91 247.14,109.67 248.31,108.12 249.44,107.75 250.33,108.27 256.75,114.95 257.09,115.47 257.06,116.31 255.03,120.77 251.09,127.56 249.33,130.23 245.19,135.72 240.48,141.14 233.78,147.75 227.53,152.78 214.39,162.45 206.50,168.66 197.87,176.06 191.84,181.80 189.39,184.86 185.42,189.20 178.08,199.14 175.70,202.70 174.16,204.44 173.83,200.83 173.61,193.23 173.69,141.81 174.06,137.75 175.13,133.14 177.87,126.23 181.31,119.91 183.50,116.53 185.75,113.77 189.00,110.44 194.11,105.84 198.31,102.66 203.81,97.23 207.66,91.86 209.72,88.53 213.39,81.02 214.06,79.05 214.98,77.27 215.37,75.72 215.91,75.14ZM198.47,55.50L205.73,63.05 207.00,64.62 206.91,65.28 206.56,65.80 206.05,67.66 205.25,69.50 204.94,70.88 203.36,74.23 203.06,75.50 201.37,79.62 198.37,84.88 195.87,88.25 193.37,91.12 190.87,93.55 183.87,99.45 177.91,105.38 175.36,108.31 174.34,109.25 173.59,109.59 173.41,109.44 173.36,108.38 174.17,102.92 174.91,100.22 176.27,96.80 177.83,93.69 180.03,90.12 188.66,78.59 191.34,74.30 192.97,71.12 194.84,66.81 196.89,60.03 197.56,56.16 197.81,55.69ZM137.87,2.09L137.53,2.16 130.08,9.41 94.91,44.44 76.13,64.23 42.19,98.50 30.94,110.45 24.64,116.86 18.27,124.22 14.47,129.34 10.11,136.28 7.80,140.95 6.87,144.06 5.31,147.39 5.19,148.41 4.27,151.22 4.00,153.53 2.78,159.72 2.23,164.66 2.00,170.84 2.06,177.41 2.37,181.72 3.23,187.81 4.02,191.16 4.31,193.34 5.06,195.23 5.44,197.47 6.13,198.91 8.50,205.88 11.72,213.05 14.25,217.41 17.28,221.59 24.13,229.56 34.06,239.97 46.13,251.50 55.83,261.45 62.91,268.28 65.06,270.70 92.91,298.73 95.23,301.36 99.70,305.62 106.80,313.12 120.66,326.78 130.16,336.52 133.91,340.12 135.59,341.39 136.53,341.72 136.72,341.53 136.95,337.31 136.95,323.59 135.81,304.53 135.23,300.39 134.92,296.38 133.39,288.38 133.19,285.91 132.42,282.06 132.09,279.16 129.37,269.22 125.06,255.67 122.33,248.88 121.36,247.03 119.47,242.03 117.25,237.56 115.20,234.20 112.61,229.31 107.22,221.02 101.50,213.33 96.53,207.56 89.16,199.91 81.25,192.62 71.00,184.31 65.08,180.16 53.37,171.39 48.89,167.48 44.66,163.31 39.72,158.12 33.72,150.81 28.94,143.59 24.56,135.31 24.81,134.06 25.69,132.44 27.19,130.44 32.69,124.50 33.16,124.69 33.83,125.39 34.37,126.81 37.28,131.81 42.50,139.50 46.91,145.08 52.73,151.61 63.87,161.50 82.50,175.00 88.75,179.78 92.67,183.16 97.97,188.22 104.53,195.72 109.86,202.48 115.00,209.81 119.81,217.52 123.87,225.03 127.06,231.86 130.50,240.62 132.13,244.19 132.34,245.27 133.56,248.20 135.03,252.62 135.87,254.12 136.08,245.22 136.34,199.94 136.42,135.95 136.19,105.72 135.84,103.66 135.06,101.22 134.86,99.16 134.16,97.38 133.47,94.48 131.78,89.56 130.22,86.09 127.22,81.27 122.16,74.66 118.98,70.11 117.75,68.00 115.92,64.17 114.78,61.03 114.19,58.27 113.53,53.06 113.34,48.56 113.87,43.50 114.78,38.81 115.72,36.33 117.78,32.11 122.31,24.80 129.73,14.48 131.27,12.03 137.75,3.20 138.16,2.47ZM18.13,147.25L19.06,147.56 22.44,153.70 27.08,160.41 31.06,165.19 35.56,170.06 40.48,174.75 49.55,182.55 54.97,186.73 61.28,190.95 63.73,192.95 67.34,195.47 77.19,203.80 83.28,209.72 89.47,216.34 94.91,222.97 101.56,232.38 105.97,239.78 112.30,252.72 115.31,260.14 119.06,271.92 119.39,273.89 119.87,274.91 120.27,276.97 121.19,279.69 121.30,281.03 121.86,282.78 122.14,285.02 123.22,289.41 124.17,298.61 125.19,305.11 125.44,309.02 126.19,313.50 126.22,314.97 125.94,315.72 120.87,311.22 111.03,301.22 109.80,297.77 107.94,287.25 107.06,283.81 106.83,281.86 103.87,271.92 103.19,270.58 99.83,261.20 96.50,254.09 94.25,249.84 88.34,240.09 82.47,232.36 76.00,225.12 69.17,218.72 58.47,210.08 53.95,205.61 51.28,202.09 46.69,193.33 45.81,192.00 44.22,190.58 40.22,187.73 33.03,183.75 32.47,183.83 32.16,184.22 32.25,185.41 34.91,193.86 36.84,198.44 38.92,202.48 40.81,205.72 42.81,208.58 47.69,214.62 49.86,216.94 55.09,221.75 65.84,230.91 72.69,237.72 78.03,244.66 83.37,252.62 85.20,255.86 88.64,263.14 89.37,265.28 91.69,270.22 94.06,277.42 94.31,278.92 95.19,281.67 95.30,282.98 95.91,284.38 95.73,285.05 95.13,285.09 63.63,253.12 42.02,231.61 35.30,225.17 29.22,218.42 25.27,212.95 22.22,207.62 17.91,198.94 17.05,196.59 16.81,195.25 16.06,193.58 15.95,192.47 15.25,190.80 14.83,188.30 14.19,186.73 13.86,183.92 13.30,181.30 12.75,173.09 12.84,167.70 13.22,163.55 14.30,157.69 14.86,156.20 15.19,154.45 15.94,152.59 16.11,151.28 17.09,148.75ZM65.67,90.72L66.22,90.50 66.97,90.97 69.89,97.08 72.28,101.44 76.63,108.03 79.27,111.42 82.09,114.50 84.97,117.27 92.67,123.56 95.19,126.25 97.42,129.25 99.56,133.69 101.36,139.56 102.06,141.30 102.34,144.31 102.67,145.75 102.37,147.09 101.75,146.88 97.34,142.19 92.84,138.16 88.09,134.59 83.11,131.22 76.70,125.59 73.97,122.81 71.25,119.64 67.02,113.89 64.37,109.62 61.09,103.39 59.69,100.09 58.94,97.19 59.78,95.92ZM82.53,74.00L82.92,74.09 83.63,74.94 85.92,80.52 88.92,86.36 91.78,90.91 95.14,95.58 98.44,99.44 101.56,102.48 108.03,107.77 111.37,110.81 113.00,112.53 115.87,116.25 119.44,122.44 122.80,130.06 124.63,137.34 125.08,143.00 125.87,200.84 125.81,204.03 125.31,204.50 124.81,204.14 122.19,200.91 117.73,194.48 112.50,188.05 108.09,183.16 101.63,176.59 96.70,172.34 94.80,170.42 89.03,165.62 72.16,153.39 65.72,148.34 61.52,144.53 58.00,140.97 53.83,136.14 50.39,131.61 44.59,122.23 42.75,118.81 41.72,116.00 41.81,115.06 43.28,113.23 48.80,107.66 49.47,107.16 50.06,107.09 50.53,107.28 53.81,113.52 60.02,123.03 62.66,126.62 65.70,130.17 69.44,133.91 74.03,137.95 88.25,149.02 96.50,156.48 106.08,166.53 113.05,174.77 113.53,175.16 113.72,175.09 113.91,164.12 113.75,151.20 113.47,144.59 112.94,140.30 112.19,138.25 111.86,135.89 111.25,134.45 110.53,131.34 109.73,129.22 107.25,124.16 104.92,120.56 103.59,118.91 100.55,115.73 91.09,107.50 86.16,102.42 82.47,97.23 78.50,89.95 75.81,83.62 75.37,81.34 76.20,80.19 78.34,77.91ZM101.63,54.34L102.11,54.61 102.72,56.06 103.33,60.66 104.50,65.06 105.69,68.31 107.87,73.09 111.13,78.62 118.52,88.66 121.77,94.23 123.97,100.31 125.13,105.08 125.42,107.92 125.19,108.81 123.53,107.42 116.09,100.05 108.98,93.67 104.02,88.62 101.61,85.64 99.22,82.12 96.97,77.62 95.14,72.70 93.56,67.72 92.53,65.28 92.25,63.97 93.75,61.81 96.94,58.39 100.37,55.16Z"/></symbol>
+  <symbol id="logo-star" viewBox="0 0 299.56 343.72"><path d="M148.94,37.84L148.25,38.16 147.50,38.84 144.30,43.52 143.09,44.75 138.94,47.38 136.63,48.06 136.06,48.53 135.94,48.98 136.69,50.25 137.58,51.06 139.14,51.81 140.53,52.11 141.81,52.66 144.63,54.38 145.63,56.16 146.06,57.92 147.94,62.66 148.53,63.06 149.94,63.25 150.78,63.06 151.11,62.77 151.39,61.36 152.66,57.75 154.06,54.94 155.06,54.08 159.53,51.20 160.34,50.48 161.13,49.19 161.00,48.55 160.50,47.89 156.48,45.34 153.67,43.05 152.36,41.41 151.58,39.92 150.92,39.31 150.39,38.22Z"/></symbol>
+  <symbol id="ink-r" viewBox="0 0 299.56 343.72"><path pathLength="1" d="M161.53,2.00L161.25,2.31 162.47,4.28 169.31,13.70 170.75,15.39 171.34,16.52 176.87,24.62 180.19,30.02 182.75,34.97 185.00,40.59 185.39,43.19 186.00,45.06 186.19,47.14 185.87,55.81 185.30,58.34 185.06,60.77 184.06,63.92 182.37,67.34 180.64,70.22 177.64,74.33 173.09,79.62 168.19,87.92 166.30,92.14 164.84,96.22 164.14,98.61 163.06,103.81 162.53,108.75 162.42,117.38 162.56,189.00 163.03,242.81 163.69,253.75 164.20,252.81 165.50,248.41 166.89,245.23 167.37,243.28 168.70,240.30 170.45,235.58 174.63,226.53 178.27,219.53 182.09,213.03 186.86,206.05 192.81,198.25 200.22,189.53 207.37,182.66 212.53,178.20 217.61,174.30 226.03,168.45 231.67,164.17 233.86,162.83 238.14,159.39 245.22,153.17 250.56,147.67 254.31,143.31 259.59,136.09 264.47,128.31 266.31,126.16 266.87,126.00 268.50,127.45 272.94,132.38 274.25,134.22 274.17,134.92 273.47,136.56 270.83,140.62 267.08,147.00 260.75,155.53 256.63,160.42 252.87,164.28 246.97,169.84 239.37,175.81 232.34,180.77 228.50,183.88 222.86,187.92 214.84,194.72 207.25,201.84 202.42,207.00 192.33,220.33 187.87,227.12 184.56,232.81 179.58,242.73 176.37,249.94 175.94,251.42 174.58,254.20 174.19,255.66 172.89,258.47 171.42,263.02 170.00,268.70 169.25,270.55 168.30,274.17 168.19,275.36 167.31,277.98 167.17,279.66 166.03,284.53 164.81,291.66 164.70,293.50 164.14,296.22 163.94,299.80 163.37,302.75 162.92,307.75 162.39,321.53 162.25,334.56 162.44,341.03 162.70,341.36 163.22,341.50 180.94,323.97 207.66,297.02 212.52,291.86 214.45,290.17 220.33,284.05 227.11,277.52 239.56,264.80 265.42,238.97 274.34,229.78 281.42,221.53 286.47,214.31 289.52,208.88 291.45,204.48 293.63,198.41 295.87,189.31 296.95,182.70 297.47,176.28 297.56,170.28 297.11,162.70 296.22,156.62 294.94,150.58 293.67,146.12 291.22,140.05 288.08,134.12 283.06,126.53 278.80,121.06 273.84,115.47 265.06,106.42 239.02,80.36 222.58,63.42 212.36,53.25 209.34,49.95 193.97,34.61 188.44,28.69 182.86,23.47 177.70,17.84 164.91,4.95ZM281.17,147.86L282.02,149.00 282.44,150.80 283.19,152.61 284.95,160.58 285.61,166.92 285.75,170.34 285.61,175.78 284.95,181.78 284.06,187.59 283.42,189.41 282.87,191.86 282.39,192.86 282.06,194.78 281.42,196.23 280.81,198.41 277.91,204.59 274.13,211.22 270.34,216.44 264.53,223.03 232.55,255.33 226.06,261.56 214.95,272.91 205.31,283.28 203.00,285.27 202.41,285.38 202.34,284.84 202.86,283.41 203.19,281.05 203.81,279.77 204.19,278.19 206.97,270.73 211.77,260.52 218.50,248.44 223.89,241.17 228.63,235.50 234.42,230.00 250.28,216.38 252.47,214.25 256.17,209.75 258.25,206.75 260.30,203.33 263.78,196.48 265.94,190.53 266.52,187.56 267.61,183.94 267.59,183.44 267.03,183.25 257.66,188.77 253.80,191.86 252.44,193.38 251.37,194.97 249.63,198.58 247.73,201.73 244.17,206.17 239.37,210.75 232.06,216.47 226.55,221.22 218.09,229.97 213.53,235.59 207.34,244.97 205.36,248.30 201.63,255.38 197.69,264.00 192.56,279.34 192.06,281.55 191.44,283.00 191.19,285.06 190.17,289.33 189.45,294.81 189.09,296.17 188.91,298.78 188.69,299.38 176.73,311.84 174.78,313.50 173.56,314.06 173.37,313.03 173.84,305.03 175.30,291.59 176.37,285.41 176.87,284.12 177.25,281.86 178.25,278.05 178.86,276.64 179.19,274.67 179.81,273.09 180.19,271.11 180.83,269.33 181.37,266.66 183.31,261.47 184.92,257.92 185.37,256.22 186.52,254.14 189.00,248.23 194.31,238.12 198.11,232.02 202.84,225.12 207.72,218.66 213.81,211.75 220.23,205.28 225.84,200.19 231.16,195.73 237.63,191.02 244.30,186.67 251.36,181.27 257.33,176.19 262.25,171.50 270.78,161.75 275.27,155.55 279.95,148.30 280.63,147.69ZM232.56,91.00L235.37,94.00 238.03,96.42 239.06,97.78 238.66,99.39 235.80,106.22 233.50,110.53 231.50,113.73 226.97,119.89 219.84,126.97 215.53,130.55 206.09,137.22 203.30,139.59 198.59,144.22 197.80,144.73 197.31,144.81 197.03,144.02 197.06,142.06 198.42,135.81 200.44,131.22 202.23,128.11 204.09,125.69 205.30,124.48 215.09,116.75 220.25,111.44 222.48,108.48 226.09,102.86 229.95,95.64 231.56,91.83 231.97,91.28ZM216.47,75.00L220.50,79.22 221.58,80.66 222.23,81.84 222.47,82.78 218.87,91.75 217.22,94.88 214.94,98.50 211.00,103.84 207.31,107.59 198.09,115.64 195.37,118.59 192.66,121.97 191.39,123.94 191.13,124.83 189.55,127.88 187.37,133.94 187.00,136.33 186.30,138.67 185.64,145.72 185.50,163.25 185.58,168.88 185.97,174.50 186.28,174.50 186.95,173.98 188.91,171.08 195.20,163.50 203.14,155.25 207.34,151.19 213.20,146.45 224.70,138.00 229.53,133.84 233.69,129.72 237.22,125.59 239.75,122.22 242.37,117.81 244.37,114.91 247.14,109.67 248.31,108.12 249.44,107.75 250.33,108.27 256.75,114.95 257.09,115.47 257.06,116.31 255.03,120.77 251.09,127.56 249.33,130.23 245.19,135.72 240.48,141.14 233.78,147.75 227.53,152.78 214.39,162.45 206.50,168.66 197.87,176.06 191.84,181.80 189.39,184.86 185.42,189.20 178.08,199.14 175.70,202.70 174.16,204.44 173.83,200.83 173.61,193.23 173.69,141.81 174.06,137.75 175.13,133.14 177.87,126.23 181.31,119.91 183.50,116.53 185.75,113.77 189.00,110.44 194.11,105.84 198.31,102.66 203.81,97.23 207.66,91.86 209.72,88.53 213.39,81.02 214.06,79.05 214.98,77.27 215.37,75.72 215.91,75.14ZM198.47,55.50L205.73,63.05 207.00,64.62 206.91,65.28 206.56,65.80 206.05,67.66 205.25,69.50 204.94,70.88 203.36,74.23 203.06,75.50 201.37,79.62 198.37,84.88 195.87,88.25 193.37,91.12 190.87,93.55 183.87,99.45 177.91,105.38 175.36,108.31 174.34,109.25 173.59,109.59 173.41,109.44 173.36,108.38 174.17,102.92 174.91,100.22 176.27,96.80 177.83,93.69 180.03,90.12 188.66,78.59 191.34,74.30 192.97,71.12 194.84,66.81 196.89,60.03 197.56,56.16 197.81,55.69Z"/></symbol>
+  <symbol id="ink-l" viewBox="0 0 299.56 343.72"><path pathLength="1" d="M137.87,2.09L137.53,2.16 130.08,9.41 94.91,44.44 76.13,64.23 42.19,98.50 30.94,110.45 24.64,116.86 18.27,124.22 14.47,129.34 10.11,136.28 7.80,140.95 6.87,144.06 5.31,147.39 5.19,148.41 4.27,151.22 4.00,153.53 2.78,159.72 2.23,164.66 2.00,170.84 2.06,177.41 2.37,181.72 3.23,187.81 4.02,191.16 4.31,193.34 5.06,195.23 5.44,197.47 6.13,198.91 8.50,205.88 11.72,213.05 14.25,217.41 17.28,221.59 24.13,229.56 34.06,239.97 46.13,251.50 55.83,261.45 62.91,268.28 65.06,270.70 92.91,298.73 95.23,301.36 99.70,305.62 106.80,313.12 120.66,326.78 130.16,336.52 133.91,340.12 135.59,341.39 136.53,341.72 136.72,341.53 136.95,337.31 136.95,323.59 135.81,304.53 135.23,300.39 134.92,296.38 133.39,288.38 133.19,285.91 132.42,282.06 132.09,279.16 129.37,269.22 125.06,255.67 122.33,248.88 121.36,247.03 119.47,242.03 117.25,237.56 115.20,234.20 112.61,229.31 107.22,221.02 101.50,213.33 96.53,207.56 89.16,199.91 81.25,192.62 71.00,184.31 65.08,180.16 53.37,171.39 48.89,167.48 44.66,163.31 39.72,158.12 33.72,150.81 28.94,143.59 24.56,135.31 24.81,134.06 25.69,132.44 27.19,130.44 32.69,124.50 33.16,124.69 33.83,125.39 34.37,126.81 37.28,131.81 42.50,139.50 46.91,145.08 52.73,151.61 63.87,161.50 82.50,175.00 88.75,179.78 92.67,183.16 97.97,188.22 104.53,195.72 109.86,202.48 115.00,209.81 119.81,217.52 123.87,225.03 127.06,231.86 130.50,240.62 132.13,244.19 132.34,245.27 133.56,248.20 135.03,252.62 135.87,254.12 136.08,245.22 136.34,199.94 136.42,135.95 136.19,105.72 135.84,103.66 135.06,101.22 134.86,99.16 134.16,97.38 133.47,94.48 131.78,89.56 130.22,86.09 127.22,81.27 122.16,74.66 118.98,70.11 117.75,68.00 115.92,64.17 114.78,61.03 114.19,58.27 113.53,53.06 113.34,48.56 113.87,43.50 114.78,38.81 115.72,36.33 117.78,32.11 122.31,24.80 129.73,14.48 131.27,12.03 137.75,3.20 138.16,2.47ZM18.13,147.25L19.06,147.56 22.44,153.70 27.08,160.41 31.06,165.19 35.56,170.06 40.48,174.75 49.55,182.55 54.97,186.73 61.28,190.95 63.73,192.95 67.34,195.47 77.19,203.80 83.28,209.72 89.47,216.34 94.91,222.97 101.56,232.38 105.97,239.78 112.30,252.72 115.31,260.14 119.06,271.92 119.39,273.89 119.87,274.91 120.27,276.97 121.19,279.69 121.30,281.03 121.86,282.78 122.14,285.02 123.22,289.41 124.17,298.61 125.19,305.11 125.44,309.02 126.19,313.50 126.22,314.97 125.94,315.72 120.87,311.22 111.03,301.22 109.80,297.77 107.94,287.25 107.06,283.81 106.83,281.86 103.87,271.92 103.19,270.58 99.83,261.20 96.50,254.09 94.25,249.84 88.34,240.09 82.47,232.36 76.00,225.12 69.17,218.72 58.47,210.08 53.95,205.61 51.28,202.09 46.69,193.33 45.81,192.00 44.22,190.58 40.22,187.73 33.03,183.75 32.47,183.83 32.16,184.22 32.25,185.41 34.91,193.86 36.84,198.44 38.92,202.48 40.81,205.72 42.81,208.58 47.69,214.62 49.86,216.94 55.09,221.75 65.84,230.91 72.69,237.72 78.03,244.66 83.37,252.62 85.20,255.86 88.64,263.14 89.37,265.28 91.69,270.22 94.06,277.42 94.31,278.92 95.19,281.67 95.30,282.98 95.91,284.38 95.73,285.05 95.13,285.09 63.63,253.12 42.02,231.61 35.30,225.17 29.22,218.42 25.27,212.95 22.22,207.62 17.91,198.94 17.05,196.59 16.81,195.25 16.06,193.58 15.95,192.47 15.25,190.80 14.83,188.30 14.19,186.73 13.86,183.92 13.30,181.30 12.75,173.09 12.84,167.70 13.22,163.55 14.30,157.69 14.86,156.20 15.19,154.45 15.94,152.59 16.11,151.28 17.09,148.75ZM65.67,90.72L66.22,90.50 66.97,90.97 69.89,97.08 72.28,101.44 76.63,108.03 79.27,111.42 82.09,114.50 84.97,117.27 92.67,123.56 95.19,126.25 97.42,129.25 99.56,133.69 101.36,139.56 102.06,141.30 102.34,144.31 102.67,145.75 102.37,147.09 101.75,146.88 97.34,142.19 92.84,138.16 88.09,134.59 83.11,131.22 76.70,125.59 73.97,122.81 71.25,119.64 67.02,113.89 64.37,109.62 61.09,103.39 59.69,100.09 58.94,97.19 59.78,95.92ZM82.53,74.00L82.92,74.09 83.63,74.94 85.92,80.52 88.92,86.36 91.78,90.91 95.14,95.58 98.44,99.44 101.56,102.48 108.03,107.77 111.37,110.81 113.00,112.53 115.87,116.25 119.44,122.44 122.80,130.06 124.63,137.34 125.08,143.00 125.87,200.84 125.81,204.03 125.31,204.50 124.81,204.14 122.19,200.91 117.73,194.48 112.50,188.05 108.09,183.16 101.63,176.59 96.70,172.34 94.80,170.42 89.03,165.62 72.16,153.39 65.72,148.34 61.52,144.53 58.00,140.97 53.83,136.14 50.39,131.61 44.59,122.23 42.75,118.81 41.72,116.00 41.81,115.06 43.28,113.23 48.80,107.66 49.47,107.16 50.06,107.09 50.53,107.28 53.81,113.52 60.02,123.03 62.66,126.62 65.70,130.17 69.44,133.91 74.03,137.95 88.25,149.02 96.50,156.48 106.08,166.53 113.05,174.77 113.53,175.16 113.72,175.09 113.91,164.12 113.75,151.20 113.47,144.59 112.94,140.30 112.19,138.25 111.86,135.89 111.25,134.45 110.53,131.34 109.73,129.22 107.25,124.16 104.92,120.56 103.59,118.91 100.55,115.73 91.09,107.50 86.16,102.42 82.47,97.23 78.50,89.95 75.81,83.62 75.37,81.34 76.20,80.19 78.34,77.91ZM101.63,54.34L102.11,54.61 102.72,56.06 103.33,60.66 104.50,65.06 105.69,68.31 107.87,73.09 111.13,78.62 118.52,88.66 121.77,94.23 123.97,100.31 125.13,105.08 125.42,107.92 125.19,108.81 123.53,107.42 116.09,100.05 108.98,93.67 104.02,88.62 101.61,85.64 99.22,82.12 96.97,77.62 95.14,72.70 93.56,67.72 92.53,65.28 92.25,63.97 93.75,61.81 96.94,58.39 100.37,55.16Z"/></symbol>
+</svg>
+
+<div class="haze" aria-hidden="true"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div id="cut" aria-hidden="true"></div>
+
+<div id="intro">
+  <div class="ibg"></div>
+  <div class="istreak"></div>
+  <div class="spike h"></div><div class="spike v"></div>
+  <div class="lamp"></div>
+  <div class="imove" id="imove">
+    <div class="imark" id="imark">
+      <svg class="ilogo ink" viewBox="0 0 299.56 343.72" aria-hidden="true"><use href="#ink-l"/><use href="#ink-r"/></svg>
+      <div class="ifill" id="ifill"><svg class="ilogo" viewBox="0 0 299.56 343.72" role="img" aria-label="Echoes in the Dark logo"><use class="lb" href="#logo-body"/><use class="ls" href="#logo-star"/></svg></div>
+      <div class="iflare"></div>
+    </div>
+  </div>
+  <button class="skip" type="button" id="skip-intro">Skip</button>
+</div>
+
+<div id="progress" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" id="brand" href="#home"><img src="logo-mark.svg" alt=""><span>Echoes in the Dark</span></a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#listen">Listen</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="nav-social" aria-label="Social links">
+      <a href="https://open.spotify.com/user/31wrqkzfjobdidxfbur4wquuwl7m?si=5c49d0b95ab446c2" target="_blank" rel="noopener" aria-label="Spotify"><svg><use href="#i-spotify"/></svg></a>
+      <a href="https://www.youtube.com/@Echoes_in_the-Dark-t3u" target="_blank" rel="noopener" aria-label="YouTube"><svg><use href="#i-youtube"/></svg></a>
+      <a href="https://www.tiktok.com/@echoesinthedark11?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener" aria-label="TikTok"><svg><use href="#i-tiktok"/></svg></a>
+      <a href="https://www.facebook.com/share/p/17vUvkScoU/" target="_blank" rel="noopener" aria-label="Facebook"><svg><use href="#i-facebook"/></svg></a>
+      <a href="https://x.com/Ech0esIntheDARk" target="_blank" rel="noopener" aria-label="X"><svg><use href="#i-x"/></svg></a>
+    </div>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <a class="mlink" href="#home" style="--i:0">Home</a>
+  <a class="mlink" href="#about" style="--i:1">About</a>
+  <a class="mlink" href="#listen" style="--i:2">Listen</a>
+  <a class="mlink" href="#team" style="--i:3">Team</a>
+  <a class="mlink" href="#contact" style="--i:4">Contact</a>
+  <div class="social-row">
+    <a href="https://open.spotify.com/user/31wrqkzfjobdidxfbur4wquuwl7m?si=5c49d0b95ab446c2" target="_blank" rel="noopener" aria-label="Spotify"><svg><use href="#i-spotify"/></svg></a>
+    <a href="https://www.youtube.com/@Echoes_in_the-Dark-t3u" target="_blank" rel="noopener" aria-label="YouTube"><svg><use href="#i-youtube"/></svg></a>
+    <a href="https://www.tiktok.com/@echoesinthedark11?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener" aria-label="TikTok"><svg><use href="#i-tiktok"/></svg></a>
+    <a href="https://www.facebook.com/share/p/17vUvkScoU/" target="_blank" rel="noopener" aria-label="Facebook"><svg><use href="#i-facebook"/></svg></a>
+    <a href="https://x.com/Ech0esIntheDARk" target="_blank" rel="noopener" aria-label="X"><svg><use href="#i-x"/></svg></a>
+  </div>
+</div>
+
+<main class="page" id="main">
+
+  <!-- ================= HOME ================= -->
+  <div class="view" id="view-home">
+
+    <section class="hero" id="home">
+      <div class="hero-inner" id="hero-inner">
+        <p class="eyebrow-top anim">A father and son studio</p>
+        <div class="echo" id="echo">
+          <div class="umbra" aria-hidden="true"></div>
+          <div class="mark-wrap" id="mark-wrap">
+            <img class="mark" id="hero-mark" src="logo-mark.svg" alt="Echoes in the Dark logo">
+            <div class="flare" aria-hidden="true"></div>
+          </div>
+        </div>
+        <h1 class="wordmark" id="wordmark">Echoes in the Dark</h1>
+        <p class="tagline anim">Where Sound Meets Shadow</p>
+        <p class="sub anim">Songs that mean something.</p>
+        <div class="cta anim" id="cta">
+          <a class="btn gold" href="https://open.spotify.com/user/31wrqkzfjobdidxfbur4wquuwl7m?si=5c49d0b95ab446c2" target="_blank" rel="noopener"><svg><use href="#i-spotify"/></svg>Listen on Spotify</a>
+          <a class="btn" href="https://www.youtube.com/@Echoes_in_the-Dark-t3u" target="_blank" rel="noopener"><svg><use href="#i-youtube"/></svg>Watch on YouTube</a>
+        </div>
+      </div>
+      <a class="scroll-cue anim" id="scroll-cue" href="#about" aria-label="Scroll to the studio section">Scroll<i></i></a>
+    </section>
+
+    <div class="divider" aria-hidden="true"><span class="dstar"><svg><use href="#i-star"/></svg></span></div>
+
+    <section class="section" id="about">
+      <div class="wrap">
+        <div class="grid-2">
+          <div class="reveal">
+            <p class="eyebrow">The Studio</p>
+            <h2 class="words">Songs with real meaning, and whole worlds built around them.</h2>
+          </div>
+          <div class="reveal soft" style="--d:.15s">
+            <p class="lede">Echoes in the Dark is a multimedia studio business, run by father and son Sonny and Brandon Molina. We make songs with real meaning and then build entire worlds around them. Every release starts with a lyric written by hand. The studio exists to make music for the quiet, difficult and honest hours of life, and to make it well enough that it reaches someone sitting in one.</p>
+          </div>
+        </div>
+        <div class="pillars">
+          <div class="pillar reveal" style="--d:0s"><svg><use href="#i-star"/></svg><h3>Written by hand</h3><p>Every release starts with a lyric written by hand, one word at a time.</p></div>
+          <div class="pillar reveal" style="--d:.12s"><svg><use href="#i-star"/></svg><h3>Built into worlds</h3><p>The song comes first. Then the visuals, the story and the world get built around it.</p></div>
+          <div class="pillar reveal" style="--d:.24s"><svg><use href="#i-star"/></svg><h3>For the honest hours</h3><p>Music for the quiet, difficult and honest hours of life, made well enough to reach someone sitting in one.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"><span class="dstar"><svg><use href="#i-star"/></svg></span></div>
+
+    <section class="section" id="listen">
+      <div class="wrap">
+        <div class="grid-2">
+          <div class="reveal">
+            <p class="eyebrow">Listen</p>
+            <h2 class="words">Find the echoes where you already listen.</h2>
+          </div>
+          <div class="reveal soft" style="--d:.15s">
+            <p class="lede">Every song, every video and every update lives on the platforms below. Follow along so you hear a release the moment it goes out.</p>
+          </div>
+        </div>
+        <div class="platforms" id="platforms">
+          <a class="platform reveal" style="--d:0s" href="https://open.spotify.com/user/31wrqkzfjobdidxfbur4wquuwl7m?si=5c49d0b95ab446c2" target="_blank" rel="noopener">
+            <svg class="icon"><use href="#i-spotify"/></svg>
+            <span class="name">Spotify</span>
+            <p class="desc">Stream the songs and follow the studio profile.</p>
+            <span class="go">Open Spotify <svg><use href="#i-arrow"/></svg></span>
+          </a>
+          <a class="platform reveal" style="--d:.08s" href="https://www.youtube.com/@Echoes_in_the-Dark-t3u" target="_blank" rel="noopener">
+            <svg class="icon"><use href="#i-youtube"/></svg>
+            <span class="name">YouTube</span>
+            <p class="desc">Videos, visuals and the worlds built around each release.</p>
+            <span class="go">Open YouTube <svg><use href="#i-arrow"/></svg></span>
+          </a>
+          <a class="platform reveal" style="--d:.16s" href="https://www.tiktok.com/@echoesinthedark11?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener">
+            <svg class="icon"><use href="#i-tiktok"/></svg>
+            <span class="name">TikTok</span>
+            <p class="desc">@echoesinthedark11. Short clips from the studio.</p>
+            <span class="go">Open TikTok <svg><use href="#i-arrow"/></svg></span>
+          </a>
+          <a class="platform reveal" style="--d:.24s" href="https://www.facebook.com/share/p/17vUvkScoU/" target="_blank" rel="noopener">
+            <svg class="icon"><use href="#i-facebook"/></svg>
+            <span class="name">Facebook</span>
+            <p class="desc">Studio news and updates for the community.</p>
+            <span class="go">Open Facebook <svg><use href="#i-arrow"/></svg></span>
+          </a>
+          <a class="platform reveal" style="--d:.32s" href="https://x.com/Ech0esIntheDARk" target="_blank" rel="noopener">
+            <svg class="icon"><use href="#i-x"/></svg>
+            <span class="name">X</span>
+            <p class="desc">@Ech0esIntheDARk. Thoughts, lines and release news.</p>
+            <span class="go">Open X <svg><use href="#i-arrow"/></svg></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"><span class="dstar"><svg><use href="#i-star"/></svg></span></div>
+
+    <section class="section" id="team">
+      <div class="wrap">
+        <div class="reveal">
+          <p class="eyebrow">Meet the Team</p>
+          <h2 class="words">Two people. One studio.</h2>
+        </div>
+
+        <article class="person first">
+          <div class="reveal">
+            <div class="monogram" aria-hidden="true">S<svg class="ring-svg" viewBox="0 0 124 124"><circle cx="62" cy="62" r="61.5" pathLength="1"/></svg><svg class="mstar"><use href="#i-star"/></svg></div>
+            <h3>Sonny Molina</h3>
+            <p class="role">Frontman<br>The Voice Behind the Echoes</p>
+          </div>
+          <div class="bio reveal soft" style="--d:.15s">
+            <p>Sonny is the frontman, the face, The Voice Behind the Echoes and the emotional core of Echoes in the Dark. Sonny Molina writes by hand, one word at a time, and every word is written with the willingness to lose the line he was proudest of, until the feeling behind it becomes stronger than the words themselves.</p>
+            <p>Because no lyric is more important than the meaning behind it, he does not write simply to make a line sound beautiful, he writes to give a feeling somewhere to live. Every word has to carry something, a memory, a question, a struggle, a hope, or a piece of truth that might be difficult to say any other way.</p>
+            <p>And that is exactly what makes Sonny more than just the singer singing the creation.</p>
+            <p class="quote words">He is the creation.</p>
+            <p>Not because every part of Echoes in the Dark is literally Sonny, but because the words carry the hand that chose them. The voice carries the life that shaped its meaning. And somewhere underneath all of it is Sonny.</p>
+          </div>
+        </article>
+
+        <article class="person">
+          <div class="reveal">
+            <div class="monogram" aria-hidden="true">B<svg class="ring-svg" viewBox="0 0 124 124"><circle cx="62" cy="62" r="61.5" pathLength="1"/></svg><svg class="mstar"><use href="#i-star"/></svg></div>
+            <h3>Brandon Molina</h3>
+            <p class="role">Production, Brand and Releases<br>The Shop and the Website</p>
+          </div>
+          <div class="bio reveal soft" style="--d:.15s">
+            <p>Brandon runs the production, brand, releases, the shop, the website. His job in one line: take what Sonny writes and make sure the world feels it the way it was meant to.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"><span class="dstar"><svg><use href="#i-star"/></svg></span></div>
+
+    <section class="section" id="contact">
+      <div class="wrap">
+        <div class="grid-2">
+          <div class="reveal">
+            <p class="eyebrow">Contact</p>
+            <h2 class="words">Send us a message.</h2>
+          </div>
+          <div class="reveal soft" style="--d:.15s">
+            <p class="lede">Got a question or want to work with us? Write to us here and we will get back to you as soon as we can.</p>
+          </div>
+        </div>
+        <div class="contact-grid">
+          <form class="form reveal" id="contact-form" novalidate>
+            <div class="form-row">
+              <div class="field"><label for="cf-name">Your name</label><input id="cf-name" name="name" type="text" autocomplete="name" required></div>
+              <div class="field"><label for="cf-email">Email address</label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
+            </div>
+            <div class="field"><label for="cf-message">Message</label><textarea id="cf-message" name="message" required></textarea></div>
+            <div class="form-foot">
+              <button class="btn gold" type="submit" id="cf-send">Send message</button>
+              <p class="status" id="cf-status" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+          <aside class="aside reveal" style="--d:.2s">
+            <div class="block">
+              <h3>Follow the echoes</h3>
+              <div class="social-row">
+                <a href="https://open.spotify.com/user/31wrqkzfjobdidxfbur4wquuwl7m?si=5c49d0b95ab446c2" target="_blank" rel="noopener" aria-label="Spotify"><svg><use href="#i-spotify"/></svg></a>
+                <a href="https://www.youtube.com/@Echoes_in_the-Dark-t3u" target="_blank" rel="noopener" aria-label="YouTube"><svg><use href="#i-youtube"/></svg></a>
+                <a href="https://www.tiktok.com/@echoesinthedark11?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener" aria-label="TikTok"><svg><use href="#i-tiktok"/></svg></a>
+                <a href="https://www.facebook.com/share/p/17vUvkScoU/" target="_blank" rel="noopener" aria-label="Facebook"><svg><use href="#i-facebook"/></svg></a>
+                <a href="https://x.com/Ech0esIntheDARk" target="_blank" rel="noopener" aria-label="X"><svg><use href="#i-x"/></svg></a>
+              </div>
+            </div>
+            <div class="block">
+              <h3>Email</h3>
+              <p><a href="mailto:echoes0in0the0dark@gmail.com">echoes0in0the0dark@gmail.com</a></p>
+            </div>
+            <div class="block">
+              <h3>Where</h3>
+              <p>Based in Australia. Heard everywhere.</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= PRIVACY ================= -->
+  <div class="view legal" id="view-privacy" hidden>
+    <div class="legal-wrap">
+      <a class="back" href="#home"><svg><use href="#i-back"/></svg>Back to home</a>
+      <img class="mark-small" src="logo-mark.svg" alt="" style="margin-top:36px">
+      <p class="eyebrow">Legal</p>
+      <h1>Privacy Policy</h1>
+      <div class="meta">
+        <div>Effective date<b>18 September 2026</b></div>
+        <div>Business name<b>Echoes in the Dark</b></div>
+        <div>Location<b>Australia</b></div>
+      </div>
+
+      <h2><span class="n">1</span>Information We Collect</h2>
+      <p>We may collect the following information when you use our website:</p>
+      <ul>
+        <li>Name</li>
+        <li>Email address</li>
+        <li>Messages sent through our contact form</li>
+        <li>Purchase details (if you buy beats, merchandise, or services)</li>
+        <li>Basic website usage information (such as browser type and general interaction data)</li>
+      </ul>
+      <p>We do not sell, rent, or trade your personal information.</p>
+
+      <h2><span class="n">2</span>How We Use Your Information</h2>
+      <p>We use your information to:</p>
+      <ul>
+        <li>Respond to inquiries</li>
+        <li>Process purchases or bookings</li>
+        <li>Send updates about music releases or studio news (only if you subscribe)</li>
+        <li>Improve our website and services</li>
+        <li>Provide customer support</li>
+      </ul>
+
+      <h2><span class="n">3</span>Third Party Platforms</h2>
+      <p>Our website may link to or integrate with platforms such as Spotify and YouTube. These platforms operate independently and have their own privacy policies.</p>
+
+      <h2><span class="n">4</span>Data Security</h2>
+      <p>We take reasonable steps to protect your information from unauthorized access, misuse, or disclosure. However, no internet transmission is completely secure.</p>
+
+      <h2><span class="n">5</span>Your Rights (Australia)</h2>
+      <p>In accordance with Australian privacy principles, you may request access to, correction of, or deletion of your personal information.</p>
+
+      <h2><span class="n">6</span>Updates to This Policy</h2>
+      <p>We may update this Privacy Policy at any time. Changes will be posted on this page with an updated effective date.</p>
+
+      <div class="end"><a class="back" href="#home"><svg><use href="#i-back"/></svg>Back to home</a></div>
+    </div>
+  </div>
+
+  <!-- ================= TERMS ================= -->
+  <div class="view legal" id="view-terms" hidden>
+    <div class="legal-wrap">
+      <a class="back" href="#home"><svg><use href="#i-back"/></svg>Back to home</a>
+      <img class="mark-small" src="logo-mark.svg" alt="" style="margin-top:36px">
+      <p class="eyebrow">Legal</p>
+      <h1>Terms &amp; Conditions</h1>
+      <div class="meta">
+        <div>Effective date<b>18 September 2026</b></div>
+        <div>Business name<b>Echoes in the Dark</b></div>
+      </div>
+      <p class="intro">By accessing or using this website, you agree to the following Terms &amp; Conditions.</p>
+
+      <h2><span class="n">1</span>Website Use</h2>
+      <p>You agree to use this website lawfully and respectfully. You must not:</p>
+      <ul>
+        <li>Copy, distribute, or download music without permission</li>
+        <li>Use beats without purchasing the correct license</li>
+        <li>Attempt to hack, damage, or disrupt the website</li>
+        <li>Misuse contact forms or community features</li>
+      </ul>
+
+      <h2><span class="n">2</span>Intellectual Property</h2>
+      <p>All music, beats, logos, images, media, and written content on this website are owned by Echoes in the Dark unless otherwise stated. Unauthorized use is strictly prohibited.</p>
+
+      <h2><span class="n">3</span>Music &amp; Beat Licensing</h2>
+      <ul>
+        <li>Purchasing a beat grants a license according to the selected agreement.</li>
+        <li>Ownership of the original beat remains with Echoes in the Dark unless explicitly transferred in writing.</li>
+        <li>Failure to comply with licensing terms may result in removal of content from streaming platforms and possible legal action.</li>
+      </ul>
+
+      <h2><span class="n">4</span>Payments</h2>
+      <p>Any purchases made through this website must be completed before services or digital products are delivered.</p>
+      <p>Due to the digital nature of music and downloadable products:</p>
+      <ul>
+        <li>Digital purchases are not refundable.</li>
+        <li>Studio bookings may require deposits.</li>
+        <li>Specific details will be provided at the time of purchase.</li>
+      </ul>
+
+      <h2><span class="n">5</span>External Platforms</h2>
+      <p>Our website may link to platforms such as Spotify or YouTube. We are not responsible for their content, policies, or service interruptions.</p>
+
+      <h2><span class="n">6</span>Limitation of Liability</h2>
+      <p>Echoes in the Dark is not responsible for:</p>
+      <ul>
+        <li>Temporary website downtime</li>
+        <li>Technical errors</li>
+        <li>Issues caused by third party services</li>
+        <li>Loss resulting from misuse of content</li>
+      </ul>
+      <p>Use of this website is at your own risk.</p>
+
+      <h2><span class="n">7</span>Changes to Terms</h2>
+      <p>We reserve the right to update these Terms at any time. Continued use of the website means you accept any revised terms.</p>
+
+      <div class="end"><a class="back" href="#home"><svg><use href="#i-back"/></svg>Back to home</a></div>
+    </div>
+  </div>
+</main>
+
+<footer id="footer">
+  <div class="foot-grid reveal">
+    <div class="foot-brand">
+      <img src="logo-mark.svg" alt="Echoes in the Dark logo">
+      <p class="fw">Echoes in the Dark</p>
+      <p>Where Sound Meets Shadow. Songs that mean something.</p>
+    </div>
+    <div>
+      <h3>Explore</h3>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#listen">Listen</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Follow</h3>
+      <ul>
+        <li><a href="https://open.spotify.com/user/31wrqkzfjobdidxfbur4wquuwl7m?si=5c49d0b95ab446c2" target="_blank" rel="noopener">Spotify</a></li>
+        <li><a href="https://www.youtube.com/@Echoes_in_the-Dark-t3u" target="_blank" rel="noopener">YouTube</a></li>
+        <li><a href="https://www.tiktok.com/@echoesinthedark11?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener">TikTok</a></li>
+        <li><a href="https://www.facebook.com/share/p/17vUvkScoU/" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a href="https://x.com/Ech0esIntheDARk" target="_blank" rel="noopener">X</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Legal</h3>
+      <ul>
+        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#terms">Terms &amp; Conditions</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom reveal" style="--d:.1s">
+    <span>&copy; 2026 Echoes in the Dark. All rights reserved.</span>
+    <span>Australia</span>
+  </div>
+</footer>
+
+<button class="totop" id="totop" aria-label="Back to top">
+  <svg class="tt-ring" viewBox="0 0 48 48" aria-hidden="true"><circle class="tt-bg" cx="24" cy="24" r="22"/><circle class="tt-fg" id="tt-fg" cx="24" cy="24" r="22" pathLength="1"/></svg>
+  <svg class="tt-icon" aria-hidden="true"><use href="#i-chevron"/></svg>
+</button>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var root = document.documentElement;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var small = window.innerWidth < 700;
+  root.classList.add('js');
+  try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(e){}
+  window.scrollTo(0,0);
+  function once(el, ev, fn){ var h=function(e){ el.removeEventListener(ev,h); fn(e); }; el.addEventListener(ev,h); }
+  function smooth(a,b,x){ var t=Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); }
+  var hidden=!!document.hidden, Q={lite:false};
+  document.addEventListener('visibilitychange',function(){ hidden=document.hidden; });
+  document.addEventListener('touchstart',function(){},{passive:true});
+  function goLite(){ if(Q.lite) return; Q.lite=true; root.classList.add('lite'); }
+  var SKY={light:.18,lightTarget:.18,zoom:1,zoomTarget:1,rings:[],emit:function(){}};
+  var seen=false; try{ seen=sessionStorage.getItem('eitd-seen')==='1'; sessionStorage.setItem('eitd-seen','1'); }catch(e){}
+
+  /* ---------- starfield: sprite atlas, depth, twinkle, drift, shooting stars, sound rings ---------- */
+  (function(){
+    var c = $('#sky'); if(!c || !c.getContext) return;
+    var ctx = c.getContext('2d');
+    var W=0,H=0,stars=[],shots=[],mx=.5,my=.5,tx=.5,ty=.5,last=0,nextShot=2600,raf=0,running=false,frame=0,atlas=null,SP=[];
+    function makeAtlas(){
+      var d=Math.min(window.devicePixelRatio||1,2), radii=[.55,1.1,1.75], cols=['#f1ece2','#f0d48a'];
+      atlas=document.createElement('canvas'); var cell=Math.ceil(1.75*3.4*2*d)+4; atlas.width=cell*3; atlas.height=cell*2; var a=atlas.getContext('2d'); SP=[];
+      for(var ci=0;ci<2;ci++){ for(var ri=0;ri<3;ri++){ var r=radii[ri]*d, cx=ri*cell+cell/2, cy=ci*cell+cell/2;
+        if(radii[ri]>1.3){ a.globalAlpha=.22; a.fillStyle=cols[ci]; a.beginPath(); a.arc(cx,cy,r*3.2,0,6.283); a.fill(); }
+        a.globalAlpha=1; a.fillStyle=cols[ci]; a.beginPath(); a.arc(cx,cy,r,0,6.283); a.fill();
+        SP.push({sx:ri*cell,sy:ci*cell,w:cell,h:cell,half:cell/2/d,cell:cell/d}); } }
+    }
+    function seed(){
+      var n = Math.min(small?220:560, Math.round(W*H/5200)); stars=[];
+      for(var i=0;i<n;i++){ var z=Math.random(), r=.25+Math.pow(Math.random(),2.2)*1.7;
+        stars.push({x:Math.random()*W,y:Math.random()*H,r:r,b:r<.75?0:(r<1.3?1:2),z:.3+z*.7,ph:Math.random()*6.283,sp:.4+Math.random()*1.4,g:Math.random()<.1?1:0}); }
+    }
+    function resize(){
+      var d=Math.min(window.devicePixelRatio||1,2); W=window.innerWidth; H=window.innerHeight;
+      c.width=Math.round(W*d); c.height=Math.round(H*d); ctx.setTransform(d,0,0,d,0,0); makeAtlas(); seed();
+      if(reduce){ SKY.light=1; draw(0,0); }
+    }
+    SKY.emit=function(x,y,a0,v,hl,maxR,echo){
+      if(SKY.rings.length>(Q.lite?2:5)) return;
+      SKY.rings.push({x:x,y:y,t0:performance.now(),a0:a0,v:v,hl:hl,maxR:maxR||Math.hypot(W,H)});
+      if(echo!==false) setTimeout(function(){ SKY.rings.push({x:x,y:y,t0:performance.now(),a0:a0/3,v:v,hl:hl,maxR:maxR||Math.hypot(W,H)}); },380);
+    };
+    function draw(t,dt){
+      ctx.clearRect(0,0,W,H);
+      var px=(tx-.5)*26, py=(ty-.5)*16, sy=(window.scrollY||0)*.1, i, j, s, rg, live=[];
+      for(j=0;j<SKY.rings.length;j++){ rg=SKY.rings[j]; var age=Math.max(0,t-rg.t0); rg.r=age*rg.v/1000; rg.a=rg.a0*Math.pow(.5,age/rg.hl); if(rg.r<rg.maxR && rg.a>.012) live.push(rg); }
+      SKY.rings=live;
+      var push=!Q.lite && live.length>0, zx=W/2, zy=H/2, zm=SKY.zoom;
+      for(i=0;i<stars.length;i++){ s=stars[i];
+        var tw = reduce ? 1 : .6+.4*Math.sin(t/1000*s.sp+s.ph);
+        var a=(.3+.7*s.z)*tw*SKY.light, x=s.x+px*s.z, y=s.y+py*s.z-sy*s.z;
+        y=((y%H)+H)%H;
+        if(zm!==1){ x=zx+(x-zx)*zm; y=zy+(y-zy)*zm; }
+        if(push){ for(j=0;j<live.length;j++){ rg=live[j]; var dx=x-rg.x, dy=y-rg.y, dd=Math.sqrt(dx*dx+dy*dy)||1, k=6*rg.a*Math.exp(-((dd-rg.r)*(dd-rg.r))/784); if(k>.04){ x+=dx/dd*k; y+=dy/dd*k; } } }
+        var sp=SP[s.g*3+s.b]; ctx.globalAlpha=a; ctx.drawImage(atlas,sp.sx,sp.sy,sp.w,sp.h,x-sp.half,y-sp.half,sp.cell,sp.cell);
+      }
+      for(j=0;j<live.length;j++){ rg=live[j];
+        ctx.globalAlpha=Math.min(1,rg.a); ctx.strokeStyle='#d4b062'; ctx.lineWidth=Math.max(.35,1.3-rg.r/900); ctx.beginPath(); ctx.arc(rg.x,rg.y,rg.r,0,6.283); ctx.stroke(); }
+      for(i=shots.length-1;i>=0;i--){ s=shots[i];
+        s.x+=s.vx*dt; s.y+=s.vy*dt; s.life-=dt;
+        if(s.life<=0){ shots.splice(i,1); continue; }
+        var k2=Math.min(1,s.life/350), ex=s.x-s.vx*s.len, ey=s.y-s.vy*s.len;
+        var g=ctx.createLinearGradient(s.x,s.y,ex,ey);
+        g.addColorStop(0,'rgba(241,236,226,'+(.95*k2)+')'); g.addColorStop(1,'rgba(241,236,226,0)');
+        ctx.globalAlpha=1; ctx.strokeStyle=g; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(ex,ey); ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+    }
+    function loop(t){
+      var dt=Math.min(50,(t-last)||16); last=t;
+      tx+=(mx-tx)*.04; ty+=(my-ty)*.04;
+      SKY.light+=(SKY.lightTarget-SKY.light)*.05; SKY.zoom+=(SKY.zoomTarget-SKY.zoom)*.06;
+      for(var i=0;i<stars.length;i++){ var s=stars[i]; s.y-=.0035*dt*s.z; if(s.y<-4){ s.y=H+4; s.x=Math.random()*W; } }
+      nextShot-=dt;
+      if(nextShot<=0 && !Q.lite){
+        shots.push({x:W*.1+Math.random()*W*.8, y:Math.random()*H*.45, vx:(.38+Math.random()*.25)*(Math.random()<.5?-1:1), vy:.16+Math.random()*.16, len:120+Math.random()*90, life:900+Math.random()*600});
+        nextShot=5000+Math.random()*8000;
+      }
+      frame++;
+      raf=requestAnimationFrame(loop);
+      if(!hidden && !(Q.lite && (frame&1))){ try{ draw(t,dt); }catch(err){ ctx.globalAlpha=1; } }
+    }
+    function start(){ if(running||reduce) return; running=true; last=performance.now(); raf=requestAnimationFrame(loop); }
+    var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(resize,120); });
+    window.addEventListener('pointermove',function(e){ mx=e.clientX/W; my=e.clientY/H; },{passive:true});
+    resize(); start();
+  })();
+
+  /* ---------- split text: words for headings, letters for the wordmark ---------- */
+  $$('.words').forEach(function(el){
+    var words = el.textContent.trim().split(/\s+/); el.textContent='';
+    words.forEach(function(w,i){
+      var o=document.createElement('span'); o.className='w';
+      var s=document.createElement('span'); s.style.setProperty('--i',i); s.textContent=w;
+      o.appendChild(s); el.appendChild(o);
+      if(i<words.length-1) el.appendChild(document.createTextNode(' '));
+    });
+  });
+  (function(){
+    var wm=$('#wordmark'); if(!wm) return;
+    var txt=wm.textContent.trim(); wm.setAttribute('aria-label',txt); wm.textContent='';
+    var idx=0;
+    txt.split('').forEach(function(ch){
+      if(ch===' '){ wm.appendChild(document.createTextNode(' ')); return; }
+      var s=document.createElement('span'); s.className='ch'; s.textContent=ch; s.setAttribute('aria-hidden','true'); s.style.setProperty('--i',idx++); wm.appendChild(s);
+    });
+  })();
+
+  /* ---------- views + routing (with a black curtain between pages) ---------- */
+  var views={home:$('#view-home'),privacy:$('#view-privacy'),terms:$('#view-terms')};
+  var titles={home:'Echoes in the Dark',privacy:'Privacy Policy | Echoes in the Dark',terms:'Terms & Conditions | Echoes in the Dark'};
+  var current='home', brand=$('#brand'), heroMarkVisible=true, lastHomeY=0, cut=$('#cut'), cutTimer=0, cutPending=null, landed=false;
+  function updateBrand(){ brand.classList.toggle('on', current!=='home' || !heroMarkVisible); }
+  function showView(name, animate){
+    if(!views[name]) name='home';
+    if(name===current) return;
+    if(current==='home') lastHomeY=window.scrollY||0;
+    for(var k in views){ views[k].hidden=(k!==name); }
+    current=name;
+    var v=views[name]; v.classList.remove('enter'); if(animate){ void v.offsetWidth; v.classList.add('enter'); }
+    document.title=titles[name];
+    if(name!=='home') $$('.nav-links a').forEach(function(a){ a.classList.remove('active'); });
+    updateBrand();
+  }
+  function finishCurtain(){ if(cutTimer){ clearTimeout(cutTimer); cutTimer=0; } if(cutPending){ var fn=cutPending; cutPending=null; fn(); } cut.classList.remove('on'); }
+  function curtain(fn){
+    if(reduce || !landed){ fn(); return; }
+    finishCurtain();
+    cutPending=fn; cut.classList.add('on');
+    cutTimer=setTimeout(function(){ cutTimer=0; var f=cutPending; cutPending=null; if(f) f(); requestAnimationFrame(function(){ requestAnimationFrame(function(){ cut.classList.remove('on'); }); }); },190);
+  }
+  function goToNow(id, smooth, animate){
+    var beh = (smooth && !reduce) ? 'smooth' : 'instant';
+    if(id==='privacy'||id==='terms'){ showView(id, animate); window.scrollTo({top:0,behavior:'instant'}); return; }
+    var wasAway = current!=='home';
+    showView('home', animate);
+    var el=document.getElementById(id);
+    if(el && id!=='home') el.scrollIntoView({behavior:beh,block:'start'});
+    else if(wasAway && id==='home' && lastHomeY>0) window.scrollTo({top:Math.min(lastHomeY, document.documentElement.scrollHeight-window.innerHeight),behavior:'instant'});
+    else window.scrollTo({top:0,behavior:beh});
+  }
+  function goTo(id, smooth){
+    var target=(id==='privacy'||id==='terms')?id:'home';
+    if(target!==current){ curtain(function(){ goToNow(id,false,!landed||reduce); }); return; }
+    goToNow(id,smooth,false);
+  }
+  function route(smooth){ goTo((location.hash||'#home').slice(1), smooth); }
+  window.addEventListener('hashchange',function(){ route(true); });
+  document.addEventListener('click',function(e){
+    var a=e.target.closest ? e.target.closest('a[href^="#"]') : null; if(!a) return;
+    var id=a.getAttribute('href').slice(1); if(!id) return;
+    e.preventDefault(); closeMenu();
+    if(('#'+id)!==location.hash) history.pushState(null,'','#'+id);
+    goTo(id,true);
+  });
+  window.addEventListener('popstate',function(){ route(true); });
+  var h0=(location.hash||'').slice(1), deepLegal=(h0==='privacy'||h0==='terms');
+  if(deepLegal){ goToNow(h0,false,false); }
+
+  /* ---------- intro: black leader, lamp, ink, light, star, iris, crane ---------- */
+  var intro=$('#intro'), ibg=$('#intro .ibg'), imove=$('#imove'), imark=$('#imark'), ifill=$('#ifill'), heroMark=$('#hero-mark');
+  var introState='idle', timers=[], showAt=0, irisRaf=0, floodRaf=0;
+  var inertEls=[$('#main'),$('#footer'),$('#nav')];
+  function setInert(on){ inertEls.forEach(function(el){ if(el){ if(on) el.setAttribute('inert',''); else el.removeAttribute('inert'); } }); }
+  function later(fn,ms){ timers.push(setTimeout(fn,ms)); }
+  function clearTimers(){ timers.forEach(clearTimeout); timers=[]; }
+  function starPoint(){ var r=imark.getBoundingClientRect(); return {x:r.left+r.width*.496, y:r.top+r.height*.147}; }
+  function flood(){
+    var t0=performance.now();
+    (function step(now){ var q=Math.min(1,(now-t0)/1000), e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2; ifill.style.setProperty('--w',(-16+132*e).toFixed(2)+'%'); if(q<1 && introState==='show') floodRaf=requestAnimationFrame(step); else intro.classList.add('flooded'); })(t0);
+  }
+  function light(){
+    if(introState!=='show') return;
+    intro.classList.add('lit');
+    var sp=starPoint(); SKY.lightTarget=1; SKY.zoom=1.06; SKY.zoomTarget=1.06;
+    later(function(){ SKY.emit(sp.x,sp.y,.7,620,900); },80);
+  }
+  function irisOpen(){
+    var sp=starPoint(), maxR=Math.hypot(window.innerWidth,window.innerHeight)*1.15, t0=performance.now();
+    intro.style.setProperty('--sx',sp.x.toFixed(1)+'px'); intro.style.setProperty('--sy',sp.y.toFixed(1)+'px');
+    intro.classList.add('iris');
+    (function step(now){ var q=Math.min(1,(now-t0)/950), e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2; intro.style.setProperty('--iris',(maxR*e).toFixed(1)+'px'); if(q<1) irisRaf=requestAnimationFrame(step); })(t0);
+  }
+  function wavefrontDelays(){
+    var h=heroMark.getBoundingClientRect(), cx=h.left+h.width/2, cy=h.top+h.height/2, v=.62;
+    $$('.hero .anim, #nav').forEach(function(el){ var r=el.getBoundingClientRect(); if(!r.width) return; var ex=Math.max(r.left,Math.min(cx,r.right)), ey=Math.max(r.top,Math.min(cy,r.bottom)); el.style.setProperty('--ad',Math.round(Math.hypot(ex-cx,ey-cy)/v)+'ms'); });
+    $$('.nav-links a').forEach(function(a){ var r=a.getBoundingClientRect(); var d=Math.hypot(r.left+r.width/2-cx, r.top+r.height/2-cy); a.style.animation='rise .9s var(--ease-expo) '+Math.round(Math.max(0,d-90)/v)+'ms backwards'; });
+    var wm=$('#wordmark'); if(wm){ var r=wm.getBoundingClientRect(); wm.style.setProperty('--wd',Math.round(Math.max(0,r.top-cy)/v)+'ms'); }
+  }
+  function travel(instant){
+    if(introState==='travel'||introState==='land'||introState==='done') return;
+    introState='travel'; intro.classList.add('solid','travel'); cancelAnimationFrame(floodRaf);
+    SKY.lightTarget=1; SKY.zoomTarget=1;
+    var moved=false;
+    if(current==='home' && heroMark){
+      var i=imark.getBoundingClientRect(), h=heroMark.getBoundingClientRect();
+      if(h.width>0 && i.width>0){
+        if(instant) imove.style.transition='none';
+        imove.style.transform='translate('+(h.left-i.left).toFixed(1)+'px,'+(h.top-i.top).toFixed(1)+'px) scale('+(h.height/i.height).toFixed(4)+')';
+        moved=true;
+      }
+    }
+    if(!instant && !reduce && moved){ try{ irisOpen(); }catch(err){ console.error(err); } }
+    if(instant||!moved){ land(); return; }
+    once(imove,'transitionend',function(){ land(); });
+    later(land,1150);
+  }
+  var pinRaf=0;
+  function pin(){
+    if(introState!=='land') return;
+    if(current==='home' && heroMark){
+      var h=heroMark.getBoundingClientRect(), bh=imark.offsetHeight||1;
+      if(h.width>0){ imove.style.transition='none'; imove.style.transform='translate('+(h.left-imove.offsetLeft).toFixed(2)+'px,'+(h.top-imove.offsetTop).toFixed(2)+'px) scale('+(h.height/bh).toFixed(4)+')'; }
+    }
+    pinRaf=requestAnimationFrame(pin);
+  }
+  function land(){
+    if(introState==='land'||introState==='done') return;
+    introState='land'; cancelAnimationFrame(irisRaf); cancelAnimationFrame(floodRaf);
+    try{ if(!reduce && current==='home'){ wavefrontDelays(); var h=heroMark.getBoundingClientRect(); SKY.emit(h.left+h.width/2,h.top+h.height/2,.5,620,700); } }catch(err){ console.error(err); }
+    root.classList.add('ready'); intro.classList.add('done');
+    pinRaf=requestAnimationFrame(pin);
+    once(ibg,'transitionend',finish); later(finish,600);
+  }
+  function finish(){
+    if(introState==='done') return; introState='done'; landed=true;
+    cancelAnimationFrame(pinRaf);
+    root.classList.add('landed'); intro.classList.add('gone'); intro.classList.remove('travel'); setInert(false);
+    clearTimers();
+    ['click','keydown','wheel','touchstart'].forEach(function(ev){ window.removeEventListener(ev,skip); });
+    if(h0 && !deepLegal && document.getElementById(h0) && h0!=='home') goTo(h0,true);
+    startObservers(); startMotion();
+  }
+  function skip(e){
+    if(e){ if(e.type==='keydown' && e.key!=='Enter' && e.key!==' ' && e.key!=='Escape') return; if((e.type==='wheel'||e.type==='touchstart') && performance.now()-showAt<450) return; }
+    if(introState!=='show' && introState!=='travel') return;
+    clearTimers(); intro.classList.add('fast'); if(introState==='travel'){ imove.style.transition='none'; introState='show'; } travel(true);
+  }
+  function startIntro(){
+    if(deepLegal || reduce){ imove.style.transition='none'; ibg.style.transition='none'; introState='show'; intro.classList.add('fast'); travel(true); return; }
+    introState='show'; setInert(true);
+    ['click','keydown','wheel','touchstart'].forEach(function(ev){ window.addEventListener(ev,skip,{passive:true}); });
+    showAt=performance.now();
+    requestAnimationFrame(function(){ intro.classList.add('show'); try{ $('#skip-intro').focus({preventScroll:true}); }catch(e){} });
+    if(seen){
+      later(function(){ if(introState==='show') intro.classList.add('solid','lit'); SKY.lightTarget=1; },300);
+      later(function(){ if(introState==='show') travel(false); },1500);
+      return;
+    }
+    later(function(){ if(introState==='show') intro.classList.add('draw'); },700);
+    later(function(){ if(introState==='show') flood(); },1250);
+    later(light,1950);
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    var minWait = new Promise(function(r){ later(r,2950); });
+    var cap = new Promise(function(r){ later(r,3200); });
+    Promise.all([minWait, Promise.race([fontsReady, cap])]).then(function(){ if(introState==='show') travel(false); });
+  }
+  $('#skip-intro').addEventListener('click',function(e){ e.stopPropagation(); skip(); });
+  try{ startIntro(); }catch(err){ console.error(err); introState='show'; travel(true); }
+  setTimeout(function(){ if(introState!=='done'){ try{ clearTimers(); intro.classList.add('fast','solid'); if(introState!=='land') travel(true); }catch(err){ console.error(err); } finish(); } },7000);
+
+  /* ---------- nav + scroll ---------- */
+  var nav=$('#nav'), totop=$('#totop'), ttfg=$('#tt-fg'), prog=$('#progress'), heroInner=$('#hero-inner'), hero=$('#home'), cue=$('#scroll-cue'), echo=$('#echo');
+  var M={px:.5,py:.5,tx:.5,ty:.5,ex:0,ey:0,scrollY:0,lastY:-1,ticking:false,heroVisible:true,nextRing:0};
+  function onScroll(){
+    if(M.ticking) return; M.ticking=true;
+    requestAnimationFrame(function(){
+      M.ticking=false;
+      var y=window.scrollY||window.pageYOffset; M.scrollY=y;
+      var max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight), p=Math.min(1,y/max);
+      nav.classList.toggle('scrolled',y>24);
+      totop.classList.toggle('show',y>700);
+      prog.style.transform='scaleX('+p+')';
+      ttfg.style.strokeDashoffset=String(1-p);
+      if(landed && current==='home' && !reduce) applyHero(y);
+    });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  totop.addEventListener('click',function(){ window.scrollTo({top:0,behavior:reduce?'auto':'smooth'}); });
+  function applyHero(y){
+    var hh=hero.offsetHeight||1, k=smooth(0,hh*.75,y);
+    if(y<hh){
+      heroInner.style.transform='translate3d(0,'+(y*.22).toFixed(1)+'px,0) scale('+(1-k*.03).toFixed(4)+')';
+      heroInner.style.opacity=String(1-k);
+      cue.style.opacity=String(Math.max(0,1-y/180));
+    } else { heroInner.style.opacity='0'; }
+    M.lastY=y;
+  }
+
+  /* ---------- motion: the mark leans toward the pointer with weight; idle echoes leave it ---------- */
+  var FT={last:0,samples:[],done:false}, motionOn=false;
+  function sample(t){
+    if(FT.done||hidden||!document.hasFocus()){ FT.last=0; return; }
+    if(FT.last) FT.samples.push(Math.min(120,t-FT.last));
+    FT.last=t;
+    if(FT.samples.length>=90){ FT.done=true; var a=FT.samples.slice().sort(function(x,y){return x-y;}); if(a[45]>27) goLite(); }
+  }
+  if(fine && !reduce){
+    window.addEventListener('pointermove',function(e){ M.tx=e.clientX/window.innerWidth; M.ty=e.clientY/window.innerHeight; },{passive:true});
+  }
+  function tick(t){
+    sample(t);
+    if(!hidden && current==='home' && M.heroVisible){
+      if(fine && !Q.lite){
+        M.px+=(M.tx-M.px)*.06; M.py+=(M.ty-M.py)*.06;
+        var ex=(M.px-.5)*16, ey=(M.py-.5)*12;
+        if(Math.abs(ex-M.ex)>.05||Math.abs(ey-M.ey)>.05){ M.ex=ex; M.ey=ey; echo.style.transform='translate3d('+ex.toFixed(2)+'px,'+ey.toFixed(2)+'px,0)'; }
+      }
+      if(t>M.nextRing && !document.body.classList.contains('menu-open')){
+        M.nextRing=t+(fine && Math.hypot(M.tx-.5,M.ty-.5)<.18 ? 1600 : 4200);
+        var h=heroMark.getBoundingClientRect(); if(h.width>0 && h.top<window.innerHeight && h.bottom>0) SKY.emit(h.left+h.width/2,h.top+h.height/2,.3,110,900,small?300:420,false);
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  function startMotion(){
+    if(motionOn||reduce) return; motionOn=true; M.nextRing=performance.now()+2500;
+    if('IntersectionObserver' in window && echo){ new IntersectionObserver(function(es){ M.heroVisible=es[0].isIntersecting; }).observe(echo); }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- the logo can be struck: press it and it rings out through the stars ---------- */
+  (function(){
+    var mw=$('#mark-wrap'), fl=$('.hero .flare'); if(!mw) return;
+    var down=false, sx=0, sy=0, lastStrike=0;
+    mw.addEventListener('pointerdown',function(e){ if(!landed) return; down=true; sx=e.clientX; sy=e.clientY; mw.classList.add('press'); });
+    function release(e){ if(!down) return; down=false; mw.classList.remove('press');
+      if(reduce || Math.hypot(e.clientX-sx,e.clientY-sy)>8 || performance.now()-lastStrike<500) return; lastStrike=performance.now();
+      var h=heroMark.getBoundingClientRect(); SKY.emit(h.left+h.width/2,h.top+h.height/2,.6,620,800);
+      if(fl){ fl.classList.remove('struck'); void fl.offsetWidth; fl.classList.add('struck'); } }
+    mw.addEventListener('pointerup',release); mw.addEventListener('pointercancel',function(){ down=false; mw.classList.remove('press'); }); mw.addEventListener('pointerleave',function(){ if(down){ down=false; mw.classList.remove('press'); } });
+  })();
+
+  /* ---------- observers: reveals, active nav link, brand handoff ---------- */
+  var navLinks=$$('.nav-links a');
+  function startObservers(){
+    if(!('IntersectionObserver' in window)){ $$('.reveal,.words,.divider').forEach(function(el){ el.classList.add('in'); }); return; }
+    var secObs=new IntersectionObserver(function(es){
+      es.forEach(function(en){ if(en.isIntersecting && current==='home'){
+        navLinks.forEach(function(a){ a.classList.toggle('active',a.getAttribute('href')==='#'+en.target.id); });
+      }});
+    },{rootMargin:'-45% 0px -50% 0px',threshold:0});
+    $$('#view-home section').forEach(function(s){ secObs.observe(s); });
+    var revObs=new IntersectionObserver(function(es){
+      es.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); revObs.unobserve(en.target); } });
+    },{threshold:.08,rootMargin:'0px 0px -6% 0px'});
+    $$('.reveal,.words,.divider').forEach(function(el){ revObs.observe(el); });
+    var markObs=new IntersectionObserver(function(es){ es.forEach(function(en){ heroMarkVisible=en.isIntersecting; updateBrand(); }); },{threshold:0});
+    markObs.observe($('#mark-wrap'));
+  }
+  updateBrand();
+
+  /* ---------- listen cards: weighted lean + spotlight (real pointers only) ---------- */
+  var platforms=$('#platforms');
+  if(platforms && !reduce && fine){
+    platforms.addEventListener('pointermove',function(e){
+      var card=e.target.closest('.platform'); if(!card) return;
+      var r=card.getBoundingClientRect(), x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
+      card.style.setProperty('--mx',(x*100).toFixed(1)+'%'); card.style.setProperty('--my',(y*100).toFixed(1)+'%');
+      card.style.transform='translateY(-4px) rotateX('+((.5-y)*3).toFixed(2)+'deg) rotateY('+((x-.5)*3).toFixed(2)+'deg)';
+    });
+    $$('.platform',platforms).forEach(function(c){ c.addEventListener('pointerleave',function(){ c.style.transform=''; }); });
+  }
+
+  /* ---------- mobile menu ---------- */
+  var burger=$('#burger'), menu=$('#mobile-menu'), menuTimer;
+  function openMenu(){
+    clearTimeout(menuTimer); menu.hidden=false; void menu.offsetWidth; menu.classList.add('open');
+    burger.setAttribute('aria-expanded','true'); burger.setAttribute('aria-label','Close menu'); document.body.classList.add('menu-open');
+  }
+  function closeMenu(){
+    if(menu.hidden) return;
+    menu.classList.remove('open'); burger.setAttribute('aria-expanded','false'); burger.setAttribute('aria-label','Open menu'); document.body.classList.remove('menu-open');
+    menuTimer=setTimeout(function(){ menu.hidden=true; },450);
+  }
+  burger.addEventListener('click',function(){ menu.hidden||!menu.classList.contains('open') ? openMenu() : closeMenu(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeMenu(); });
+  window.addEventListener('resize',function(){ if(window.innerWidth>900) closeMenu(); });
+
+  /* ---------- contact form ---------- */
+  var form=$('#contact-form'), status=$('#cf-status'), sendBtn=$('#cf-send');
+  function setStatus(msg,err){ status.innerHTML=msg; status.classList.toggle('err',!!err); status.classList.remove('show'); void status.offsetWidth; status.classList.add('show'); }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=$('#cf-name').value.trim(), email=$('#cf-email').value.trim(), msg=$('#cf-message').value.trim();
+    if(!name||!email||!msg){ setStatus('Please fill in your name, your email and a message.',true); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setStatus('That email address does not look right. Please check it.',true); return; }
+    var to='echoes0in0the0dark@gmail.com';
+    var subject=encodeURIComponent('General message from '+name);
+    var body=encodeURIComponent(msg+'\n\nFrom: '+name+'\nEmail: '+email);
+    var a=document.createElement('a'); a.href='mailto:'+to+'?subject='+subject+'&body='+body; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    sendBtn.classList.remove('pulse'); void sendBtn.offsetWidth; sendBtn.classList.add('pulse');
+    setStatus('Your email app should open with the message ready to send. If it does not, write to <a href="mailto:'+to+'">'+to+'</a>.');
+  });
+})();
+</script>
+</body>
+</html>
