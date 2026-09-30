@@ -699,6 +699,68 @@ def fog_layer(t, A, hy, env):
     return d[..., None] * np.array(FOG_COL.get(env, (0.42, 0.48, 0.58)), np.float32)
 
 
+_MR = np.random.default_rng(606)
+NM = 400
+METEORS = dict(t0=np.sort(_MR.uniform(0, 480, NM)).astype(np.float32), x=_MR.uniform(0.05, 0.95, NM),
+               y=_MR.uniform(0.03, 0.3, NM), ang=_MR.uniform(0.35, 0.75, NM) * np.where(_MR.random(NM) < 0.5, 1, -1),
+               ln=_MR.uniform(0.08, 0.2, NM), dur=_MR.uniform(0.35, 0.8, NM), b=_MR.uniform(0.5, 1.0, NM))
+_OR = np.random.default_rng(707)
+NO = 220
+ORBIT = dict(r=_OR.uniform(0.5, 1.0, NO).astype(np.float32), w=_OR.uniform(0.5, 1.4, NO) * np.where(_OR.random(NO) < 0.8, 1, -1),
+             ph=_OR.uniform(0, 6.283, NO), tilt=_OR.uniform(0.18, 0.42, NO), sz=_OR.uniform(0.6, 2.0, NO))
+_DIRT = {}
+
+
+def lens_dirt(A):
+    """Smudges, specks and a wipe streak on the 'front element' (quarter res), revealed by bright light."""
+    key = (A.qw, A.qh)
+    if key not in _DIRT:
+        r = np.random.default_rng(88)
+        d = np.zeros((A.qh, A.qw), np.float32)
+        for _ in range(140):
+            cx, cy, rr = r.uniform(0, A.qw), r.uniform(0, A.qh), r.uniform(1.5, 22) * A.qw / 960
+            cv2.circle(d, (int(cx), int(cy)), max(1, int(rr)), float(r.uniform(0.15, 0.6)), -1, cv2.LINE_AA)
+        for _ in range(6):
+            x0, y0 = r.uniform(0, A.qw), r.uniform(0, A.qh)
+            cv2.ellipse(d, (int(x0), int(y0)), (int(A.qw * r.uniform(0.08, 0.25)), int(A.qh * 0.02)),
+                        float(r.uniform(-30, 30)), 0, 360, 0.35, -1, cv2.LINE_AA)
+        _DIRT[key] = cv2.GaussianBlur(d, (0, 0), 1.6 * A.qw / 960)
+    return _DIRT[key]
+
+
+def draw_meteors(lay, gq, t, W, H, sc):
+    M = METEORS
+    age = t - M["t0"]
+    for i in np.where((age > 0) & (age < M["dur"]))[0]:
+        u = float(age[i] / M["dur"][i])
+        L = float(M["ln"][i]) * W
+        dx, dy = math.cos(float(M["ang"][i])), math.sin(abs(float(M["ang"][i])))
+        dx = dx if M["ang"][i] > 0 else -dx
+        hx, hy_ = float(M["x"][i]) * W + dx * L * 2 * u, float(M["y"][i]) * H + dy * L * 2 * u
+        fade = math.sin(math.pi * u) * float(M["b"][i])
+        for k in range(8):
+            a0, a1 = k / 8, (k + 1) / 8
+            v = fade * (1 - a0) ** 1.5 * 255
+            cv2.line(lay, (int((hx - dx * L * a0) * 16), int((hy_ - dy * L * a0) * 16)),
+                     (int((hx - dx * L * a1) * 16), int((hy_ - dy * L * a1) * 16)),
+                     (v * 0.85, v * 0.92, v), max(1, int(2 * sc * (1 - a0))), cv2.LINE_AA, 4)
+        cv2.circle(gq, (int(hx / 4 * 16), int(hy_ / 4 * 16)), int(2 * 16), (0.18 * fade, 0.2 * fade, 0.25 * fade),
+                   -1, cv2.LINE_AA, 4)
+
+
+def searchlights(t, A, hy):
+    """Three sweeping searchlight beams from the city (quarter res, additive)."""
+    out = np.zeros((A.qh, A.qw), np.float32)
+    by = (hy if hy is not None else 0.65 * A.H) / 4
+    for j, bx in enumerate((0.22, 0.5, 0.8)):
+        ang = -math.pi / 2 + 0.45 * math.sin(t * (0.35 + 0.1 * j) + j * 2.1)
+        dx, dy = math.cos(ang), math.sin(ang)
+        v = dict(qx=A.qxx - np.float32(bx * A.qw), qy=A.qyy - np.float32(by), dx=np.float32(dx), dy=np.float32(dy),
+                 w=np.float32(A.qw * 0.006), L=np.float32(A.qh * 1.2))
+        out += ev("where(qx*dx+qy*dy > 0, exp(-((qx*dy-qy*dx)/(w*(1+(qx*dx+qy*dy)/(L*0.35))))**2) * exp(-(qx*dx+qy*dy)/L), 0)", v)
+    return cv2.resize(out, (A.W, A.H), interpolation=cv2.INTER_LINEAR)[..., None] * np.float32([0.10, 0.11, 0.13])
+
+
 # ----------------------------------------------------------------------------- frame
 def render2(t, A):
     W, H, sc = A.W, A.H, A.sc
@@ -770,7 +832,11 @@ def render2(t, A):
     # --- storm clouds over the photo (behind the logo and the peaks)
     if env == "storm":
         img += cv2.resize(scn.storm_clouds(t, pan, hy, flashL), (W, H), interpolation=cv2.INTER_LINEAR)
-    if env == "aurora":
+    if getattr(T, "V6", False) and env in SCENIC and env not in ("icecave", "deadwood", "forest", "city") and not nologo:
+        draw_meteors(lay, gq, t, W, H, sc)
+    if getattr(T, "V6", False) and env in ("city", "skyline"):
+        img += searchlights(t, A, hy)
+    if env == "aurora" or (getattr(T, "V6", False) and env == "snowfield"):
         cur = aurora_curtain(t, A, pan, hy, u)
         if pmask is not None:
             cur *= (1 - pmask.astype(np.float32) / 255)[..., None]
@@ -928,6 +994,19 @@ def render2(t, A):
         draw_lava_bombs(lay, gq, t, Mp, pw, ph, H, sc)
     if env == "aurora":
         draw_snow(lay, t, W, H, sc)
+    if getattr(T, "V6", False) and not nologo and vis > 0.5 and (sub or T.COMPLETE <= t < T.COLLAPSE[0] or t >= T.SLAM + 1.0):
+        O = ORBIT
+        R0 = A.emb_h * a * 0.62
+        ang = O["ph"] + O["w"] * t
+        ox_ = ec[0] + np.cos(ang) * O["r"] * R0
+        oy_ = ec[1] + np.sin(ang) * O["r"] * R0 * O["tilt"]
+        dep = 0.35 + 0.65 * (np.sin(ang) > 0)
+        for i in range(NO):
+            for k in range(3):
+                a2 = ang[i] - O["w"][i] * 0.035 * k
+                px = ec[0] + math.cos(a2) * O["r"][i] * R0
+                py = ec[1] + math.sin(a2) * O["r"][i] * R0 * O["tilt"][i]
+                draw_dot(lay, px, py, O["sz"][i] * sc * 2.6 * (1 - 0.25 * k), 255 * dep[i] * vis * (1 - 0.3 * k), GOLD8)
     ember_amt = 0.9 * smooth(span(t, T.COMPLETE, T.COMPLETE + 1.5)) * (1 - smooth(span(t, T.LOCKUP[0] - 2, T.LOCKUP[0] + 2)))
     ember_amt = max(ember_amt, 0.8 * smooth(span(t, T.SLAM, T.SLAM + 1.0)) * (1 - smooth(span(t, *T.FADE_END))))
     if env == "forest":
@@ -971,6 +1050,9 @@ def render2(t, A):
         q += ana * ANA_TINT * np.float32(2.4)
         if env in SCENIC:
             q += fog_layer(t, A, hy, env)
+    if getattr(T, "V6", False):
+        illum = cv2.GaussianBlur(cv2.resize(b2, (A.qw, A.qh)), (0, 0), A.qw * 0.03)
+        q += lens_dirt(A)[..., None] * illum * np.float32(3.2) * np.float32([1.0, 0.92, 0.8])
     ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45, "aurora": 0.6, "volcano": 0.9}.get(env, 0.65)
     ray_amt *= smooth(span(t, T.SPARK, T.SPARK + 2)) if not sub else 1.0
     if t > T.STAR_OUT and t < T.SLAM:
@@ -1018,6 +1100,13 @@ def render2(t, A):
     hot = any(s >= 0.9 and age < 1.0 / T.FPS for age, s in imps)
     if hot:
         img = img * np.float32(2.3) + np.float32(0.16)
+
+    if getattr(T, "V6", False) and shot.punch > 0 and lt is None:
+        wa = (t - shot.t0) * T.FPS
+        if 0 <= wa < 2.0:
+            kw = int(W * 0.07 * (1 - wa / 2.0)) | 1
+            if kw > 3:
+                img = cv2.blur(img, (kw, 1))
 
     # --- finishing
     vk = np.float32(1.0 if lt is None else 0.25)

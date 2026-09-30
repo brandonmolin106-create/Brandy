@@ -132,3 +132,9 @@ lines (40 in total).
 TRAILER_TIMELINE=timeline5 TRAILER_OUT=out5 python3 audio3.py
 ./make_video5.sh && ./finalize5.sh
 ```
+
+## v6: whip pans, meteors, orbiting sparks, lens dirt (8:00, 1080p)
+
+`timeline6.py` = v5 + whip-pan motion blur on every hard cut, meteor showers across the skies, a ring of
+energy particles orbiting the finished emblem, lens dirt lit up by every flash, searchlights sweeping over
+the city, and aurora curtains over the snowfield. `./make_video6hd.sh` renders it at 1080p (4x faster).
