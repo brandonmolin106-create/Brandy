@@ -811,7 +811,7 @@ def draw_threads(lay, gq, t, ec, R, W, H, sc, vis, seed):
     """Threads of destiny: golden filaments from the edges of the world into the emblem, pulses racing inward."""
     rng = np.random.default_rng(1000 + seed)
     u = np.linspace(0, 1, 70, dtype=np.float32)[:, None]
-    for i in range(8):
+    for i in range(5 if getattr(T, "V10", False) else 8):
         a = rng.uniform(0, 2 * math.pi)
         p0 = np.float32([W / 2 + math.cos(a) * W * 0.75, H / 2 + math.sin(a) * H * 0.75])
         p3 = np.float32([ec[0] + rng.uniform(-0.3, 0.3) * R, ec[1] + rng.uniform(-0.4, 0.4) * R])
@@ -819,7 +819,7 @@ def draw_threads(lay, gq, t, ec, R, W, H, sc, vis, seed):
         p1 = p0 + (p3 - p0) * 0.33 + w1
         p2 = p0 + (p3 - p0) * 0.66 - w1 * 0.6
         pts = ((1 - u) ** 3) * p0 + 3 * ((1 - u) ** 2) * u * p1 + 3 * (1 - u) * (u ** 2) * p2 + (u ** 3) * p3
-        base = float(55 * vis)
+        base = float((32 if getattr(T, "V10", False) else 55) * vis)
         cv2.polylines(lay, [(pts * 16).astype(np.int32)], False, (base * 1.0, base * 0.8, base * 0.45),
                       max(1, int(1.2 * sc * 2)), cv2.LINE_AA, 4)
         up = (t * 0.45 + i * 0.37) % 1.0
@@ -876,6 +876,11 @@ def render2(t, A):
         base = cv2.warpAffine(Pp["rgb"], Mp, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
         base = base.astype(np.float32)
         base *= np.float32(plate_expo(env, t, sub) / 255.0)
+        if getattr(T, "V10", False) and not sub:
+            # rack focus: the lens pulls from the world onto the emblem, the background melts back
+            rf = 2.8 * sc * 2 * smooth(span(t, shot.t0 + 0.25, shot.t0 + 1.4))
+            if rf > 0.3:
+                base = cv2.GaussianBlur(base, (0, 0), rf)
         # darken the photo behind the logo so it punches out of any background
         if not nologo:
             ecs = apply_G(G, A.emb_c[0], A.emb_c[1])
@@ -914,7 +919,8 @@ def render2(t, A):
     # --- storm clouds over the photo (behind the logo and the peaks)
     if env == "storm":
         img += cv2.resize(scn.storm_clouds(t, pan, hy, flashL), (W, H), interpolation=cv2.INTER_LINEAR)
-    if getattr(T, "V6", False) and env in SCENIC and env not in ("icecave", "deadwood", "forest", "city") and not nologo:
+    if getattr(T, "V6", False) and env in SCENIC and env not in ("icecave", "deadwood", "forest", "city") and not nologo \
+            and not (getattr(T, "V10", False) and env in RAIN + ("skyline",)):
         draw_meteors(lay, gq, t, W, H, sc)
     if getattr(T, "V6", False) and env in ("city", "skyline"):
         img += searchlights(t, A, hy)
@@ -1073,7 +1079,7 @@ def render2(t, A):
     if env in DUST_ENVS:
         draw_snow(lay, t * 0.35 + 7.0, W, H, sc * 0.8)
     if getattr(T, "V7", False) and env in SCENIC and env not in DUST_ENVS + RAIN + SNOW_ENVS + FIREFLY_ENVS:
-        draw_snow(lay, t * 0.25 + 3.0, W, H, sc * 0.6)
+        draw_snow(lay, t * 0.25 + 3.0, W, H, sc * (0.4 if getattr(T, "V10", False) else 0.6))
     if env == "volcano" and pname is not None:
         draw_lava_bombs(lay, gq, t, Mp, pw, ph, H, sc)
     if env == "aurora":
@@ -1138,7 +1144,7 @@ def render2(t, A):
             q += fog_layer(t, A, hy, env)
     if getattr(T, "V6", False):
         illum = cv2.GaussianBlur(cv2.resize(b2, (A.qw, A.qh)), (0, 0), A.qw * 0.03)
-        q += lens_dirt(A)[..., None] * illum * np.float32(3.2) * np.float32([1.0, 0.92, 0.8])
+        q += lens_dirt(A)[..., None] * illum * np.float32(1.8 if getattr(T, "V10", False) else 3.2) * np.float32([1.0, 0.92, 0.8])
     ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45, "aurora": 0.6, "volcano": 0.9}.get(env, 0.65)
     ray_amt *= smooth(span(t, T.SPARK, T.SPARK + 2)) if not sub else 1.0
     if t > T.STAR_OUT and t < T.SLAM:
@@ -1205,7 +1211,7 @@ def render2(t, A):
     g = cv2.resize(A.grain[int(t * T.FPS) % len(A.grain)], (W, H), interpolation=cv2.INTER_LINEAR)
     # filmic ACES curve, lifted teal blacks, warm highlights, then grain
     out = ev("(x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14)", dict(x=np.maximum(img * np.float32(1.12), 0)))
-    out = ev("(where(y > 1, 1, y) + lift*(1-y)**8 + warm*y**3)*255 + g3*2.0", dict(
+    out = ev("(where(y > 1, 1, y) + lift*(1-y)**8 + warm*y**3)*255 + g3*gk", dict(gk=np.float32(1.1 if getattr(T, "V10", False) else 2.0),
         y=out, lift=np.float32([0.004, 0.009, 0.014])[None, None, :], warm=np.float32([0.03, 0.005, -0.03])[None, None, :],
         g3=g[..., None]))
     out = cv2.convertScaleAbs(out)
