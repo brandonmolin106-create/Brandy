@@ -98,6 +98,24 @@ AURORA_TRACE = [
     (0.950, 0.548), (1.000, 0.550)]
 
 
+# name, source, crop centre y, gain, tint, desaturation, extras
+V4_PLACES = [
+    ("desert", "desert_b.jpg", 1.0, 0.75, (0.95, 0.95, 1.05), 0.1, {}),
+    ("badlands", "desert_a.jpg", 1.0, 0.42, (0.72, 0.84, 1.12), 0.35, {"gamma": 1.15, "gmul": 1.3}),
+    ("canyon", "canyon_a.jpg", 0.5, 2.6, (1.0, 0.92, 0.9), 0.15, {}),
+    ("city", "city_a.jpg", 0.55, 0.8, (0.9, 0.97, 1.08), 0.05, {}),
+    ("skyline", "city_b.jpg", 1.0, 0.85, (0.95, 0.97, 1.05), 0.0, {"horizon_src": 0.665}),
+    ("icecave", "icecave_a.jpg", 0.5, 0.7, (0.85, 0.95, 1.1), 0.1, {}),
+    ("ruins", "ruins_a.jpg", 0.62, 0.8, (0.9, 0.95, 1.08), 0.1, {}),
+    ("falls", "fall_a.jpg", 0.6, 0.72, (0.9, 0.97, 1.05), 0.05, {}),
+    ("dolomites", "mount_b.jpg", 0.6, 0.5, (0.8, 0.9, 1.12), 0.25, {}),
+    ("snowfield", "aurora_b.jpg", 0.6, 0.85, (0.95, 1.0, 1.05), 0.0, {}),
+    ("deadwood", "forest_b.jpg", 0.55, 0.32, (0.72, 0.85, 1.1), 0.6, {"gamma": 1.25, "gmul": 1.6}),
+    ("starsea", "ocean_a.jpg", 1.0, 0.95, (1.0, 1.0, 1.0), 0.0, {"horizon_src": 0.914}),
+    ("pillars", "weic2216a_big.jpg", 0.42, 0.34, (0.9, 0.92, 1.05), 0.2, {}),
+]
+
+
 def ridge_mask(img, trace=RIDGE_TRACE):
     """Mountains vs sky from the hand-traced ridge, snapped to the strongest vertical
     edge (stars median-filtered away) within a small window, then smoothed."""
@@ -205,6 +223,23 @@ def main():
     lin = lin * (0.35 + 0.9 * hot) * np.float32([1.05, 0.95, 0.9])
     np.savez(os.path.join(OUT, "volcano.npz"), rgb=to_u8(lin))
     meta["volcano"] = {}
+
+    # --- v4: heaps more places (no masks: the logo floats in their skies)
+    for name, src, cy, gain, tint, sat, extra in V4_PLACES:
+        if os.path.exists(os.path.join(OUT, name + ".npz")) and os.environ.get("PLATES_FORCE") != "1":
+            meta[name] = json.load(open(os.path.join(OUT, "meta.json"))).get(name, {})
+            continue
+        im = cv2.cvtColor(cv2.imread(os.path.join(SRC, src)), cv2.COLOR_BGR2RGB)
+        c, (x0, y0, cw, ch) = crop169(im, 0.5, cy, 1.0)
+        c = cv2.resize(denoise(c), (PW, PH), interpolation=cv2.INTER_AREA)
+        lin = desat(to_lin(c), sat) * np.float32(tint) * gain
+        if extra.get("gamma"):
+            lin = np.clip(lin, 0, None) ** extra["gamma"] * extra.get("gmul", 1.0)
+        np.savez(os.path.join(OUT, name + ".npz"), rgb=to_u8(lin))
+        meta[name] = {}
+        if "horizon_src" in extra:
+            meta[name]["horizon"] = float((extra["horizon_src"] * im.shape[0] - y0) / ch * PH)
+        print(name, meta[name], flush=True)
 
     with open(os.path.join(OUT, "meta.json"), "w") as f:
         json.dump(meta, f, indent=1)

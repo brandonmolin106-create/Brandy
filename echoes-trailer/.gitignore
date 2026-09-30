@@ -4,5 +4,7 @@ assets/cache/
 __pycache__/
 out2/
 out3/
+out4/
+out4_render.log
 out3_render.log
 assets/plates/

@@ -23,9 +23,17 @@ from scenery import Scenery
 T = importlib.import_module(os.environ.get("TRAILER_TIMELINE", "timeline2"))
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCENIC = ("ocean", "mountain", "storm", "forest", "aurora", "volcano")
+V4_PLACES = ("desert", "badlands", "canyon", "city", "skyline", "icecave", "ruins", "falls", "dolomites",
+             "snowfield", "deadwood", "starsea", "pillars")
+SCENIC = ("ocean", "mountain", "storm", "forest", "aurora", "volcano") + V4_PLACES
 PLATE_OF = {"void": "space", "ocean": "ocean", "mountain": "mount", "storm": "storm", "forest": "forest",
-            "aurora": "aurora", "volcano": "volcano"}
+            "aurora": "aurora", "volcano": "volcano", **{p: p for p in V4_PLACES}}
+WATER = ("ocean", "skyline", "starsea")                       # the logo reflects in these
+STRIKE_ENVS = ("storm", "volcano", "city", "skyline", "badlands", "desert", "canyon")
+RAIN = ("storm", "city", "badlands")
+SNOW_ENVS = ("aurora", "snowfield", "icecave", "falls", "dolomites")
+FIREFLY_ENVS = ("forest", "ruins", "deadwood")
+DUST_ENVS = ("desert", "canyon")
 
 
 def plate_expo(env, t, sub):
@@ -36,7 +44,8 @@ def plate_expo(env, t, sub):
         if t > T.COLLAPSE[1]:
             e *= 0.8
         return e * smooth(span(t, 6.5, 9.0)) if t < 10 else e
-    return {"ocean": 0.85, "mountain": 0.6, "storm": 0.72, "forest": 0.62, "aurora": 0.8, "volcano": 0.8}.get(env, 1.0)
+    return {"ocean": 0.85, "mountain": 0.6, "storm": 0.72, "forest": 0.62, "aurora": 0.8, "volcano": 0.8,
+            "canyon": 0.9, "city": 0.85, "deadwood": 0.75, "pillars": 0.9}.get(env, 0.8)
 EMB_BORDER = (-4000.0, 1.5, 0.0, 0.0)
 
 
@@ -115,7 +124,7 @@ def words_alpha(t):
 
 
 def strike_list(t, shot):
-    if shot.env not in ("storm", "volcano"):
+    if shot.env not in STRIKE_ENVS:
         return []
     out = []
     for j, (ts, kind) in enumerate(T.STRIKES):
@@ -169,7 +178,7 @@ class Assets2(R.Assets):
         pdir = os.path.join(HERE, "assets", "cache", "plates")
         meta = json.load(open(os.path.join(pdir, "meta.json")))
         self.plates = {}
-        for name in [n for n in ("space", "ocean", "mount", "storm", "forest", "aurora", "volcano")
+        for name in [n for n in ("space", "ocean", "mount", "storm", "forest", "aurora", "volcano") + V4_PLACES
                      if os.path.exists(os.path.join(pdir, n + ".npz"))]:
             d = np.load(os.path.join(pdir, name + ".npz"))
             rgb = d["rgb"]
@@ -708,7 +717,7 @@ def render2(t, A):
             base *= cv2.resize(halo, (W, H), interpolation=cv2.INTER_LINEAR)[..., None]
         if Pp["mask"] is not None:
             pmask = cv2.warpAffine(Pp["mask"], Mp, (W, H), flags=cv2.INTER_LINEAR)
-        if env == "ocean":
+        if env in WATER:
             hy = Pp["meta"]["horizon"] * zp + ty
         elif env in ("mountain", "storm", "aurora"):
             hy = Pp["meta"]["ridge_mean"] * zp + ty
@@ -880,10 +889,14 @@ def render2(t, A):
                     draw_dot(lay, x, y, (10 + 18 * A.p_z[i]) * sc * 2, min(255, bright[i] * 60), DUST8)
                 else:
                     draw_dot(lay, x, y, rad[i] * 0.6, min(255, bright[i] * 255), GOLD8 if A.p_gold[i] else DUST8)
-    if env == "storm":
+    if env in RAIN:
         scn.draw_rain(lay, t, 1.0)
-    if env == "forest":
+    if env in FIREFLY_ENVS:
         scn.draw_fireflies(lay, gq, t, 1.0)
+    if env in SNOW_ENVS and env != "aurora":
+        draw_snow(lay, t, W, H, sc)
+    if env in DUST_ENVS:
+        draw_snow(lay, t * 0.35 + 7.0, W, H, sc * 0.8)
     if env == "volcano" and pname is not None:
         draw_lava_bombs(lay, gq, t, Mp, pw, ph, H, sc)
     if env == "aurora":
@@ -924,7 +937,7 @@ def render2(t, A):
     q = q_extra + b1 * 0.45 + cv2.resize(b2, (A.qw, A.qh)) * 0.55
     q += cv2.GaussianBlur(gq, (0, 0), 2.0 * sc * 4)
     q += cv2.GaussianBlur(bright, (0, 0), 6 * sc * 4) * np.float32([0.22, 0.06, 0.025])  # film halation
-    ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45, "aurora": 0.6, "volcano": 0.9}[env]
+    ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45, "aurora": 0.6, "volcano": 0.9}.get(env, 0.65)
     ray_amt *= smooth(span(t, T.SPARK, T.SPARK + 2)) if not sub else 1.0
     if t > T.STAR_OUT and t < T.SLAM:
         ray_amt *= 1 - smooth(span(t, T.STAR_OUT, T.STAR_OUT + 0.6))
@@ -943,7 +956,7 @@ def render2(t, A):
     img += cv2.resize(q, (W, H), interpolation=cv2.INTER_LINEAR)
 
     # --- water: the logo's light reflected and rippled through the real sea
-    if env == "ocean":
+    if env in WATER:
         lay[int(hy):] = 0
         scn.ocean_plate(img, base, t, hy, sx, max(si, Ls), lay, water_rings)
 

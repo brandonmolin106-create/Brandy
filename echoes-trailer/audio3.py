@@ -17,14 +17,15 @@ from scipy.signal import resample_poly, sosfilt
 import audio as K
 import audio2 as A2
 import timeline2 as V2
-import timeline3 as T
+import importlib
 from audio import (NOTE, SR, bell, choir, echo, env_adsr, heartbeat, make_ir, noise_swell, pad, pan_st, reverb,
                    sos_bp, sos_hp, sos_lp, sub_hit, taiko, tick, whoosh)
 from audio2 import (braam2, card_slam, crackle, debris, glitch, hit_stack, pulse_bass, reverse_swell, screech,
                     shepard, stab, thunder, tremolo, wind_bed)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "out3")
+T = importlib.import_module(os.environ.get("TRAILER_TIMELINE", "timeline3"))
+OUT = os.path.join(HERE, os.environ.get("TRAILER_OUT", "out3"))
 N = int(T.DURATION * SR) + SR
 A2.N = K.N = N
 rng = np.random.default_rng(303)
@@ -231,7 +232,7 @@ def voice_track():
         x = x * np.minimum(1.0, (0.12 / np.maximum(env, 1e-4)) ** 0.55)
         x = np.tanh(x / (np.max(np.abs(x)) + 1e-9) * 1.4) / np.tanh(1.4)
         st = pan_st(x)
-        if idx in (2, 7, 19, 8, 24, 27, 30):
+        if idx in (2, 7, 19, 8, 24, 27, 30, 32):
             st = echo(x, 0.38, 0.38, 4)
         vg = 1.25 if idx in (20, 27) else 0.62          # the word-card lines must punch through their slams
         vb.add(t0, st, vg)
@@ -304,7 +305,7 @@ def main():
     mix *= 10 ** (-1.0 / 20)
     os.makedirs(OUT, exist_ok=True)
     sf.write(os.path.join(OUT, "soundtrack_raw.wav"), mix.T.astype(np.float32), SR, subtype="FLOAT")
-    print("wrote out3/soundtrack_raw.wav", flush=True)
+    print("wrote", os.path.join(OUT, "soundtrack_raw.wav"), flush=True)
 
 
 if __name__ == "__main__":

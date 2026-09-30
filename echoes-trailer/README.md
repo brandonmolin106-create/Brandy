@@ -92,12 +92,31 @@ python3 audio3.py          # -> out3/soundtrack_raw.wav
 ./finalize3.sh             # 4K master, 1080p copy, <30 MB HEVC share copy
 ```
 
+## v4: no volcano, heaps more places (8:00)
+
+`timeline4.py` (same beats as v3): the volcano is cut and every world now rotates through a family of real
+places, so each visit lands somewhere new. 20 worlds in total: deep space, the Pillars of Creation, two
+oceans, the NYC skyline over the river (with the logo's reflection), Manhattan in a lightning storm,
+Milky Way desert, night badlands, a canyon, the Dolomites under star trails, two auroras, an ice cave,
+a frozen waterfall, ancient ruins, two forests, the mountains and the storm. New narration lines 31-32.
+
+```bash
+./fetch_plates.sh && python3 build_plates.py
+TRAILER_TIMELINE=timeline4 TRAILER_OUT=out4 python3 audio3.py
+./make_video4.sh && ./finalize4.sh
+```
+
 ### Credits
 - "Cosmic Cliffs" in the Carina Nebula: NASA, ESA, CSA, STScI (ESA/Webb, CC BY 4.0)
 - Ocean at dusk: Anthony Cantin on Unsplash
 - Mountains under the Milky Way: Gantavya Bhatt on Unsplash
 - Night forest: Wolfgang Hasselmann on Unsplash
 - Aurora over Vestrahorn: Jonny Gios on Unsplash
-- Stromboli erupting: Wolfgang Hasselmann on Unsplash
+- Stromboli erupting (v3 only): Wolfgang Hasselmann on Unsplash
+- "Pillars of Creation": NASA, ESA, CSA, STScI (ESA/Webb, CC BY 4.0)
+- Milky Way desert: Samuel Quek; night badlands: Sheng Hu; canyon: Oleg Vybornov (Unsplash)
+- NYC skyline: Diane Picchiottino; Manhattan and the bridge: Donny Jiang (Unsplash)
+- Ice cave: Zongnan Bao; frozen waterfall: Jonatan Pie; ruins: Travis Leery (Unsplash)
+- Dolomites: Marek Piwnicki; aurora snowfield: Lightscape; misty forest: Rowan Heuvel; starry sea: Sunny Young (Unsplash)
 - Wordmark and title font: Jost (SIL Open Font License)
 - Narration voice: Higgsfield Seed Audio preset voice
