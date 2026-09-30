@@ -308,8 +308,9 @@ def camera2(t, shot, A):
     kick += 10 * pulse(t, shot.t0, 0.2) * (shot.punch > 0)
     for j, age, kind in strike_list(t, shot):
         kick += 14 * math.exp(-age / 0.2) * (kind != "sky")
-    dx = math.sin(t * 0.37) * 5 + math.sin(t * 0.91 + 1) * 2 + kick * math.sin(t * 71.0)
-    dy = math.cos(t * 0.29) * 4 + math.sin(t * 0.73 + 2) * 1.5 + kick * math.cos(t * 57.0)
+    hh = 3.2 if getattr(T, "V7", False) else 1.0
+    dx = (math.sin(t * 0.37) * 5 + math.sin(t * 0.91 + 1) * 2 + math.sin(t * 2.3) * 0.8) * hh + kick * math.sin(t * 71.0)
+    dy = (math.cos(t * 0.29) * 4 + math.sin(t * 0.73 + 2) * 1.5 + math.cos(t * 1.9) * 0.7) * hh + kick * math.cos(t * 57.0)
     roll += kick * 0.0005 * math.sin(t * 53.0)
     return F, s, roll, yaw, ox + dx, oy + dy, dx, dy
 
@@ -424,7 +425,10 @@ def draw_emblem(img, q_extra, lt, t, A, G, a, sx, sy, f, mat, vis, boost, sub):
         body = body * np.float32(1 - mat) + metal_body2(t, v, a * k, A, phi) * np.float32(mat * cf)
     glow = heat[..., None] * (GOLD_HOT * np.float32(1.7 * vis))
     pa = 0.30 * smooth(span(t, T.GROW[0] + 2, T.GROW[0] + 8)) * (1 - 0.6 * mat)
-    if pa > 0.001 and f < 1.2:
+    flow = getattr(T, "V7", False) and (t >= T.GROW[0] + 2 or sub)
+    if flow:
+        pa = max(pa, 0.16)
+    if pa > 0.001 and (f < 1.2 or flow):
         v["pa"] = np.float32(pa * vis)
         glow += ev("where(cos(6.2832*(D*9.0 - t*0.18)) > 0, cos(6.2832*(D*9.0 - t*0.18)), 0)**18"
                    " * E * cover * pa", v)[..., None] * GOLD
@@ -761,6 +765,29 @@ def searchlights(t, A, hy):
     return cv2.resize(out, (A.W, A.H), interpolation=cv2.INTER_LINEAR)[..., None] * np.float32([0.10, 0.11, 0.13])
 
 
+_WR = np.random.default_rng(919)
+NW = 700
+WARP = dict(x=_WR.uniform(-1, 1, NW).astype(np.float32), y=_WR.uniform(-1, 1, NW).astype(np.float32),
+            z=_WR.uniform(0, 1, NW).astype(np.float32), b=_WR.uniform(0.3, 1.0, NW).astype(np.float32))
+
+
+def warp_stream(img, t, W, H, sc, amt):
+    """Stars streaming past the camera: short radial streaks that lengthen as they fly by."""
+    S = WARP
+    z = (S["z"] - t * 0.09) % 1.0 + 0.04
+    z1 = z + 0.02
+    f = W * 0.09
+    x0, y0 = W / 2 + S["x"] / z * f, H / 2 + S["y"] / z * f
+    x1, y1 = W / 2 + S["x"] / z1 * f, H / 2 + S["y"] / z1 * f
+    br = S["b"] * np.clip((1.05 - z) ** 2, 0, 1) * amt
+    lay = np.zeros((H // 2, W // 2, 3), np.uint8)
+    for i in np.where((br > 0.03) & (np.abs(x0 - W / 2) < W) & (np.abs(y0 - H / 2) < H))[0]:
+        v = float(br[i]) * 150
+        cv2.line(lay, (int(x1[i] / 2 * 16), int(y1[i] / 2 * 16)), (int(x0[i] / 2 * 16), int(y0[i] / 2 * 16)),
+                 (v * 0.8, v * 0.88, v), 1, cv2.LINE_AA, 4)
+    img += cv2.resize(lay, (W, H), interpolation=cv2.INTER_LINEAR).astype(np.float32) * np.float32(1 / 255)
+
+
 # ----------------------------------------------------------------------------- frame
 def render2(t, A):
     W, H, sc = A.W, A.H, A.sc
@@ -790,9 +817,16 @@ def render2(t, A):
         Pp = A.plates[pname]
         ph, pw = Pp["rgb"].shape[:2]
         zp = 1.0 + 0.05 * ease_io(u) + 0.04 * shot.punch * math.exp(-(t - shot.t0) / 0.3)
-        tx = W / 2 + pan * sc * 0.5 + shx * sc - zp * pw / 2
+        if getattr(T, "V7", False):
+            zp = 1.0 + 0.10 * u + 0.012 * math.sin(t * 0.9) + 0.04 * shot.punch * math.exp(-(t - shot.t0) / 0.3)
+        tx = W / 2 + pan * sc * (1.3 if getattr(T, "V7", False) else 0.5) + shx * sc - zp * pw / 2
         ty = H / 2 + shy * sc - zp * ph / 2
         Mp = np.float32([[zp, 0, tx], [0, zp, ty]])
+        if getattr(T, "V7", False):
+            rot = math.radians(0.9 * math.sin(t * 0.21 + shot.seed) + 0.6 * (u - 0.5) * (1 if shot.seed % 2 else -1))
+            cs_, sn_ = math.cos(rot) * zp, math.sin(rot) * zp
+            cx0, cy0 = W / 2 + pan * sc * 1.3 + shx * sc, H / 2 + shy * sc
+            Mp = np.float32([[cs_, -sn_, cx0 - cs_ * pw / 2 + sn_ * ph / 2], [sn_, cs_, cy0 - sn_ * pw / 2 - cs_ * ph / 2]])
         base = cv2.warpAffine(Pp["rgb"], Mp, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
         base = base.astype(np.float32)
         base *= np.float32(plate_expo(env, t, sub) / 255.0)
@@ -811,6 +845,8 @@ def render2(t, A):
         elif env in ("mountain", "storm", "aurora"):
             hy = Pp["meta"]["ridge_mean"] * zp + ty
     img = base.copy() if base is not None else A.bg.copy()
+    if getattr(T, "V7", False) and env in ("black", "void") and shot.card is None and t > 7.0:
+        warp_stream(img, t, W, H, sc, 1.0 if env == "black" else 0.55)
     q_extra = np.zeros((A.qh, A.qw, 3), np.float32)
     gq = np.zeros((A.qh, A.qw, 3), np.float32)
     lay = np.zeros((H, W, 3), np.uint8)
@@ -990,6 +1026,8 @@ def render2(t, A):
         draw_snow(lay, t, W, H, sc)
     if env in DUST_ENVS:
         draw_snow(lay, t * 0.35 + 7.0, W, H, sc * 0.8)
+    if getattr(T, "V7", False) and env in SCENIC and env not in DUST_ENVS + RAIN + SNOW_ENVS + FIREFLY_ENVS:
+        draw_snow(lay, t * 0.25 + 3.0, W, H, sc * 0.6)
     if env == "volcano" and pname is not None:
         draw_lava_bombs(lay, gq, t, Mp, pw, ph, H, sc)
     if env == "aurora":
