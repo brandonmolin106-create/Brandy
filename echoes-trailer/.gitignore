@@ -1,0 +1,27 @@
+# generated
+out/
+assets/cache/
+__pycache__/
+out2/
+out3/
+out4/
+out5/
+out5hd/
+out6hd/
+out5hd_render.log
+out5_render.log
+out4_render.log
+out3_render.log
+assets/plates/
+out5hd_render.log
+out6hd_render.log
+out7hd/
+out7hd_render.log
+out8hd/
+out8hd_render.log
+out9hd/
+out9hd_render.log
+out10hd/
+out10hd_render.log
+out11hd/
+out11hd_render.log
