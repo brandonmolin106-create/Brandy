@@ -120,3 +120,15 @@ TRAILER_TIMELINE=timeline4 TRAILER_OUT=out4 python3 audio3.py
 - Dolomites: Marek Piwnicki; aurora snowfield: Lightscape; misty forest: Rowan Heuvel; starry sea: Sunny Young (Unsplash)
 - Wordmark and title font: Jost (SIL Open Font License)
 - Narration voice: Higgsfield Seed Audio preset voice
+
+## v5: heaps more effects and narration (8:00)
+
+`timeline5.py` keeps v4's 20 places and adds: energy surges racing through the emblem on every cut and big
+hit, lightning striking the logo in every city / desert / canyon / badlands shot, light sweeps on every
+monument, anamorphic blue lens streaks off every highlight, drifting horizon mist, and 8 more narration
+lines (40 in total).
+
+```bash
+TRAILER_TIMELINE=timeline5 TRAILER_OUT=out5 python3 audio3.py
+./make_video5.sh && ./finalize5.sh
+```

@@ -437,6 +437,14 @@ def draw_emblem(img, q_extra, lt, t, A, G, a, sx, sy, f, mat, vis, boost, sub):
             glow += ev("exp(-(((xx + (yy-sy)*0.55) - p)/w)**2) * cover * 0.9", dict(
                 xx=xs_, yy=ys_, sy=np.float32(sy), p=np.float32(lerp(sx - ext, sx + ext, ease_io(su))),
                 w=np.float32(max(40 * sc, A.emb_h * a * 0.045)), cover=cs))[..., None] * WARM_WHITE
+    for ts, sv in getattr(T, "SURGES", ()):
+        age = t - ts
+        if 0 < age < 1.4:
+            v["u"] = np.float32(age / 1.1 * 1.2 - 0.05)
+            v["sk"] = np.float32(sv * vis * (1 - span(age, 1.0, 1.4)))
+            v["cs"] = cs
+            glow += ev("(exp(-((D-u)/0.022)**2)*3.4 + exp(-((D-u+0.07)/0.06)**2)*0.8) * (0.35+E) * cs * sk",
+                       v)[..., None] * GOLD_HOT
     if k < 1:
         both = cv2.resize(np.concatenate([body, glow], 2), (ww, hh), interpolation=cv2.INTER_LINEAR)
         body, glow = both[..., :3], both[..., 3:]
@@ -670,6 +678,25 @@ def draw_snow(lay, t, W, H, sc):
     for i in range(len(y)):
         b = float(0.25 + 0.6 * S["z"][i]) * 255
         draw_dot(lay, x[i] * W, y[i] * H, (0.6 + 2.2 * S["z"][i] ** 2) * sc * 2, b * 0.55, DUST8)
+
+
+ANA_TINT = np.array([0.35, 0.6, 1.0], np.float32)
+_FR = np.random.default_rng(31)
+_F0 = cv2.resize(_FR.random((12, 48)).astype(np.float32), (1024, 256), interpolation=cv2.INTER_CUBIC)
+_F1 = cv2.resize(_FR.random((24, 96)).astype(np.float32), (1024, 256), interpolation=cv2.INTER_CUBIC)
+FOG_COL = {"desert": (0.55, 0.45, 0.38), "badlands": (0.5, 0.48, 0.5), "canyon": (0.5, 0.36, 0.3),
+           "city": (0.45, 0.5, 0.6), "skyline": (0.4, 0.45, 0.6)}
+
+
+def fog_layer(t, A, hy, env):
+    """Two octaves of drifting mist banked around the horizon (quarter res)."""
+    o0, o1 = int(t * 9) % 1024, int(t * 17) % 1024
+    n = np.roll(_F0, -o0, 1) * 0.65 + np.roll(_F1, -o1, 1) * 0.35
+    n = cv2.resize(n[:, :512], (A.qw, A.qh), interpolation=cv2.INTER_LINEAR)
+    yc = (hy if hy is not None else 0.7 * A.H) / A.H
+    prof = np.exp(-((np.arange(A.qh, dtype=np.float32) / A.qh - yc - 0.04) / 0.16) ** 2)[:, None]
+    d = np.clip(n - 0.35, 0, 1) * prof * np.float32(0.16)
+    return d[..., None] * np.array(FOG_COL.get(env, (0.42, 0.48, 0.58)), np.float32)
 
 
 # ----------------------------------------------------------------------------- frame
@@ -937,6 +964,13 @@ def render2(t, A):
     q = q_extra + b1 * 0.45 + cv2.resize(b2, (A.qw, A.qh)) * 0.55
     q += cv2.GaussianBlur(gq, (0, 0), 2.0 * sc * 4)
     q += cv2.GaussianBlur(bright, (0, 0), 6 * sc * 4) * np.float32([0.22, 0.06, 0.025])  # film halation
+    if getattr(T, "V5", False):
+        # anamorphic lens streaks: every highlight throws a long blue horizontal flare
+        hot = np.maximum(small - 0.9, 0)
+        ana = cv2.GaussianBlur(hot, (0, 0), sigmaX=A.qw * 0.07, sigmaY=0.7)
+        q += ana * ANA_TINT * np.float32(2.4)
+        if env in SCENIC:
+            q += fog_layer(t, A, hy, env)
     ray_amt = {"void": 0.55, "forest": 1.1, "mountain": 0.7, "storm": 0.45, "ocean": 0.5, "black": 0.45, "aurora": 0.6, "volcano": 0.9}.get(env, 0.65)
     ray_amt *= smooth(span(t, T.SPARK, T.SPARK + 2)) if not sub else 1.0
     if t > T.STAR_OUT and t < T.SLAM:

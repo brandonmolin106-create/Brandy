@@ -193,6 +193,12 @@ def build():
         X(tk, heartbeat(1.0), 0.55, send=0.3)
     X(d0 + 17.0, screech(2.5), 0.16, width=1, send=0.6)
 
+    # ---- v5: lightning on the logo in every city / desert / canyon shot
+    for ts, kind in getattr(T, "EXTRA_STRIKES", ()):
+        X(ts, thunder(6.0, 0.25 if kind != "sky" else 0.6), 0.55, width=1, send=0.4)
+        if kind == "emblem":
+            X(ts, crackle(1.2, 160), 0.26, width=1, send=0.2)
+
     # ---- every new hard cut: whoosh + stab + glitch; every new impact gets a hit
     for tc in T.CUTS:
         if T.C0 < tc < T.C0 + 20:
