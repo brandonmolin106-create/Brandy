@@ -301,6 +301,8 @@ def camera2(t, shot, A):
     if shot.ease == "lock":
         s *= 1 + 0.04 * span(t, T.LOCKUP[1], shot.t1)
     s *= 1 + shot.punch * math.exp(-(t - shot.t0) / 0.3)
+    if dolly_on(shot):
+        s *= 1 + 0.26 * ease_io(u)
     g = lambda k: lerp(shot.c0[k], shot.c1[k], e)
     roll, yaw, ox, oy = g("roll"), g("yaw"), g("ox"), g("oy")
     kick = 26 * pulse(t, T.BOOM, 0.45) + 38 * pulse(t, T.COMPLETE, 0.5) + 34 * pulse(t, T.SLAM, 0.45)
@@ -834,6 +836,22 @@ def draw_threads(lay, gq, t, ec, R, W, H, sc, vis, seed):
                        -1, cv2.LINE_AA, 4)
 
 
+# split-tone grade per world: (shadow tint, highlight tint)
+_COLD = ([0.86, 0.97, 1.14], [1.0, 1.02, 1.06])
+_WARM = ([0.95, 0.95, 1.05], [1.12, 1.0, 0.84])
+_NOIR = ([0.84, 1.0, 1.1], [1.1, 1.0, 0.86])
+GRADE = {"_": ([0.9, 0.98, 1.08], [1.07, 1.0, 0.92]),
+         "aurora": _COLD, "snowfield": _COLD, "icecave": _COLD, "falls": _COLD, "dolomites": _COLD,
+         "desert": _WARM, "badlands": _WARM, "canyon": _WARM, "ruins": _WARM,
+         "city": _NOIR, "skyline": _NOIR, "storm": _NOIR,
+         "black": ([0.95, 0.98, 1.05], [1.06, 1.0, 0.92]), "void": ([0.92, 0.97, 1.08], [1.06, 1.0, 0.93])}
+
+
+def dolly_on(shot):
+    return (getattr(T, "V11", False) and shot.env in SCENIC and not shot.sub and shot.card is None
+            and shot.t1 - shot.t0 >= 3.5 and shot.t0 > T.COMPLETE)
+
+
 # ----------------------------------------------------------------------------- frame
 def render2(t, A):
     W, H, sc = A.W, A.H, A.sc
@@ -865,6 +883,8 @@ def render2(t, A):
         zp = 1.0 + 0.05 * ease_io(u) + 0.04 * shot.punch * math.exp(-(t - shot.t0) / 0.3)
         if getattr(T, "V7", False):
             zp = 1.0 + 0.10 * u + 0.012 * math.sin(t * 0.9) + 0.04 * shot.punch * math.exp(-(t - shot.t0) / 0.3)
+            if dolly_on(shot):
+                zp = (1.0 + 0.012 * math.sin(t * 0.9)) * (1.10 - 0.20 * ease_io(u))
         tx = W / 2 + pan * sc * (1.3 if getattr(T, "V7", False) else 0.5) + shx * sc - zp * pw / 2
         ty = H / 2 + shy * sc - zp * ph / 2
         Mp = np.float32([[zp, 0, tx], [0, zp, ty]])
@@ -1210,6 +1230,12 @@ def render2(t, A):
         img += np.float32(cut) * np.float32([0.95, 0.88, 0.78])
     g = cv2.resize(A.grain[int(t * T.FPS) % len(A.grain)], (W, H), interpolation=cv2.INTER_LINEAR)
     # filmic ACES curve, lifted teal blacks, warm highlights, then grain
+    if getattr(T, "V11", False):
+        sh_c, hi_c = GRADE.get(env, GRADE["_"])
+        lum = img.mean(2, keepdims=True)
+        wgt = lum / (lum + np.float32(0.22))
+        img = img * (np.float32(sh_c) * (1 - wgt) + np.float32(hi_c) * wgt)
+        img *= np.float32(1 + 0.018 * math.sin(t * 23.0) * math.sin(t * 7.3 + 1.0) + 0.008 * math.sin(t * 61.0))
     out = ev("(x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14)", dict(x=np.maximum(img * np.float32(1.12), 0)))
     out = ev("(where(y > 1, 1, y) + lift*(1-y)**8 + warm*y**3)*255 + g3*gk", dict(gk=np.float32(1.1 if getattr(T, "V10", False) else 2.0),
         y=out, lift=np.float32([0.004, 0.009, 0.014])[None, None, :], warm=np.float32([0.03, 0.005, -0.03])[None, None, :],
