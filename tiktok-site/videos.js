@@ -60,7 +60,7 @@ window.SITE = {
     },
     {
  "id": "songs",
- "name": "Songs",
+ "name": "Songs and vibes",
  "color": "#f472b6",
  "blurb": "Lip syncs and song moments."
     },
