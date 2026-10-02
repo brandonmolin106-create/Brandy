@@ -57,7 +57,8 @@ h1, h2, h3 { font-family: var(--font-head); margin: 0; letter-spacing: -.01em; t
 .where { color: var(--fg-2); font-size: 14px; }
 
 /* toolbar */
-.toolbar { position: sticky; top: calc(54px + env(safe-area-inset-top, 0px)); z-index: 20; display: flex; align-items: center; gap: 12px; padding-block: 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.toolbar { display: flex; align-items: center; gap: 12px; padding-block: 10px 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.toolbar .count { margin: 0; flex: 1; }
 .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; padding-bottom: 2px; }
 .tabs::-webkit-scrollbar { display: none; }
 .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 14px; color: var(--fg-2); white-space: nowrap; }

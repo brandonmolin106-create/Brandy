@@ -110,17 +110,6 @@
     $$("[data-count]").forEach(el => { el.textContent = fmt(totals[el.dataset.count] || 0); });
   }
 
-  /* ---------- categories ---------- */
-  const countFor = id => VIDEOS.filter(v => v.category === id).length;
-  function mountCategories() {
-    const nav = $("#top-tabs"), chips = $("#chips");
-    const all = document.createElement("button"); all.className = "chip active"; all.type = "button"; all.dataset.cat = "all"; all.innerHTML = "All<small>" + VIDEOS.length + "</small>"; chips.appendChild(all);
-    CATS.forEach(c => {
-      const n = countFor(c.id); if (!n) return;
-      const a = document.createElement("a"); a.href = "#cat-" + c.id; a.textContent = c.name; nav.appendChild(a);
-      const chip = document.createElement("button"); chip.className = "chip"; chip.type = "button"; chip.dataset.cat = c.id; chip.innerHTML = esc(c.name) + "<small>" + n + "</small>"; chips.appendChild(chip);
-    });
-  }
 
   /* ---------- list ---------- */
   const state = { q: "", cat: "all", sort: "newest", shown: {} };
@@ -147,26 +136,14 @@
   function render(keepShown) {
     if (!keepShown) state.shown = {};
     visible = filtered();
-    const root = $("#sections"); root.textContent = "";
-    const cats = state.cat === "all" ? CATS : CATS.filter(c => c.id === state.cat);
-    let shown = 0;
-    cats.forEach(c => {
-      const list = visible.filter(v => v.category === c.id); if (!list.length) return;
-      shown += list.length;
-      const lim = state.shown[c.id] || (state.cat === "all" ? 12 : PAGE);
-      const sec = document.createElement("section"); sec.className = "cat-section"; sec.id = "cat-" + c.id;
-      sec.innerHTML = `<h2>${esc(c.name)} <small>${list.length} video${list.length === 1 ? "" : "s"}</small></h2><p class="blurb">${esc(c.blurb || "")}</p><div class="grid"></div>`;
-      const grid = sec.querySelector(".grid");
-      list.slice(0, lim).forEach(v => grid.appendChild(cardFor(v)));
-      if (list.length > lim) {
-        const more = document.createElement("button"); more.className = "btn show-more"; more.type = "button"; more.textContent = "Show " + Math.min(PAGE, list.length - lim) + " more of " + (list.length - lim);
-        more.addEventListener("click", () => { state.shown[c.id] = lim + PAGE; render(true); });
-        sec.appendChild(more);
-      }
-      root.appendChild(sec);
-    });
-    $("#empty").hidden = shown > 0;
-    $("#result-count").textContent = shown ? shown + " video" + (shown === 1 ? "" : "s") + (state.q ? ' matching "' + state.q + '"' : "") : "";
+    const grid = $("#feed"); grid.textContent = "";
+    const lim = state.shown.all || 36;
+    visible.slice(0, lim).forEach(v => grid.appendChild(cardFor(v)));
+    const more = $("#more"); more.hidden = visible.length <= lim;
+    more.textContent = "Show " + Math.min(36, visible.length - lim) + " more of " + (visible.length - lim);
+    more.onclick = () => { state.shown.all = lim + 36; render(true); };
+    $("#empty").hidden = visible.length > 0;
+    $("#result-count").textContent = visible.length ? visible.length + " video" + (visible.length === 1 ? "" : "s") + (state.q ? ' matching "' + state.q + '"' : "") : "";
   }
   function refreshMeta() { $$(".card").forEach(el => { const v = byId[el.dataset.id]; if (v) el.querySelector("[data-meta]").innerHTML = metaHtml(v); }); }
 
@@ -178,7 +155,6 @@
     const wrap = $("#modal-player"), ph = $("#modal-photo");
     if (v.photo || !v.src) { video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true; ph.hidden = false; ph.src = v.poster; wrap.classList.add("paused", "is-photo"); }
     else { ph.hidden = true; video.hidden = false; wrap.classList.remove("is-photo"); video.src = v.src; video.poster = v.poster; video.load(); }
-    $("#modal-cat").textContent = c.name || "Other";
     $("#modal-title").textContent = v.title;
     $("#modal-stats").textContent = fmt(v.views) + " views on TikTok, " + fmt(v.likes) + " likes on TikTok, " + mmss(v.dur) + ", " + niceDate(v.date);
     $("#modal-music").textContent = "Sound: " + (v.music || "original sound");
@@ -242,25 +218,19 @@
   }
 
   /* ---------- wiring ---------- */
-  function onScroll() {
-    let cur = null; for (const s of $$(".cat-section")) if (s.getBoundingClientRect().top < 140) cur = s.id;
-    $$("#top-tabs a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + cur));
-  }
   function bind() {
     let t; $("#search").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; render(); }, 120); });
     $("#sort").addEventListener("change", e => { state.sort = e.target.value; render(); });
-    $("#chips").addEventListener("click", e => { const chip = e.target.closest(".chip"); if (!chip) return; $$(".chip").forEach(c => c.classList.toggle("active", c === chip)); state.cat = chip.dataset.cat; render(); });
-    $("#clear-filters").addEventListener("click", () => { state.q = ""; state.cat = "all"; $("#search").value = ""; $$(".chip").forEach(c => c.classList.toggle("active", c.dataset.cat === "all")); render(); });
+    $("#clear-filters").addEventListener("click", () => { state.q = ""; $("#search").value = ""; render(); });
     $("#shuffle-btn").addEventListener("click", () => { visible = filtered(); openModal(VIDEOS[Math.floor(Math.random() * VIDEOS.length)]._i); });
     $$("[data-close]").forEach(el => el.addEventListener("click", closeModal));
     $("#modal-prev").addEventListener("click", () => step(-1)); $("#modal-next").addEventListener("click", () => step(1));
     addEventListener("keydown", e => { if ($("#modal").hidden) { if (e.key === "/" && document.activeElement !== $("#search")) { e.preventDefault(); $("#search").focus(); } return; } const typing = /TEXTAREA|INPUT/.test(document.activeElement.tagName); if (e.key === "Escape") closeModal(); if (typing) return; if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1); if (e.key === " ") { e.preventDefault(); $("#p-play").click(); } if (e.key === "m") $("#p-mute").click(); });
-    let ticking = false; addEventListener("scroll", () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); }, { passive: true });
     social.onChange(() => { refreshMeta(); if (current >= 0) renderSocial(); if (state.sort === "liked" || state.sort === "commented") render(true); });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    mountProfile(); mountCategories(); render(); bind(); bindPlayer(); onScroll();
+    mountProfile(); render(); bind(); bindPlayer();
     initSocial();
     const m = /#v(\d+)/.exec(location.hash); if (m && byId[m[1]]) { visible = filtered(); openModal(byId[m[1]]._i); }
   });

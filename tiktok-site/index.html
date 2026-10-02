@@ -20,7 +20,6 @@
         <img class="top-avatar" src="assets/profile.jpg" alt="" width="32" height="32">
         <span id="top-name"></span>
       </a>
-      <nav class="top-tabs" id="top-tabs" aria-label="Categories"></nav>
       <a class="btn btn-accent" id="follow-top" href="#" target="_blank" rel="noopener">Follow on TikTok</a>
     </div>
   </header>
@@ -48,7 +47,7 @@
 
     <section class="wrap" id="videos">
       <div class="toolbar" id="toolbar">
-        <div class="tabs" id="chips" role="tablist" aria-label="Filter by category"></div>
+        <p class="count" id="result-count"></p>
         <div class="toolbar-right">
           <label class="search">
             <span class="sr">Search</span>
@@ -66,8 +65,8 @@
           </label>
         </div>
       </div>
-      <p class="count" id="result-count"></p>
-      <div id="sections"></div>
+      <div class="grid" id="feed"></div>
+      <button class="btn show-more" id="more" type="button" hidden></button>
       <div class="empty" id="empty" hidden>
         <p>Nothing matches that search.</p>
         <button class="btn" id="clear-filters" type="button">Clear</button>
@@ -100,7 +99,6 @@
       </div>
       <div class="panel">
         <div class="panel-head">
-          <span class="tag" id="modal-cat"></span>
           <h2 id="modal-title"></h2>
           <p class="panel-meta" id="modal-stats"></p>
           <p class="panel-music" id="modal-music"></p>
