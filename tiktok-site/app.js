@@ -129,7 +129,7 @@
   }
   function cardFor(v) {
     const b = document.createElement("button"); b.className = "card"; b.type = "button"; b.dataset.id = v.id;
-    b.innerHTML = `<div class="thumb"><img src="${v.poster}" alt="" loading="lazy" decoding="async" width="360" height="640">${v.pinned ? '<span class="top-badge">Most viewed</span>' : ""}<span class="views">${fmt(v.views)} views</span><span class="dur">${v.slide ? "Slides " : ""}${mmss(v.dur)}</span></div><div class="title">${esc(v.title)}</div><div class="meta" data-meta>${metaHtml(v)}</div>`;
+    b.innerHTML = `<div class="thumb"><img src="${v.poster}" alt="" loading="lazy" decoding="async" width="360" height="640">${v.pinned ? '<span class="top-badge">Most viewed</span>' : ""}<span class="views">${fmt(v.views)} views</span><span class="dur">${v.slide ? "Slides " : ""}${mmss(v.dur)}</span></div><div class="meta" data-meta>${metaHtml(v)}</div>`;
     b.addEventListener("click", () => openModal(v._i));
     return b;
   }
@@ -155,7 +155,6 @@
     const wrap = $("#modal-player"), ph = $("#modal-photo");
     if (v.photo || !v.src) { video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true; ph.hidden = false; ph.src = v.poster; wrap.classList.add("paused", "is-photo"); }
     else { ph.hidden = true; video.hidden = false; wrap.classList.remove("is-photo"); video.src = v.src; video.poster = v.poster; video.load(); }
-    $("#modal-title").textContent = v.title;
     $("#modal-stats").textContent = fmt(v.views) + " views on TikTok, " + fmt(v.likes) + " likes on TikTok, " + mmss(v.dur) + ", " + niceDate(v.date);
     $("#modal-music").textContent = "Sound: " + (v.music || "original sound");
     $("#modal-open").href = v.url;
