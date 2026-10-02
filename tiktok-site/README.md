@@ -1,39 +1,57 @@
-# Echoes in the Dark — TikTok site
+# Brandon Molina — TikTok site
 
-A one-page, fully animated website that shows every TikTok video sorted into categories,
-each with its own name, plus the profile picture, studio logo, follower stats and a built-in
-player (videos play in a popup without leaving the site).
+Every video from [@brandonmolina651](https://www.tiktok.com/@brandonmolina651) on one animated page,
+sorted into categories, each with its own name, playing straight from the site with **no TikTok watermark**.
 
-No build step. No framework. Open `index.html` and it works.
+No build step, no framework. Open `index.html` and it works. Push it to GitHub Pages and it's live.
 
-## Set it up in 3 steps
+## What's in here
 
-1. **Profile picture** — save your TikTok profile picture as `assets/profile.jpg`.
-2. **Logo** — save the Echoes in the Dark logo as `assets/logo.png` (an animated built-in mark is used until then).
-3. **Videos** — open `videos.js` and:
-   - put your TikTok username in `profile.handle` (without the @),
-   - update `followers` / `likes`,
-   - paste every video link (TikTok ➜ Share ➜ Copy link) into the `videos` list with a `title` and a `category`,
-   - delete the entries marked `demo: true`.
-
-The site fetches each video's real cover image from TikTok automatically and plays it in a popup when clicked.
+| Path | What it is |
+|---|---|
+| `index.html` | the page |
+| `styles.css` | the look and every animation |
+| `app.js` | renders the site from `videos.js`, the custom player, particles, cursor, previews |
+| `videos.js` | **all the data**: profile, categories and one line per video |
+| `videos/<id>.mp4` | the video files, original uploads re-encoded to 480p, no watermark |
+| `covers/<id>.jpg` | the cover image for every video |
+| `assets/profile.jpg` | profile picture |
 
 ## Categories
 
-Edit the `categories` list in `videos.js`. Each one has an `id`, `name`, `emoji`, `color` and `blurb`.
-Videos point at a category by its `id`. A video with an unknown id lands in an "Other" section so nothing goes missing.
+| id | name | what goes in it |
+|---|---|---|
+| `motivation` | 💪 Real Talk | pep talks to camera |
+| `quotes` | ✍️ Words to Live By | videos with a line on screen |
+| `reflect` | 🌙 Late Night Thoughts | slower talks over sad piano / slowed tracks |
+| `faith` | ✝️ Faith & Worship | prayer, scripture, worship music |
+| `fun` | 😂 Fun & Skits | filters, faces, bits |
+| `songs` | 🎶 Songs & Vibes | lip syncs and song moments |
+| `outside` | 🌿 Out & About | walks, backyard, bush, family |
+| `community` | 💬 Replies & Duets | replies, duets, tag-a-mate posts |
+| `holiday` | 🎄 Christmas & Events | Santa hat season, live streams |
+
+Titles come from the on-screen text or caption where there is one, otherwise a generated name
+like "Pep Talk #12 · Boundless Worship". Change any title or category by editing its line in `videos.js`.
+
+## Adding a new TikTok
+
+1. Download the video without watermark (for example `yt-dlp -f "b[format_id!=download]" <link>`).
+2. Re-encode it small: `ffmpeg -i in.mp4 -vf scale=-2:854 -crf 32 -preset veryfast -c:a aac -b:a 48k -ac 1 videos/<id>.mp4`
+3. Save its cover as `covers/<id>.jpg` (360 px wide is plenty).
+4. Add one line to the `videos` list in `videos.js` with the id, title, category, date, seconds, views, likes and music.
 
 ## Features
 
-- Intro splash with the studio logo
-- Animated starfield with shooting stars, drifting nebulas and a cursor glow
-- Profile hero with spinning gradient ring, orbiting satellite, 3D tilt and animated follower counters
-- Category cards, sticky category nav, filter chips, live search and sorting (newest / oldest / A-Z)
-- 9:16 video cards with cover images, hover play button, pinned badge, staggered reveal on scroll
-- Popup player with prev / next and keyboard arrows, Escape to close
-- Fully responsive (phone, tablet, desktop), reduced-motion friendly
+- Intro splash, aurora background, particle field with shooting stars, custom cursor with trail
+- Profile hero: spinning gradient ring, three orbiting satellites, floating emoji chips, 3D tilt, typewriter tagline, count-up stats, confetti on follow
+- Scrolling category ticker, category cards with animated borders and mini cover stacks
+- "Most watched" highlight row
+- Sticky search / filter chips / sort bar, show-more pagination per category
+- 9:16 cards: cover, duration, views, hover **video preview**, 3D tilt, staggered reveal
+- Custom player: progress bar, buffer bar, mute, fullscreen, prev / next, auto-play next, keyboard (space, arrows, m, esc), share link (`#v=<id>` opens a video directly)
+- Fully responsive, reduced-motion friendly
 
 ## Put it online (free)
 
-Push this folder to GitHub, open the repo **Settings ➜ Pages**, pick the branch and the `/tiktok-site` folder.
-You get a public link in about a minute. Or drag the folder onto https://app.netlify.com/drop.
+GitHub repo **Settings ➜ Pages ➜ Deploy from branch ➜ pick the branch and `/tiktok-site`**.

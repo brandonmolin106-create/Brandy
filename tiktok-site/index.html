@@ -3,35 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Echoes in the Dark — TikTok</title>
-  <meta name="description" content="Every TikTok from Echoes in the Dark, sorted by category. Music, cosmic visuals, destiny stories and behind the scenes.">
-  <meta name="theme-color" content="#07060f">
+  <title>Brandon Molina — TikTok</title>
+  <meta name="description" content="Every TikTok from @brandonmolina651 in one place. Real talk, words to live by, faith, late night thoughts, fun and more. No watermark.">
+  <meta name="theme-color" content="#050508">
+  <link rel="icon" href="assets/profile.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- animated cosmic background -->
-  <canvas id="stars" aria-hidden="true"></canvas>
-  <div class="nebula nebula-a" aria-hidden="true"></div>
-  <div class="nebula nebula-b" aria-hidden="true"></div>
-  <div class="nebula nebula-c" aria-hidden="true"></div>
-  <div id="cursor-glow" aria-hidden="true"></div>
+  <!-- background layers -->
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div id="cursor" aria-hidden="true"><span class="dot"></span><span class="ring"></span></div>
+  <div id="progress" aria-hidden="true"></div>
 
-  <!-- intro splash -->
+  <!-- splash -->
   <div id="splash" aria-hidden="true">
-    <div class="splash-logo"><span class="logo-slot" data-logo></span></div>
-    <div class="splash-text">ECHOES <em>IN THE</em> DARK</div>
+    <div class="splash-avatar"><img src="assets/profile.jpg" alt=""></div>
+    <div class="splash-name" data-split>Brandon Molina</div>
+    <div class="splash-handle">@brandonmolina651</div>
     <div class="splash-bar"><span></span></div>
   </div>
 
   <!-- top bar -->
-  <header class="topbar">
+  <header class="topbar" id="topbar">
     <a class="brand" href="#top">
-      <span class="logo-slot" data-logo></span>
-      <span class="brand-name">Echoes <em>in the</em> Dark</span>
+      <img class="brand-avatar" src="assets/profile.jpg" alt="">
+      <span class="brand-name">Brandon<span class="brand-dot">.</span></span>
     </a>
     <nav class="topnav" id="topnav" aria-label="Categories"></nav>
     <a class="btn btn-follow" id="follow-top" href="#" target="_blank" rel="noopener">
@@ -43,58 +44,71 @@
 
   <main id="top">
 
-    <!-- HERO / PROFILE -->
+    <!-- HERO -->
     <section class="hero" id="hero">
       <div class="hero-inner">
-        <div class="avatar-wrap reveal">
-          <div class="orbit orbit-1"></div>
-          <div class="orbit orbit-2"></div>
+        <div class="avatar-wrap reveal" id="avatar-wrap">
+          <div class="orbit orbit-1"><i></i></div>
+          <div class="orbit orbit-2"><i></i></div>
           <div class="orbit orbit-3"><i></i></div>
+          <div class="avatar-glow"></div>
           <div class="avatar-ring">
-            <div class="avatar" id="avatar">
-              <img id="avatar-img" alt="" draggable="false">
-              <span id="avatar-fallback"></span>
-            </div>
+            <div class="avatar"><img src="assets/profile.jpg" alt="Brandon Molina profile picture" draggable="false"></div>
           </div>
-          <div class="avatar-badge" title="Verified by the studio">
+          <div class="avatar-chip chip-a">💪</div>
+          <div class="avatar-chip chip-b">✝️</div>
+          <div class="avatar-chip chip-c">😂</div>
+          <div class="avatar-badge" title="Creator">
             <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
           </div>
         </div>
 
         <div class="hero-copy">
-          <p class="eyebrow reveal">TikTok · <span id="hero-studio"></span></p>
+          <p class="eyebrow reveal"><span class="live-dot"></span> TikTok creator · <span id="hero-location"></span></p>
           <h1 class="hero-name reveal" id="hero-name"></h1>
           <a class="hero-handle reveal" id="hero-handle" href="#" target="_blank" rel="noopener"></a>
-          <p class="hero-tagline reveal" id="hero-tagline"></p>
+          <p class="hero-tagline reveal"><span id="typer"></span><span class="caret"></span></p>
           <p class="hero-bio reveal" id="hero-bio"></p>
 
           <div class="stats reveal" id="stats">
             <div class="stat"><b data-count="followers">0</b><span>Followers</span></div>
             <div class="stat"><b data-count="likes">0</b><span>Likes</span></div>
             <div class="stat"><b data-count="videos">0</b><span>Videos</span></div>
+            <div class="stat"><b data-count="views">0</b><span>Views</span></div>
           </div>
 
           <div class="hero-actions reveal">
-            <a class="btn btn-primary" id="follow-hero" href="#" target="_blank" rel="noopener">
+            <a class="btn btn-primary magnetic" id="follow-hero" href="#" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16.5 3c.4 2.4 1.9 4 4.5 4.2v3.2c-1.7 0-3.2-.5-4.5-1.4v6.4A6.4 6.4 0 1 1 10 9v3.3a3.2 3.2 0 1 0 3.3 3.2V3h3.2z"/></svg>
               Follow on TikTok
             </a>
-            <a class="btn btn-ghost" href="#videos">Watch the videos ↓</a>
+            <button class="btn btn-ghost magnetic" id="shuffle-btn">🎲 Play something random</button>
           </div>
           <div class="socials reveal" id="socials"></div>
         </div>
       </div>
-
       <div class="scroll-cue" aria-hidden="true"><span></span></div>
     </section>
 
-    <!-- CATEGORY OVERVIEW -->
+    <!-- TICKER -->
+    <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+
+    <!-- CATEGORIES -->
     <section class="section" id="categories">
       <div class="section-head reveal">
-        <h2>Pick a <em>category</em></h2>
-        <p>Every video is sorted. Tap one to jump straight there.</p>
+        <h2>Pick a vibe</h2>
+        <p>Every single video, sorted. Tap a category to jump in.</p>
       </div>
       <div class="cat-grid" id="cat-grid"></div>
+    </section>
+
+    <!-- HIGHLIGHTS -->
+    <section class="section" id="highlights">
+      <div class="section-head reveal">
+        <h2>Most watched</h2>
+        <p>The ones that blew up.</p>
+      </div>
+      <div class="highlight-row" id="highlight-row"></div>
     </section>
 
     <!-- CONTROLS -->
@@ -102,14 +116,16 @@
       <div class="controls reveal">
         <label class="search">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
-          <input id="search" type="search" placeholder="Search videos, tags…" autocomplete="off">
+          <input id="search" type="search" placeholder="Search titles, music, tags…" autocomplete="off">
         </label>
         <div class="chips" id="chips" role="tablist" aria-label="Filter by category"></div>
-        <label class="sort">
-          Sort
+        <label class="sort">Sort
           <select id="sort">
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
+            <option value="views">Most viewed</option>
+            <option value="likes">Most liked</option>
+            <option value="longest">Longest</option>
             <option value="az">A → Z</option>
           </select>
         </label>
@@ -117,15 +133,13 @@
       <p class="result-count" id="result-count"></p>
     </section>
 
-    <!-- VIDEO SECTIONS (one per category, rendered by app.js) -->
     <div id="sections"></div>
 
-    <!-- EMPTY STATE -->
     <section class="section empty" id="empty" hidden>
       <div class="empty-card">
-        <div class="empty-icon">🎬</div>
-        <h3>No videos match that.</h3>
-        <p>Try another search, or clear the filter.</p>
+        <div class="empty-icon">🫥</div>
+        <h3>Nothing matches that.</h3>
+        <p>Try another word, or clear the filter.</p>
         <button class="btn btn-ghost" id="clear-filters">Clear filters</button>
       </div>
     </section>
@@ -133,37 +147,52 @@
     <!-- CTA -->
     <section class="section cta">
       <div class="cta-card reveal">
-        <span class="logo-slot logo-big" data-logo></span>
-        <h2>Don't miss the next <em>drop</em>.</h2>
-        <p>New music, visuals and stories every week on TikTok.</p>
-        <a class="btn btn-primary" id="follow-cta" href="#" target="_blank" rel="noopener">Follow <span id="cta-handle"></span></a>
+        <img class="cta-avatar" src="assets/profile.jpg" alt="">
+        <h2>You are <em>amazing</em>.<br>Don't miss the next one.</h2>
+        <p>New videos most weeks. Come say hi.</p>
+        <a class="btn btn-primary magnetic" id="follow-cta" href="#" target="_blank" rel="noopener">Follow <span id="cta-handle"></span></a>
       </div>
     </section>
   </main>
 
   <footer class="footer">
     <div class="footer-inner">
-      <span class="logo-slot" data-logo></span>
-      <p>© <span id="year"></span> Echoes in the Dark. All videos belong to <span id="footer-name"></span>.</p>
-      <a class="to-top" href="#top">Back to top ↑</a>
+      <img class="brand-avatar" src="assets/profile.jpg" alt="">
+      <p>© <span id="year"></span> <span id="footer-name"></span>. All videos are the original uploads, no watermark.</p>
+      <a class="to-top" href="#top">🚀 Back to top</a>
     </div>
   </footer>
 
-  <!-- VIDEO PLAYER MODAL -->
+  <!-- PLAYER MODAL -->
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card">
       <button class="modal-close" data-close aria-label="Close">✕</button>
-      <div class="modal-player" id="modal-player"></div>
+      <div class="modal-player" id="modal-player">
+        <video id="player" playsinline preload="metadata"></video>
+        <img id="modal-photo" class="modal-photo" alt="" hidden>
+        <div class="player-ui">
+          <button class="pbtn" id="p-play" aria-label="Play / pause">▶</button>
+          <div class="p-bar" id="p-bar"><div class="p-buf" id="p-buf"></div><div class="p-fill" id="p-fill"></div></div>
+          <span class="p-time" id="p-time">0:00</span>
+          <button class="pbtn" id="p-mute" aria-label="Mute">🔊</button>
+          <button class="pbtn" id="p-full" aria-label="Fullscreen">⛶</button>
+        </div>
+        <div class="big-play" id="big-play"></div>
+      </div>
       <div class="modal-meta">
         <span class="modal-cat" id="modal-cat"></span>
         <h3 id="modal-title"></h3>
+        <div class="modal-stats" id="modal-stats"></div>
+        <div class="now-playing" id="now-playing"><span class="eq"><i></i><i></i><i></i><i></i></span><span id="modal-music"></span></div>
         <div class="modal-tags" id="modal-tags"></div>
         <div class="modal-actions">
-          <a class="btn btn-primary" id="modal-open" href="#" target="_blank" rel="noopener">Open on TikTok ↗</a>
           <button class="btn btn-ghost" id="modal-prev">← Prev</button>
           <button class="btn btn-ghost" id="modal-next">Next →</button>
+          <a class="btn btn-ghost" id="modal-open" href="#" target="_blank" rel="noopener">On TikTok ↗</a>
+          <button class="btn btn-ghost" id="modal-share">Share 🔗</button>
         </div>
+        <label class="autoplay"><input type="checkbox" id="autonext" checked> Auto-play next</label>
       </div>
     </div>
   </div>
