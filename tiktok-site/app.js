@@ -10,7 +10,7 @@
   const VBASE = P.videoBase || "videos/", CBASE = P.coverBase || "covers/";
   const VIDEOS = (S.videos || []).map((v, i) => ({
     _i: i, id: v.id, title: v.t || "Untitled", category: v.c, date: v.d || "", dur: v.s || 0,
-    views: v.v || 0, likes: v.l || 0, music: v.m || "", tags: v.g || [], pinned: !!v.p, photo: !!v.ph,
+    views: v.v || 0, likes: v.l || 0, music: v.m || "", tags: v.g || [], pinned: !!v.p, photo: !!v.ph, slide: !!v.sl,
     src: VBASE + v.id + ".mp4", poster: CBASE + v.id + ".jpg",
     url: `https://www.tiktok.com/@${P.handle}/video/${v.id}`
   }));
@@ -119,7 +119,7 @@
     const b = document.createElement("button"); b.className = "card"; b.type = "button"; b.dataset.index = v._i; b.style.setProperty("--c", c.color || "#fe2c55");
     b.setAttribute("aria-label", "Play: " + v.title);
     b.innerHTML = `<img class="poster" src="${v.poster}" alt="" loading="lazy" onload="this.classList.add('loaded')"><div class="shade"></div>
-      ${v.pinned ? `<span class="badge">Top</span>` : ""}<span class="nowm">No watermark</span><span class="dur">${v.photo ? "📷 photo" : mmss(v.dur)}</span>
+      ${v.pinned ? `<span class="badge">Top</span>` : ""}<span class="nowm">No watermark</span><span class="dur">${v.photo ? "📷 photo" : v.slide ? "📷 " + mmss(v.dur) : mmss(v.dur)}</span>
       <div class="play"></div><div class="meta"><div class="title">${esc(v.title)}</div><div class="sub"><span class="dot"></span><span>${esc(c.name || "")}</span><span>· ${esc(niceDate(v.date))}</span></div></div>
       <span class="views">${fmt(v.views)}</span>`;
     b.addEventListener("click", () => openModal(v._i));
