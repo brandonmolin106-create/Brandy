@@ -1,274 +1,267 @@
-/* =====================================================================
-   BRANDON MOLINA — TikTok site app
-   Reads window.SITE (videos.js) and renders everything.
-   ===================================================================== */
+/* Brandon Molina TikTok site. Renders from window.SITE (videos.js).
+   Likes and comments: shared database when the page runs inside claude.ai with the db capability,
+   otherwise this browser's own storage. */
 (function () {
   "use strict";
   const S = window.SITE || { profile: {}, categories: [], videos: [] };
-  const P = S.profile || {};
-  const CATS = S.categories || [];
+  const P = S.profile || {}, CATS = S.categories || [];
   const VBASE = P.videoBase || "videos/", CBASE = P.coverBase || "covers/";
   const VIDEOS = (S.videos || []).map((v, i) => ({
     _i: i, id: v.id, title: v.t || "Untitled", category: v.c, date: v.d || "", dur: v.s || 0,
     views: v.v || 0, likes: v.l || 0, music: v.m || "", tags: v.g || [], pinned: !!v.p, photo: !!v.ph, slide: !!v.sl,
-    src: VBASE + v.id + ".mp4", poster: CBASE + v.id + ".jpg",
-    url: `https://www.tiktok.com/@${P.handle}/video/${v.id}`
+    get src() { return window.ASSETS ? (window.ASSETS[this.id] ? "/_blob/" + window.ASSETS[this.id] : "") : VBASE + this.id + ".mp4"; },
+    poster: CBASE + v.id + ".jpg", url: "https://www.tiktok.com/@" + P.handle + "/video/" + v.id
   }));
+  const byId = Object.fromEntries(VIDEOS.map(v => [v.id, v]));
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const catById = Object.fromEntries(CATS.map(c => [c.id, c]));
   const handle = (P.handle || "").replace(/^@/, "");
-  const tiktokUrl = (P.links && P.links.tiktok) || (handle ? `https://www.tiktok.com/@${handle}` : "https://www.tiktok.com/");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const touch = matchMedia("(hover: none)").matches;
+  const tiktokUrl = (P.links && P.links.tiktok) || "https://www.tiktok.com/@" + handle;
   const PAGE = 24;
-
-  /* ---------- helpers ---------- */
-  const fmt = n => { n = Number(n) || 0; if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B"; if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M"; if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K"; return String(n); };
+  const fmt = n => { n = Number(n) || 0; if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M"; if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K"; return String(n); };
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const mmss = s => { s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
   const niceDate = d => { if (!d) return ""; const t = new Date(d + "T00:00:00"); return isNaN(t) ? d : t.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }); };
-  const toast = (() => { let el, t; return msg => { if (!el) { el = document.createElement("div"); el.className = "toast"; document.body.appendChild(el); } el.textContent = msg; el.classList.add("show"); clearTimeout(t); t = setTimeout(() => el.classList.remove("show"), 2400); }; })();
-  const splitText = el => { const txt = el.textContent; el.textContent = ""; let i = 0; for (const ch of txt) { const s = document.createElement("span"); s.className = "ch"; s.style.setProperty("--i", i++); s.textContent = ch === " " ? " " : ch; el.appendChild(s); } };
+  const ago = ms => { const s = Math.max(1, (Date.now() - ms) / 1000); if (s < 60) return "just now"; if (s < 3600) return Math.floor(s / 60) + "m"; if (s < 86400) return Math.floor(s / 3600) + "h"; if (s < 86400 * 30) return Math.floor(s / 86400) + "d"; return new Date(ms).toLocaleDateString("en-AU", { day: "numeric", month: "short" }); };
+  const toast = (() => { let el, t; return msg => { if (!el) { el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status"); document.body.appendChild(el); } el.textContent = msg; el.classList.add("show"); clearTimeout(t); t = setTimeout(() => el.classList.remove("show"), 2200); }; })();
+  const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 20.3 4.6 13a4.4 4.4 0 0 1 6.2-6.2l1.2 1.2 1.2-1.2a4.4 4.4 0 0 1 6.2 6.2z"/></svg>';
+  const BUBBLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16v12H7l-3 3z"/></svg>';
+  const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>';
+  const GENERIC_AVATAR = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#9a9aa3"/><circle cx="16" cy="12" r="6" fill="#fff"/><path d="M4 28c2-6 7-8 12-8s10 2 12 8z" fill="#fff"/></svg>');
+
+  /* ---------- social store ---------- */
+  const social = {
+    mode: "local", uid: null, me: null, canWrite: true, likeCount: {}, commentCount: {}, myLikes: {}, comments: {}, myDoc: { items: [] },
+    listeners: [], onChange(fn) { this.listeners.push(fn); }, emit() { this.listeners.forEach(fn => fn()); }
+  };
+  const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+  let db = null, userNs = null, profileCache = {};
+  function recountLikes(docs) { const c = {}; docs.forEach(d => Object.keys(d.v || {}).forEach(id => { c[id] = (c[id] || 0) + 1; })); social.likeCount = c; }
+  function recountComments(all) { const by = {}; const c = {}; all.forEach(x => { (by[x.v] = by[x.v] || []).push(x); c[x.v] = (c[x.v] || 0) + 1; }); Object.values(by).forEach(l => l.sort((a, b) => a.at - b.at)); social.comments = by; social.commentCount = c; }
+  async function initSocial() {
+    const use = window.claude && window.claude.use;
+    if (use) {
+      try { [db, userNs] = await Promise.all([window.claude.use("db"), window.claude.use("user")]); } catch (e) { db = null; }
+    }
+    if (db && userNs) {
+      social.mode = "shared";
+      social.me = await userNs.me(); social.uid = social.me.id;
+      const cw = await userNs.can("data.write"); social.canWrite = !!social.uid && cw !== false;
+      db.collection("likes").onSnapshot(snap => {
+        const docs = []; snap.docs.forEach(d => { const data = d.data() || {}; docs.push(data); if (d.id === social.uid) social.myLikes = Object.assign({}, data.v || {}); });
+        recountLikes(docs); social.emit();
+      }, () => { social.canWrite = false; social.emit(); });
+      db.collection("comments").onSnapshot(snap => {
+        const all = []; snap.docs.forEach(d => { const data = d.data() || {}; (data.items || []).forEach(it => all.push({ id: it.id, v: it.v, t: it.t, at: it.at, u: d.id })); if (d.id === social.uid) social.myDoc = { items: (data.items || []).slice() }; });
+        recountComments(all); social.emit();
+      }, () => {});
+    } else {
+      social.mode = "local"; social.uid = "me"; social.me = { id: "me", name: "You", avatarUrl: GENERIC_AVATAR };
+      social.myLikes = LS.get("bm_likes", {}); social.myDoc = { items: LS.get("bm_comments", []) };
+      recountLikes([{ v: social.myLikes }]); recountComments(social.myDoc.items.map(it => Object.assign({ u: "me" }, it)));
+      social.emit();
+    }
+  }
+  let likeBusy = false, commentBusy = false;
+  async function toggleLike(vid) {
+    if (!social.uid || likeBusy) return false;
+    const next = Object.assign({}, social.myLikes); if (next[vid]) delete next[vid]; else next[vid] = true;
+    if (social.mode === "shared") {
+      likeBusy = true;
+      try { await db.doc("likes/" + social.uid).set({ v: next }); social.myLikes = next; }
+      catch (e) { social.canWrite = false; social.emit(); toast("You can't like on this page. Ask for contributor access."); likeBusy = false; return false; }
+      likeBusy = false;
+    } else { social.myLikes = next; LS.set("bm_likes", next); recountLikes([{ v: next }]); social.emit(); }
+    return true;
+  }
+  async function postComment(vid, text) {
+    if (!social.uid || commentBusy) return false;
+    const item = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), v: vid, t: text, at: Date.now() };
+    const items = social.myDoc.items.concat([item]);
+    if (social.mode === "shared") {
+      commentBusy = true;
+      try { await db.doc("comments/" + social.uid).set({ items }); social.myDoc = { items }; }
+      catch (e) { commentBusy = false; social.canWrite = false; social.emit(); toast("You can't comment on this page. Ask for contributor access."); return false; }
+      commentBusy = false;
+    } else { social.myDoc = { items }; LS.set("bm_comments", items); recountComments(items.map(it => Object.assign({ u: "me" }, it))); social.emit(); }
+    return true;
+  }
+  async function deleteComment(id) {
+    const items = social.myDoc.items.filter(it => it.id !== id);
+    if (social.mode === "shared") { try { await db.doc("comments/" + social.uid).set({ items }); social.myDoc = { items }; } catch (e) { toast("Couldn't delete that."); } }
+    else { social.myDoc = { items }; LS.set("bm_comments", items); recountComments(items.map(it => Object.assign({ u: "me" }, it))); social.emit(); }
+  }
+  async function profilesFor(ids) {
+    if (social.mode !== "shared") return Object.fromEntries(ids.map(id => [id, { name: "You", avatarUrl: GENERIC_AVATAR }]));
+    try { return await userNs.profiles(ids); } catch (e) { return {}; }
+  }
 
   /* ---------- profile ---------- */
   function mountProfile() {
     const name = P.name || "Brandon Molina";
-    $("#hero-name").textContent = name; splitText($(".splash-name"));
-    $("#hero-location").textContent = P.location || "";
-    $("#hero-bio").textContent = P.bio || "";
-    $("#footer-name").textContent = name;
+    $("#hero-name").textContent = name; $("#top-name").textContent = name; $("#footer-name").textContent = name;
+    $("#hero-bio").textContent = P.bio || ""; $("#hero-location").textContent = P.location || "";
     $("#year").textContent = new Date().getFullYear();
     const h = $("#hero-handle"); h.textContent = "@" + handle; h.href = tiktokUrl;
-    $("#cta-handle").textContent = "@" + handle;
-    ["#follow-top", "#follow-hero", "#follow-cta"].forEach(id => { $(id).href = tiktokUrl; });
-    document.title = `${name} (@${handle}) — TikTok`;
+    ["#follow-top", "#follow-hero"].forEach(id => { $(id).href = tiktokUrl; });
+    document.title = name;
     const st = P.stats || {};
     const totals = { followers: st.followers || 0, likes: st.likes || 0, videos: st.videos || VIDEOS.length, views: st.views || VIDEOS.reduce((a, v) => a + v.views, 0) };
-    $$("[data-count]").forEach(el => { el.dataset.target = totals[el.dataset.count] || 0; el.textContent = "0"; });
-    const L = P.links || {}, wrap = $("#socials");
-    const icons = {
-      instagram: `<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM17.5 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`,
-      youtube: `<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1c.4-1.6.5-3.2.5-4.8s-.1-3.2-.5-4.8zM9.8 15.1V8.9l6 3.1-6 3.1z"/></svg>`,
-      email: `<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.5l8 5 8-5V6H4zm0 2.8V18h16V8.8l-8 5-8-5z"/></svg>`
-    };
-    Object.entries(icons).forEach(([k, svg]) => { if (!L[k]) return; const a = document.createElement("a"); a.href = k === "email" ? "mailto:" + L[k] : L[k]; if (k !== "email") { a.target = "_blank"; a.rel = "noopener"; } a.title = k; a.innerHTML = svg; wrap.appendChild(a); });
-  }
-  function countUp() {
-    $$("[data-count]").forEach(el => {
-      const target = Number(el.dataset.target) || 0, t0 = performance.now(), dur = 1800;
-      const step = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(Math.round(target * e)); if (p < 1) requestAnimationFrame(step); };
-      requestAnimationFrame(step);
-    });
-  }
-  function typewriter() {
-    const lines = [P.tagline || "you. the one reading this.", "You are amazing.", "Keep on going.", "Stay true to yourself.", "You got this, bro."];
-    const el = $("#typer"); let li = 0, ci = 0, del = false;
-    if (reduce) { el.textContent = lines[0]; return; }
-    (function tick() {
-      const line = lines[li];
-      el.textContent = line.slice(0, ci);
-      let wait = del ? 40 : 70;
-      if (!del && ci === line.length) { wait = 1800; del = true; }
-      else if (del && ci === 0) { del = false; li = (li + 1) % lines.length; wait = 300; }
-      ci += del ? -1 : 1;
-      setTimeout(tick, wait);
-    })();
+    $$("[data-count]").forEach(el => { el.textContent = fmt(totals[el.dataset.count] || 0); });
   }
 
-  /* ---------- categories / ticker / highlights ---------- */
+  /* ---------- categories ---------- */
   const countFor = id => VIDEOS.filter(v => v.category === id).length;
   function mountCategories() {
-    const nav = $("#topnav"), grid = $("#cat-grid"), chips = $("#chips"), ticker = $("#ticker");
-    const allChip = document.createElement("button"); allChip.className = "chip active"; allChip.dataset.cat = "all"; allChip.textContent = `All · ${VIDEOS.length}`; chips.appendChild(allChip);
-    const tick = [];
+    const nav = $("#top-tabs"), chips = $("#chips");
+    const all = document.createElement("button"); all.className = "chip active"; all.type = "button"; all.dataset.cat = "all"; all.innerHTML = "All<small>" + VIDEOS.length + "</small>"; chips.appendChild(all);
     CATS.forEach(c => {
       const n = countFor(c.id); if (!n) return;
-      const a = document.createElement("a"); a.href = "#cat-" + c.id; a.textContent = c.emoji + " " + c.name; nav.appendChild(a);
-      const card = document.createElement("a"); card.className = "cat-card reveal"; card.href = "#cat-" + c.id; card.style.setProperty("--c", c.color);
-      const minis = VIDEOS.filter(v => v.category === c.id).slice(0, 3).map(v => `<img src="${v.poster}" alt="" loading="lazy">`).join("");
-      card.innerHTML = `<div class="mini">${minis}</div><span class="emoji">${esc(c.emoji)}</span><h3>${esc(c.name)}</h3><p>${esc(c.blurb || "")}</p><span class="count">${n} video${n === 1 ? "" : "s"}</span>`;
-      grid.appendChild(card);
-      const chip = document.createElement("button"); chip.className = "chip"; chip.dataset.cat = c.id; chip.style.setProperty("--c", c.color); chip.textContent = `${c.emoji} ${c.name} · ${n}`; chips.appendChild(chip);
-      tick.push(`<span style="--c:${c.color}">${c.emoji} <b>${esc(c.name)}</b> ${n}</span>`);
-    });
-    ticker.innerHTML = tick.join("") + tick.join("");
-    const row = $("#highlight-row");
-    [...VIDEOS].sort((a, b) => b.views - a.views).slice(0, 4).forEach((v, i) => {
-      const c = catById[v.category] || {};
-      const b = document.createElement("button"); b.className = "highlight reveal"; b.style.setProperty("--c", c.color || "#ffb020"); b.style.transitionDelay = i * 90 + "ms";
-      b.innerHTML = `<img src="${v.poster}" alt="" loading="lazy"><div class="shade"></div><span class="rank">#${i + 1}</span><div class="meta"><div class="title">${esc(v.title)}</div><div class="views">▶ ${fmt(v.views)} views · ♥ ${fmt(v.likes)}</div></div>`;
-      b.addEventListener("click", () => openModal(v._i)); row.appendChild(b);
+      const a = document.createElement("a"); a.href = "#cat-" + c.id; a.textContent = c.name; nav.appendChild(a);
+      const chip = document.createElement("button"); chip.className = "chip"; chip.type = "button"; chip.dataset.cat = c.id; chip.innerHTML = esc(c.name) + "<small>" + n + "</small>"; chips.appendChild(chip);
     });
   }
 
-  /* ---------- filtering ---------- */
+  /* ---------- list ---------- */
   const state = { q: "", cat: "all", sort: "newest", shown: {} };
   let visible = [];
   function filtered() {
     const q = state.q.trim().toLowerCase();
-    let list = VIDEOS.filter(v => (state.cat === "all" || v.category === state.cat) && (!q || v.title.toLowerCase().includes(q) || v.music.toLowerCase().includes(q) || v.tags.some(t => t.includes(q)) || (catById[v.category]?.name || "").toLowerCase().includes(q) || v.date.includes(q)));
+    const list = VIDEOS.filter(v => (state.cat === "all" || v.category === state.cat) && (!q || v.title.toLowerCase().includes(q) || v.music.toLowerCase().includes(q) || v.tags.some(t => t.includes(q)) || (catById[v.category] || {}).name.toLowerCase().includes(q) || v.date.includes(q)));
     const byDate = (a, b) => b.date.localeCompare(a.date) || a._i - b._i;
-    const sorts = { newest: byDate, oldest: (a, b) => -byDate(a, b), views: (a, b) => b.views - a.views, likes: (a, b) => b.likes - a.likes, longest: (a, b) => b.dur - a.dur, az: (a, b) => a.title.localeCompare(b.title) };
+    const sorts = { newest: byDate, oldest: (a, b) => -byDate(a, b), views: (a, b) => b.views - a.views, liked: (a, b) => (social.likeCount[b.id] || 0) - (social.likeCount[a.id] || 0) || byDate(a, b), commented: (a, b) => (social.commentCount[b.id] || 0) - (social.commentCount[a.id] || 0) || byDate(a, b), longest: (a, b) => b.dur - a.dur };
     list.sort(sorts[state.sort] || byDate);
     if (state.sort === "newest") list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
     return list;
   }
-
+  function metaHtml(v) {
+    const lc = social.likeCount[v.id] || 0, cc = social.commentCount[v.id] || 0;
+    return `<span>${EYE}${fmt(v.views)}</span><span class="${social.myLikes[v.id] ? "liked" : ""}">${HEART}${lc}</span><span>${BUBBLE}${cc}</span>`;
+  }
   function cardFor(v) {
-    const c = catById[v.category] || {};
-    const b = document.createElement("button"); b.className = "card"; b.type = "button"; b.dataset.index = v._i; b.style.setProperty("--c", c.color || "#fe2c55");
-    b.setAttribute("aria-label", "Play: " + v.title);
-    b.innerHTML = `<img class="poster" src="${v.poster}" alt="" loading="lazy" onload="this.classList.add('loaded')"><div class="shade"></div>
-      ${v.pinned ? `<span class="badge">Top</span>` : ""}<span class="nowm">No watermark</span><span class="dur">${v.photo ? "📷 photo" : v.slide ? "📷 " + mmss(v.dur) : mmss(v.dur)}</span>
-      <div class="play"></div><div class="meta"><div class="title">${esc(v.title)}</div><div class="sub"><span class="dot"></span><span>${esc(c.name || "")}</span><span>· ${esc(niceDate(v.date))}</span></div></div>
-      <span class="views">${fmt(v.views)}</span>`;
+    const b = document.createElement("button"); b.className = "card"; b.type = "button"; b.dataset.id = v.id;
+    b.innerHTML = `<div class="thumb"><img src="${v.poster}" alt="" loading="lazy" decoding="async" width="360" height="640">${v.pinned ? '<span class="top-badge">Most viewed</span>' : ""}<span class="views">${fmt(v.views)} views</span><span class="dur">${v.slide ? "Slides " : ""}${mmss(v.dur)}</span></div><div class="title">${esc(v.title)}</div><div class="meta" data-meta>${metaHtml(v)}</div>`;
     b.addEventListener("click", () => openModal(v._i));
-    if (!touch && !reduce) {
-      let vid, t;
-      b.addEventListener("mouseenter", () => { t = setTimeout(() => { if (!vid) { vid = document.createElement("video"); vid.className = "preview"; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = "none"; vid.src = v.src; b.insertBefore(vid, b.querySelector(".shade")); } vid.currentTime = 0; vid.play().then(() => b.classList.add("previewing")).catch(() => {}); }, 350); });
-      b.addEventListener("mouseleave", () => { clearTimeout(t); b.classList.remove("previewing"); if (vid) vid.pause(); });
-      b.addEventListener("mousemove", e => { const r = b.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; b.style.transform = `translateY(-8px) scale(1.03) rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`; });
-      b.addEventListener("mouseleave", () => { b.style.transform = ""; });
-    }
     return b;
   }
-
   function render(keepShown) {
     if (!keepShown) state.shown = {};
     visible = filtered();
-    const root = $("#sections"); root.innerHTML = "";
+    const root = $("#sections"); root.textContent = "";
     const cats = state.cat === "all" ? CATS : CATS.filter(c => c.id === state.cat);
     let shown = 0;
     cats.forEach(c => {
       const list = visible.filter(v => v.category === c.id); if (!list.length) return;
       shown += list.length;
-      const lim = state.shown[c.id] || (state.cat === "all" ? PAGE / 2 : PAGE);
-      const sec = document.createElement("section"); sec.className = "section cat-section"; sec.id = "cat-" + c.id; sec.style.setProperty("--c", c.color);
-      sec.innerHTML = `<h2><span class="emoji">${esc(c.emoji)}</span>${esc(c.name)} <span class="pill">${list.length}</span></h2><p class="blurb">${esc(c.blurb || "")}</p><div class="grid"></div>`;
+      const lim = state.shown[c.id] || (state.cat === "all" ? 12 : PAGE);
+      const sec = document.createElement("section"); sec.className = "cat-section"; sec.id = "cat-" + c.id;
+      sec.innerHTML = `<h2>${esc(c.name)} <small>${list.length} video${list.length === 1 ? "" : "s"}</small></h2><p class="blurb">${esc(c.blurb || "")}</p><div class="grid"></div>`;
       const grid = sec.querySelector(".grid");
       list.slice(0, lim).forEach(v => grid.appendChild(cardFor(v)));
       if (list.length > lim) {
-        const more = document.createElement("button"); more.className = "btn btn-ghost show-more"; more.textContent = `Show ${Math.min(PAGE, list.length - lim)} more of ${list.length - lim} ↓`;
-        more.addEventListener("click", () => { state.shown[c.id] = lim + PAGE; const y = more.getBoundingClientRect().top + scrollY; render(true); scrollTo(0, y - 300); });
+        const more = document.createElement("button"); more.className = "btn show-more"; more.type = "button"; more.textContent = "Show " + Math.min(PAGE, list.length - lim) + " more of " + (list.length - lim);
+        more.addEventListener("click", () => { state.shown[c.id] = lim + PAGE; render(true); });
         sec.appendChild(more);
       }
       root.appendChild(sec);
     });
     $("#empty").hidden = shown > 0;
-    $("#result-count").textContent = shown ? `${shown} video${shown === 1 ? "" : "s"}${state.q ? ` matching “${state.q}”` : ""}` : "";
-    observe();
+    $("#result-count").textContent = shown ? shown + " video" + (shown === 1 ? "" : "s") + (state.q ? ' matching "' + state.q + '"' : "") : "";
   }
+  function refreshMeta() { $$(".card").forEach(el => { const v = byId[el.dataset.id]; if (v) el.querySelector("[data-meta]").innerHTML = metaHtml(v); }); }
 
-  /* ---------- player ---------- */
+  /* ---------- player and panel ---------- */
   const video = $("#player"); let current = -1;
   function openModal(i) {
     const v = VIDEOS[i]; if (!v) return;
     current = i; const c = catById[v.category] || {};
-    const ph = $("#modal-photo"); if (v.photo) { video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true; ph.hidden = false; ph.src = v.poster; $("#modal-player").classList.add("paused", "is-photo"); }
-    else { ph.hidden = true; video.hidden = false; $("#modal-player").classList.remove("is-photo"); video.src = v.src; video.poster = v.poster; video.load(); }
-    $("#modal-cat").textContent = (c.emoji ? c.emoji + " " : "") + (c.name || "Other"); $("#modal-cat").style.setProperty("--c", c.color || "#fe2c55");
+    const wrap = $("#modal-player"), ph = $("#modal-photo");
+    if (v.photo || !v.src) { video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true; ph.hidden = false; ph.src = v.poster; wrap.classList.add("paused", "is-photo"); }
+    else { ph.hidden = true; video.hidden = false; wrap.classList.remove("is-photo"); video.src = v.src; video.poster = v.poster; video.load(); }
+    $("#modal-cat").textContent = c.name || "Other";
     $("#modal-title").textContent = v.title;
-    $("#modal-stats").innerHTML = `<span>▶ <b>${fmt(v.views)}</b> views</span><span>♥ <b>${fmt(v.likes)}</b></span><span>⏱ <b>${mmss(v.dur)}</b></span><span>📅 <b>${esc(niceDate(v.date))}</b></span>`;
-    $("#modal-music").textContent = v.music || "original sound";
-    $("#modal-tags").innerHTML = v.tags.map(t => `<span>#${esc(t)}</span>`).join("");
+    $("#modal-stats").textContent = fmt(v.views) + " views on TikTok, " + fmt(v.likes) + " likes on TikTok, " + mmss(v.dur) + ", " + niceDate(v.date);
+    $("#modal-music").textContent = "Sound: " + (v.music || "original sound");
     $("#modal-open").href = v.url;
     const pos = visible.findIndex(x => x._i === i);
     $("#modal-prev").disabled = pos <= 0; $("#modal-next").disabled = pos < 0 || pos >= visible.length - 1;
     $("#modal").hidden = false; document.body.style.overflow = "hidden";
-    history.replaceState(null, "", "#v=" + v.id);
-    if (!v.photo) video.play().catch(() => $("#modal-player").classList.add("paused"));
+    try { history.replaceState(null, "", "#v" + v.id); } catch (e) {}
+    renderSocial();
+    if (!v.photo && v.src) video.play().catch(() => wrap.classList.add("paused"));
+    $(".modal-close").focus();
   }
-  function closeModal() { video.pause(); video.removeAttribute("src"); video.load(); $("#modal").hidden = true; document.body.style.overflow = ""; current = -1; history.replaceState(null, "", location.pathname + location.search); }
+  function closeModal() { video.pause(); video.removeAttribute("src"); video.load(); $("#modal").hidden = true; document.body.style.overflow = ""; current = -1; try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
   function step(d) { const pos = visible.findIndex(x => x._i === current); const nx = visible[pos + d]; if (nx) openModal(nx._i); }
+  async function renderSocial() {
+    const v = VIDEOS[current]; if (!v) return;
+    const lc = social.likeCount[v.id] || 0, mine = !!social.myLikes[v.id];
+    $("#like-count").textContent = lc; $("#like-btn").setAttribute("aria-pressed", String(mine)); $("#like-btn").disabled = !social.uid;
+    const list = social.comments[v.id] || [];
+    $("#comment-count").textContent = list.length;
+    const ol = $("#comment-list"); ol.textContent = "";
+    if (!list.length) { const li = document.createElement("li"); li.className = "comment-empty"; li.textContent = "No comments yet."; ol.appendChild(li); }
+    else {
+      const ps = await profilesFor(Array.from(new Set(list.map(x => x.u))));
+      if (VIDEOS[current] !== v) return;
+      list.forEach(x => {
+        const p = ps[x.u] || {}; const li = document.createElement("li"); li.className = "comment";
+        const img = document.createElement("img"); img.src = p.avatarUrl || GENERIC_AVATAR; img.alt = "";
+        const body = document.createElement("div");
+        const who = document.createElement("div"); who.className = "who"; const nm = document.createElement("span"); nm.textContent = (x.u === social.uid ? (social.mode === "local" ? "You" : (p.name || "You")) : (p.name || "Someone")); const tm = document.createElement("time"); tm.textContent = ago(x.at); who.append(nm, tm);
+        const text = document.createElement("p"); text.className = "text"; text.textContent = x.t;
+        body.append(who, text);
+        if (x.u === social.uid) { const del = document.createElement("button"); del.className = "del"; del.type = "button"; del.textContent = "Delete"; del.addEventListener("click", () => deleteComment(x.id)); body.appendChild(del); }
+        li.append(img, body); ol.appendChild(li);
+      });
+    }
+    const note = $("#comment-note"), form = $("#composer");
+    if (!social.uid) { note.hidden = false; note.textContent = "Sign in to like and comment."; form.hidden = true; }
+    else if (!social.canWrite) { note.hidden = false; note.textContent = "You can read comments here. Liking and commenting needs contributor access from Brandon."; form.hidden = true; }
+    else { note.hidden = true; form.hidden = false; $("#composer-avatar").src = (social.me && social.me.avatarUrl) || GENERIC_AVATAR; }
+  }
   function bindPlayer() {
     const wrap = $("#modal-player"), fill = $("#p-fill"), buf = $("#p-buf"), time = $("#p-time"), bar = $("#p-bar");
-    const toggle = () => video.paused ? video.play() : video.pause();
-    video.addEventListener("click", toggle); $("#p-play").addEventListener("click", toggle);
-    video.addEventListener("play", () => { wrap.classList.remove("paused"); $("#p-play").textContent = "❚❚"; });
-    video.addEventListener("pause", () => { wrap.classList.add("paused"); $("#p-play").textContent = "▶"; });
+    const toggle = () => { if (video.hidden) return; video.paused ? video.play() : video.pause(); };
+    $("#p-cover").addEventListener("click", toggle); $("#p-play").addEventListener("click", toggle);
+    video.addEventListener("play", () => { wrap.classList.remove("paused"); $("#p-play-icon").setAttribute("d", "M6 5h4v14H6zm8 0h4v14h-4z"); });
+    video.addEventListener("pause", () => { wrap.classList.add("paused"); $("#p-play-icon").setAttribute("d", "M8 5v14l11-7z"); });
     video.addEventListener("timeupdate", () => { const p = video.duration ? video.currentTime / video.duration : 0; fill.style.width = p * 100 + "%"; time.textContent = mmss(video.currentTime) + " / " + mmss(video.duration || 0); });
     video.addEventListener("progress", () => { try { const b = video.buffered; if (b.length && video.duration) buf.style.width = (b.end(b.length - 1) / video.duration) * 100 + "%"; } catch (e) {} });
     video.addEventListener("ended", () => { if ($("#autonext").checked && !$("#modal-next").disabled) step(1); });
-    video.addEventListener("error", () => { wrap.classList.add("paused"); toast("Video file not found yet. Open on TikTok instead."); });
+    video.addEventListener("error", () => { if (video.getAttribute("src")) { wrap.classList.add("paused"); toast("This video couldn't load. Open it on TikTok instead."); } });
     bar.addEventListener("click", e => { const r = bar.getBoundingClientRect(); if (video.duration) video.currentTime = ((e.clientX - r.left) / r.width) * video.duration; });
-    $("#p-mute").addEventListener("click", () => { video.muted = !video.muted; $("#p-mute").textContent = video.muted ? "🔇" : "🔊"; });
-    $("#p-full").addEventListener("click", () => { (wrap.requestFullscreen || wrap.webkitRequestFullscreen || function () {}).call(wrap); });
-    $("#modal-share").addEventListener("click", async () => { const v = VIDEOS[current]; if (!v) return; const url = location.origin + location.pathname + "#v=" + v.id; try { if (navigator.share) await navigator.share({ title: v.title, url }); else { await navigator.clipboard.writeText(url); toast("Link copied 🔗"); } } catch (e) {} });
+    $("#p-mute").addEventListener("click", () => { video.muted = !video.muted; $("#p-mute-icon").setAttribute("d", video.muted ? "M3 9v6h4l5 5V4L7 9H3zm13 .4L14.6 8 13 9.6 14.4 11 13 12.4l1.6 1.6 1.4-1.4 1.4 1.4 1.6-1.6L17.6 11 19 9.6 17.4 8z" : "M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"); });
+    $("#p-full").addEventListener("click", () => { const f = wrap.requestFullscreen || wrap.webkitRequestFullscreen; if (f) { try { const r = f.call(wrap); if (r && r.catch) r.catch(() => {}); } catch (e) {} } });
+    $("#modal-share").addEventListener("click", async () => { const v = VIDEOS[current]; if (!v) return; const url = location.href.split("#")[0] + "#v" + v.id; try { await navigator.clipboard.writeText(url); toast("Link copied"); } catch (e) { const ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); toast("Link copied"); } catch (e2) { toast(url); } ta.remove(); } });
+    $("#like-btn").addEventListener("click", async () => { const v = VIDEOS[current]; if (!v) return; const ok = await toggleLike(v.id); if (ok && social.mode === "local") renderSocial(); });
+    const form = $("#composer"), ta = $("#comment-text");
+    form.addEventListener("submit", async e => { e.preventDefault(); const v = VIDEOS[current]; const text = ta.value.trim(); if (!v || !text) return; $("#comment-post").disabled = true; const ok = await postComment(v.id, text); $("#comment-post").disabled = false; if (ok) { ta.value = ""; ta.style.height = ""; if (social.mode === "local") renderSocial(); } });
+    ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = Math.min(120, ta.scrollHeight) + "px"; });
+    ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
   }
 
-  /* ---------- particles canvas ---------- */
-  function particles() {
-    const cv = $("#fx"), ctx = cv.getContext("2d"); let w, h, pts = [], shooting = [], dpr = Math.min(2, devicePixelRatio || 1), mx = 0, my = 0;
-    function resize() { w = cv.width = innerWidth * dpr; h = cv.height = innerHeight * dpr; cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px"; const n = Math.min(260, Math.floor((innerWidth * innerHeight) / 7000)); pts = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, r: (Math.random() * 1.6 + .4) * dpr, a: Math.random() * 6, s: Math.random() * .02 + .005, vy: (Math.random() * .2 + .05) * dpr, vx: (Math.random() - .5) * .1 * dpr, hue: Math.random() < .5 ? "255,255,255" : (Math.random() < .5 ? "37,244,238" : "254,44,85") })); }
-    addEventListener("mousemove", e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
-    function frame() {
-      ctx.clearRect(0, 0, w, h);
-      for (const p of pts) { p.a += p.s; const tw = (Math.sin(p.a) + 1) / 2; p.y -= p.vy; p.x += p.vx; if (p.y < 0) { p.y = h; p.x = Math.random() * w; } const px = p.x + mx * 40 * dpr * p.r, py = p.y + my * 40 * dpr * p.r; ctx.beginPath(); ctx.arc(px, py, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${p.hue},${.15 + tw * .7})`; ctx.fill(); }
-      if (Math.random() < .005 && shooting.length < 2) shooting.push({ x: Math.random() * w, y: Math.random() * h * .4, vx: (8 + Math.random() * 6) * dpr, vy: (3 + Math.random() * 3) * dpr, life: 1 });
-      shooting = shooting.filter(s => s.life > 0);
-      for (const s of shooting) { ctx.strokeStyle = `rgba(255,255,255,${s.life})`; ctx.lineWidth = 2 * dpr; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.vx * 6, s.y - s.vy * 6); ctx.stroke(); s.x += s.vx; s.y += s.vy; s.life -= .02; }
-      requestAnimationFrame(frame);
-    }
-    addEventListener("resize", resize, { passive: true }); resize(); if (reduce) { frame(); return; } frame();
-  }
-
-  /* ---------- cursor, magnetic, ripple, confetti ---------- */
-  function cursorFx() {
-    if (touch) return;
-    const cur = $("#cursor"); let x = 0, y = 0, rx = 0, ry = 0, last = 0;
-    addEventListener("mousemove", e => { x = e.clientX; y = e.clientY; cur.querySelector(".dot").style.transform = `translate(${x}px,${y}px)`; if (!reduce && performance.now() - last > 40) { last = performance.now(); const t = document.createElement("i"); t.className = "trail"; t.style.left = x + "px"; t.style.top = y + "px"; t.style.background = Math.random() < .5 ? "var(--cyan)" : "var(--red)"; document.body.appendChild(t); setTimeout(() => t.remove(), 600); } }, { passive: true });
-    (function loop() { rx += (x - rx) * .18; ry += (y - ry) * .18; cur.querySelector(".ring").style.transform = `translate(${rx}px,${ry}px)` + (document.body.classList.contains("hovering") ? " scale(1.8)" : ""); requestAnimationFrame(loop); })();
-    document.addEventListener("mouseover", e => { document.body.classList.toggle("hovering", !!e.target.closest("a,button,.card,input,select,label")); });
-    $$(".magnetic").forEach(el => { el.addEventListener("mousemove", e => { const r = el.getBoundingClientRect(); el.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .25}px,${(e.clientY - r.top - r.height / 2) * .35}px) scale(1.04)`; }); el.addEventListener("mouseleave", () => { el.style.transform = ""; }); });
-  }
-  document.addEventListener("click", e => {
-    const b = e.target.closest(".btn"); if (!b) return;
-    const r = b.getBoundingClientRect(), s = document.createElement("span"); s.className = "ripple"; const d = Math.max(r.width, r.height); s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`; b.appendChild(s); setTimeout(() => s.remove(), 700);
-    if (b.id.startsWith("follow")) confetti(e.clientX, e.clientY);
-  });
-  function confetti(x, y) {
-    if (reduce) return;
-    const cols = ["#fe2c55", "#25f4ee", "#ffb020", "#7c5cff", "#fff"];
-    for (let i = 0; i < 36; i++) { const c = document.createElement("i"); c.className = "confetti"; const a = Math.random() * Math.PI * 2, d = 80 + Math.random() * 180; c.style.cssText = `left:${x}px;top:${y}px;background:${cols[i % cols.length]};--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d + 120}px;animation-delay:${Math.random() * .1}s`; document.body.appendChild(c); setTimeout(() => c.remove(), 1700); }
-  }
-
-  /* ---------- scroll stuff ---------- */
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .1 });
-  function observe() { $$(".card:not(.in)").forEach((el, i) => { el.style.transitionDelay = (i % 12) * 40 + "ms"; io.observe(el); }); $$(".reveal:not(.in)").forEach(el => io.observe(el)); $$("[data-split]:not(.splash-name):not(.done)").forEach(el => { el.classList.add("done"); splitText(el); }); }
-  let lastY = 0;
+  /* ---------- wiring ---------- */
   function onScroll() {
-    const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
-    $("#progress").style.width = (max ? y / max * 100 : 0) + "%";
-    $("#topbar").classList.toggle("scrolled", y > 20);
-    $("#topbar").classList.toggle("hide", y > lastY && y > 400 && !$("#topnav").classList.contains("open")); lastY = y;
-    let cur = null; for (const s of $$(".cat-section")) if (s.getBoundingClientRect().top < 200) cur = s.id;
-    $$("#topnav a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + cur));
-    const hy = Math.min(y, 700); $(".hero-inner").style.transform = `translateY(${hy * .18}px)`; $(".hero-inner").style.opacity = String(1 - hy / 1000);
+    let cur = null; for (const s of $$(".cat-section")) if (s.getBoundingClientRect().top < 140) cur = s.id;
+    $$("#top-tabs a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + cur));
   }
-
-  /* ---------- wire up ---------- */
   function bind() {
-    $("#search").addEventListener("input", e => { state.q = e.target.value; render(); });
+    let t; $("#search").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; render(); }, 120); });
     $("#sort").addEventListener("change", e => { state.sort = e.target.value; render(); });
-    $("#chips").addEventListener("click", e => { const chip = e.target.closest(".chip"); if (!chip) return; $$(".chip").forEach(c => c.classList.toggle("active", c === chip)); state.cat = chip.dataset.cat; render(); if (state.cat !== "all") toast(`${catById[state.cat].emoji} ${catById[state.cat].name}`); });
+    $("#chips").addEventListener("click", e => { const chip = e.target.closest(".chip"); if (!chip) return; $$(".chip").forEach(c => c.classList.toggle("active", c === chip)); state.cat = chip.dataset.cat; render(); });
     $("#clear-filters").addEventListener("click", () => { state.q = ""; state.cat = "all"; $("#search").value = ""; $$(".chip").forEach(c => c.classList.toggle("active", c.dataset.cat === "all")); render(); });
     $("#shuffle-btn").addEventListener("click", () => { visible = filtered(); openModal(VIDEOS[Math.floor(Math.random() * VIDEOS.length)]._i); });
     $$("[data-close]").forEach(el => el.addEventListener("click", closeModal));
     $("#modal-prev").addEventListener("click", () => step(-1)); $("#modal-next").addEventListener("click", () => step(1));
-    addEventListener("keydown", e => { if ($("#modal").hidden) { if (e.key === "/" && document.activeElement !== $("#search")) { e.preventDefault(); $("#search").focus(); } return; } if (e.key === "Escape") closeModal(); if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1); if (e.key === " ") { e.preventDefault(); video.paused ? video.play() : video.pause(); } if (e.key === "m") $("#p-mute").click(); });
-    const mb = $("#menu-btn"), nav = $("#topnav");
-    mb.addEventListener("click", () => { const o = nav.classList.toggle("open"); mb.setAttribute("aria-expanded", String(o)); });
-    nav.addEventListener("click", () => { nav.classList.remove("open"); mb.setAttribute("aria-expanded", "false"); });
-    addEventListener("scroll", onScroll, { passive: true });
-    const av = $("#avatar-wrap");
-    av.addEventListener("mousemove", e => { const r = av.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; av.style.transform = `perspective(700px) rotateY(${x * 22}deg) rotateX(${-y * 22}deg)`; });
-    av.addEventListener("mouseleave", () => { av.style.transform = ""; });
-    av.addEventListener("click", () => { confetti(innerWidth / 2, innerHeight / 3); toast("You are amazing 💛"); });
+    addEventListener("keydown", e => { if ($("#modal").hidden) { if (e.key === "/" && document.activeElement !== $("#search")) { e.preventDefault(); $("#search").focus(); } return; } const typing = /TEXTAREA|INPUT/.test(document.activeElement.tagName); if (e.key === "Escape") closeModal(); if (typing) return; if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1); if (e.key === " ") { e.preventDefault(); $("#p-play").click(); } if (e.key === "m") $("#p-mute").click(); });
+    let ticking = false; addEventListener("scroll", () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); }, { passive: true });
+    social.onChange(() => { refreshMeta(); if (current >= 0) renderSocial(); if (state.sort === "liked" || state.sort === "commented") render(true); });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    mountProfile(); mountCategories(); render(); bind(); bindPlayer(); particles(); cursorFx(); onScroll();
-    setTimeout(() => { $$(".hero .reveal").forEach((el, i) => setTimeout(() => el.classList.add("in"), i * 110)); countUp(); typewriter(); }, reduce ? 0 : 2200);
-    const m = /#v=(\d+)/.exec(location.hash); if (m) { const v = VIDEOS.find(x => x.id === m[1]); if (v) { visible = filtered(); setTimeout(() => openModal(v._i), reduce ? 0 : 2400); } }
+    mountProfile(); mountCategories(); render(); bind(); bindPlayer(); onScroll();
+    initSocial();
+    const m = /#v(\d+)/.exec(location.hash); if (m && byId[m[1]]) { visible = filtered(); openModal(byId[m[1]]._i); }
   });
 })();

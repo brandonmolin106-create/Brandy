@@ -2,7 +2,7 @@
    BRANDON MOLINA — TikTok site data (auto-generated from @brandonmolina651)
    ---------------------------------------------------------------------
    profile    : name, bio, stats, links. Edit freely.
-   categories : id, name, emoji, colour, blurb. Videos point at an id.
+   categories : id, name, colour, blurb. Videos point at an id.
    videos     : id = TikTok video id. The file lives at videos/<id>.mp4 and
                 the cover at covers/<id>.jpg.
                 t=title  c=category  d=date  s=seconds  v=views  l=likes
@@ -12,90 +12,81 @@
    ===================================================================== */
 window.SITE = {
   profile: {
-    "handle": "brandonmolina651",
-    "name": "Brandon Molina",
-    "tagline": "you. the one reading this.",
-    "bio": "you. the one reading this.\nYou are amazing",
-    "avatar": "assets/profile.jpg",
-    "location": "Lismore, NSW, Australia",
-    "joined": "2022",
-    "stats": {
-        "followers": 3451,
-        "following": 3183,
-        "likes": 13600,
-        "videos": 417,
-        "views": 339076
+ "handle": "brandonmolina651",
+ "name": "Brandon Molina",
+ "tagline": "you. the one reading this.",
+ "bio": "you. the one reading this.\nYou are amazing",
+ "avatar": "assets/profile.jpg",
+ "location": "Lismore, NSW, Australia",
+ "joined": "2022",
+ "stats": {
+ "followers": 3451,
+ "following": 3183,
+ "likes": 13600,
+ "videos": 417,
+ "views": 339076
     },
-    "links": {
-        "tiktok": "https://www.tiktok.com/@brandonmolina651",
-        "email": "brandonmolin106@gmail.com"
+ "links": {
+ "tiktok": "https://www.tiktok.com/@brandonmolina651",
+ "email": "brandonmolin106@gmail.com"
     },
-    "videoBase": "videos/",
-    "coverBase": "covers/"
+ "videoBase": "videos/",
+ "coverBase": "covers/"
 },
   categories: [
     {
-        "id": "motivation",
-        "name": "Real Talk",
-        "emoji": "💪",
-        "color": "#ff5c7a",
-        "blurb": "Straight-up pep talks to camera. Mindset, self-belief, keeping on going."
+ "id": "motivation",
+ "name": "Real talk",
+ "color": "#ff5c7a",
+ "blurb": "Pep talks straight to camera about mindset and keeping going."
     },
     {
-        "id": "quotes",
-        "name": "Words to Live By",
-        "emoji": "✍️",
-        "color": "#ffb020",
-        "blurb": "Short videos with a line on screen you can carry with you all day."
+ "id": "quotes",
+ "name": "Words to live by",
+ "color": "#ffb020",
+ "blurb": "Short videos with a line on screen to carry with you."
     },
     {
-        "id": "reflect",
-        "name": "Late Night Thoughts",
-        "emoji": "🌙",
-        "color": "#7c5cff",
-        "blurb": "Slower, deeper talks over sad piano and slowed tracks."
+ "id": "reflect",
+ "name": "Late night thoughts",
+ "color": "#7c5cff",
+ "blurb": "Slower talks over piano and slowed tracks."
     },
     {
-        "id": "faith",
-        "name": "Faith & Worship",
-        "emoji": "✝️",
-        "color": "#25f4ee",
-        "blurb": "Prayer, scripture and worship moments. God is good."
+ "id": "faith",
+ "name": "Faith and worship",
+ "color": "#25f4ee",
+ "blurb": "Prayer, scripture and worship."
     },
     {
-        "id": "fun",
-        "name": "Fun & Skits",
-        "emoji": "😂",
-        "color": "#22c55e",
-        "blurb": "Filters, faces, bits and random energy. Don't take it seriously."
+ "id": "fun",
+ "name": "Fun and skits",
+ "color": "#22c55e",
+ "blurb": "Filters, faces and bits."
     },
     {
-        "id": "songs",
-        "name": "Songs & Vibes",
-        "emoji": "🎶",
-        "color": "#f472b6",
-        "blurb": "Lip syncs, song moments and tracks that fit the mood."
+ "id": "songs",
+ "name": "Songs",
+ "color": "#f472b6",
+ "blurb": "Lip syncs and song moments."
     },
     {
-        "id": "outside",
-        "name": "Out & About",
-        "emoji": "🌿",
-        "color": "#84cc16",
-        "blurb": "Walks, backyard, bush tracks and family. Talking in the sun."
+ "id": "outside",
+ "name": "Outside",
+ "color": "#84cc16",
+ "blurb": "Walks, the backyard, bush tracks and family."
     },
     {
-        "id": "community",
-        "name": "Replies & Duets",
-        "emoji": "💬",
-        "color": "#38bdf8",
-        "blurb": "Answering comments, duets, tag-your-mate posts and questions for you."
+ "id": "community",
+ "name": "Replies and duets",
+ "color": "#38bdf8",
+ "blurb": "Replies, duets and questions for you."
     },
     {
-        "id": "holiday",
-        "name": "Christmas & Events",
-        "emoji": "🎄",
-        "color": "#ef4444",
-        "blurb": "Santa hat season and live stream moments."
+ "id": "holiday",
+ "name": "Christmas",
+ "color": "#ef4444",
+ "blurb": "Santa hat season and live streams."
     }
 ],
   videos: [
@@ -108,7 +99,7 @@ window.SITE = {
   {"id": "7690214681029512454", "t": "You Got This Talk #99", "c": "motivation", "d": "2026-09-27", "s": 160, "v": 260, "l": 6, "m": "original sound"},
   {"id": "7690258394015403282", "t": "One day it won't feel heavy at all", "c": "quotes", "d": "2026-09-27", "s": 17, "v": 397, "l": 10, "m": "오리지널 사운드 - H_"},
   {"id": "7685934513406364936", "t": "Backyard sunshine talk", "c": "outside", "d": "2026-09-16", "s": 85, "v": 769, "l": 27, "m": "original sound", "g": ["inspiration", "beyourself", "motivational", "inspiration", "beyourself", "motivational"]},
-  {"id": "7679149062301486344", "t": "Love the person you are", "c": "quotes", "d": "2026-08-28", "s": 12, "v": 678, "l": 23, "m": "សំឡេងដើម - | 𝙻𝙾𝙽𝙶𝚈𝙰𝙰'♫🍃"},
+  {"id": "7679149062301486344", "t": "Love the person you are", "c": "quotes", "d": "2026-08-28", "s": 12, "v": 678, "l": 23, "m": "សំឡេងដើម - | 𝙻𝙾𝙽𝙶𝚈𝙰𝙰'"},
   {"id": "7678001520788426002", "t": "Honest Words #98", "c": "motivation", "d": "2026-08-25", "s": 292, "v": 635, "l": 34, "m": "original sound"},
   {"id": "7677257839844347143", "t": "Nothing will come", "c": "quotes", "d": "2026-08-23", "s": 180, "v": 542, "l": 22, "m": "original sound"},
   {"id": "7676906550643936520", "t": "Reminder For You #97", "c": "motivation", "d": "2026-08-22", "s": 114, "v": 477, "l": 20, "m": "original sound"},
@@ -259,7 +250,7 @@ window.SITE = {
   {"id": "7595038803715263751", "t": "Quick Laugh #40", "c": "fun", "d": "2026-01-14", "s": 14, "v": 1034, "l": 68, "m": "original sound", "g": ["saywhatyoufeel", "funny", "entertainment", "saywhatyoufeel", "funny", "entertainment"]},
   {"id": "7595066218453929234", "t": "A Message For You #73 · Epic Music(863502)", "c": "motivation", "d": "2026-01-14", "s": 126, "v": 642, "l": 44, "m": "Epic Music(863502)"},
   {"id": "7594819900275690770", "t": "I was a bit tired during this video", "c": "motivation", "d": "2026-01-13", "s": 91, "v": 540, "l": 34, "m": "Super inspiration"},
-  {"id": "7594836574232153352", "t": "Ik, I may be chopped but go ahead and share, lol 😅", "c": "fun", "d": "2026-01-13", "s": 7, "v": 889, "l": 53, "m": "original sound"},
+  {"id": "7594836574232153352", "t": "Ik, I may be chopped but go ahead and share, lol ", "c": "fun", "d": "2026-01-13", "s": 7, "v": 889, "l": 53, "m": "original sound"},
   {"id": "7594510725847223559", "t": "Word For Today #21 · Boundless Worship", "c": "faith", "d": "2026-01-12", "s": 174, "v": 473, "l": 24, "m": "Boundless Worship"},
   {"id": "7594515892231261458", "t": "Praise Moment #22 · Boundless Worship", "c": "faith", "d": "2026-01-12", "s": 53, "v": 474, "l": 29, "m": "Boundless Worship"},
   {"id": "7594074384487255303", "t": "Pep Talk #71 · The Champion", "c": "motivation", "d": "2026-01-11", "s": 54, "v": 411, "l": 26, "m": "The Champion"},
@@ -511,7 +502,7 @@ window.SITE = {
   {"id": "7520601776618294535", "t": "Praise Moment #2", "c": "faith", "d": "2025-06-27", "s": 13, "v": 18900, "l": 43, "m": "original sound", "g": ["christiantiktok", "christiantiktok"], "p": 1},
   {"id": "7519882746223742216", "t": "Reposting anyone who uses my filter", "c": "fun", "d": "2025-06-25", "s": 15, "v": 1615, "l": 35, "m": "original sound", "g": ["filtergame", "cheese", "filtergame", "cheese"]},
   {"id": "7519544158483205394", "t": "Around the world (la la la)", "c": "fun", "d": "2025-06-24", "s": 10, "v": 3467, "l": 119, "m": "Around the World (La La La La La) (Sped Up Version)", "g": ["aroundtheworld", "aroundtheworld"]},
-  {"id": "7519143528111312135", "t": "Me 😅", "c": "motivation", "d": "2025-06-23", "s": 15, "v": 1253, "l": 47, "m": "original sound", "g": ["calm", "chil", "calm", "chil"]},
+  {"id": "7519143528111312135", "t": "Me ", "c": "motivation", "d": "2025-06-23", "s": 15, "v": 1253, "l": 47, "m": "original sound", "g": ["calm", "chil", "calm", "chil"]},
   {"id": "7519164548549528840", "t": "Psalm 28:7, thank you Lord", "c": "faith", "d": "2025-06-23", "s": 27, "v": 845, "l": 48, "m": "original sound", "g": ["christian", "godisgood", "thankful", "christian", "godisgood", "thankful"]},
   {"id": "7431552183998434567", "t": "I love my family", "c": "outside", "d": "2024-10-30", "s": 10, "v": 44300, "l": 211, "m": "new flesh by current joys", "p": 1}
   ]
