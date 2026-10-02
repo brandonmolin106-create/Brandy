@@ -24,7 +24,7 @@ window.SITE = {
  "following": 3183,
  "likes": 13600,
  "videos": 417,
- "views": 305507
+ "views": 298217
     },
  "links": {
  "tiktok": "https://www.tiktok.com/@brandonmolina651",
@@ -69,18 +69,6 @@ window.SITE = {
  "name": "Outside",
  "color": "#84cc16",
  "blurb": "Walks, the backyard, bush tracks and family."
-    },
-    {
- "id": "community",
- "name": "Replies and duets",
- "color": "#38bdf8",
- "blurb": "Replies, duets and questions for you."
-    },
-    {
- "id": "holiday",
- "name": "Christmas",
- "color": "#ef4444",
- "blurb": "Santa hat season and live streams."
     }
 ],
   videos: [
@@ -268,7 +256,6 @@ window.SITE = {
   {"id": "7588494486020295954", "t": "Heart Talk #40 · Nightfall Hymn", "c": "reflect", "d": "2025-12-27", "s": 92, "v": 368, "l": 27, "m": "Nightfall Hymn"},
   {"id": "7588526553735220498", "t": "Honest Words #58", "c": "motivation", "d": "2025-12-27", "s": 108, "v": 494, "l": 27, "m": "original sound"},
   {"id": "7588539012764208391", "t": "Addiction says 'you need me' but you already have yourself", "c": "quotes", "d": "2025-12-27", "s": 123, "v": 537, "l": 29, "m": "Last Hope"},
-  {"id": "7588086845964029191", "t": "Christmas week message", "c": "holiday", "d": "2025-12-26", "s": 83, "v": 375, "l": 27, "m": "Reflection on Peace"},
   {"id": "7587769736247774472", "t": "Slow Down Session #39 · Last Hope (Slowed + Reverb)", "c": "reflect", "d": "2025-12-25", "s": 104, "v": 391, "l": 30, "m": "Last Hope (Slowed + Reverb)"},
   {"id": "7587015712619777287", "t": "Reminder For You #57", "c": "motivation", "d": "2025-12-23", "s": 48, "v": 446, "l": 33, "m": "original sound"},
   {"id": "7586629199671151879", "t": "Blessed Thoughts #19 · Yeshua Hamashiach", "c": "faith", "d": "2025-12-22", "s": 143, "v": 322, "l": 19, "m": "Yeshua Hamashiach"},
@@ -280,8 +267,6 @@ window.SITE = {
   {"id": "7585502777925717266", "t": "Don't trade yourself for acceptance", "c": "quotes", "d": "2025-12-19", "s": 111, "v": 382, "l": 35, "m": "Surrendered At Your Feet"},
   {"id": "7585570915921022226", "t": "You are amazing and always know that", "c": "quotes", "d": "2025-12-19", "s": 15, "v": 485, "l": 28, "m": "original sound"},
   {"id": "7585576436585598215", "t": "Keep Going Talk #56", "c": "motivation", "d": "2025-12-19", "s": 22, "v": 493, "l": 30, "m": "original sound"},
-  {"id": "7585130881120079122", "t": "Merry Christmas from Santa Brandon", "c": "holiday", "d": "2025-12-18", "s": 25, "v": 435, "l": 36, "m": "original sound", "g": ["event", "christmas", "event", "christmas"]},
-  {"id": "7584382609556262162", "t": "Christmas live stream", "c": "holiday", "d": "2025-12-16", "s": 33, "v": 612, "l": 43, "m": "everything works out in the end"},
   {"id": "7584462847837654279", "t": "Keep on going bro, keep on pushing", "c": "quotes", "d": "2025-12-16", "s": 8, "v": 483, "l": 29, "m": "lights are on"},
   {"id": "7584053667024637192", "t": "Deep Breath #38 · Sad Music", "c": "reflect", "d": "2025-12-15", "s": 71, "v": 352, "l": 26, "m": "Sad Music"},
   {"id": "7583273762938703122", "t": "Stay true to yourself, bro", "c": "quotes", "d": "2025-12-13", "s": 111, "v": 346, "l": 31, "m": "original sound"},
@@ -309,7 +294,6 @@ window.SITE = {
   {"id": "7578528387661188359", "t": "Quiet Thoughts #30 · Cornfiield Chase-原野追逐", "c": "reflect", "d": "2025-11-30", "s": 86, "v": 377, "l": 22, "m": "Cornfiield Chase-原野追逐"},
   {"id": "7578089478879841543", "t": "Stick to feeling great in yourself", "c": "quotes", "d": "2025-11-29", "s": 48, "v": 317, "l": 16, "m": "Another Love"},
   {"id": "7578162170941279495", "t": "Heart Talk #28 · Secrets", "c": "reflect", "d": "2025-11-29", "s": 77, "v": 302, "l": 17, "m": "Secrets"},
-  {"id": "7577632445382675720", "t": "Duet: say what you feel", "c": "community", "d": "2025-11-28", "s": 7, "v": 473, "l": 20, "m": "Shiny"},
   {"id": "7577725181762751751", "t": "Mindset Check #52", "c": "motivation", "d": "2025-11-28", "s": 40, "v": 300, "l": 15, "m": "original sound"},
   {"id": "7577757871929101576", "t": "Slow Down Session #27 · Je te laisserai des mots", "c": "reflect", "d": "2025-11-28", "s": 72, "v": 328, "l": 20, "m": "Je te laisserai des mots"},
   {"id": "7577390096966618376", "t": "Late Night Reflection #25 · Cornfiield Chase-原野追逐", "c": "reflect", "d": "2025-11-27", "s": 96, "v": 289, "l": 21, "m": "Cornfiield Chase-原野追逐"},
@@ -391,7 +375,6 @@ window.SITE = {
   {"id": "7560378479389248775", "t": "Honest Words #28", "c": "motivation", "d": "2025-10-12", "s": 114, "v": 15300, "l": 85, "m": "original sound", "p": 1},
   {"id": "7559578949328702728", "t": "Reminder For You #27 · Blue Danube Waltz", "c": "motivation", "d": "2025-10-10", "s": 75, "v": 351, "l": 21, "m": "Blue Danube Waltz"},
   {"id": "7558804142945520904", "t": "Keep Going Talk #26", "c": "motivation", "d": "2025-10-08", "s": 31, "v": 725, "l": 34, "m": "original sound"},
-  {"id": "7558825354534604040", "sl": 1, "t": "Going to bed, comment a word that describes me", "c": "community", "d": "2025-10-08", "s": 12, "v": 344, "l": 16, "m": "original sound"},
   {"id": "7557714341643046162", "t": "Straight Talk #25", "c": "motivation", "d": "2025-10-05", "s": 47, "v": 482, "l": 33, "m": "original sound"},
   {"id": "7557352102415060242", "t": "Note To Self #24", "c": "motivation", "d": "2025-10-04", "s": 28, "v": 439, "l": 26, "m": "original sound"},
   {"id": "7556223856415968519", "t": "A Message For You #23", "c": "motivation", "d": "2025-10-01", "s": 15, "v": 2270, "l": 99, "m": "original sound"},
@@ -412,7 +395,6 @@ window.SITE = {
   {"id": "7549198417189244178", "t": "Lip Sync #13", "c": "songs", "d": "2025-09-12", "s": 14, "v": 476, "l": 33, "m": "original sound"},
   {"id": "7548688750386187527", "sl": 1, "t": "R.I.P Charlie Kirk", "c": "reflect", "d": "2025-09-11", "s": 0, "v": 680, "l": 37, "m": "original sound"},
   {"id": "7548767869476179207", "t": "Vibe Check #12 · Take Me Out", "c": "songs", "d": "2025-09-11", "s": 7, "v": 491, "l": 27, "m": "Take Me Out"},
-  {"id": "7548807744921341202", "t": "Tag out @ with a kind message", "c": "community", "d": "2025-09-11", "s": 11, "v": 392, "l": 17, "m": "original sound"},
   {"id": "7548431016768130322", "t": "Reminder For You #17", "c": "motivation", "d": "2025-09-10", "s": 22, "v": 520, "l": 32, "m": "original sound"},
   {"id": "7548052734105144583", "t": "Song Moment #10 · memories conan gray", "c": "songs", "d": "2025-09-09", "s": 6, "v": 449, "l": 25, "m": "memories conan gray"},
   {"id": "7548077499100581138", "t": "Mood Track #11", "c": "songs", "d": "2025-09-09", "s": 11, "v": 415, "l": 22, "m": "original sound"},
@@ -420,11 +402,9 @@ window.SITE = {
   {"id": "7547303806241869063", "t": "Straight Talk #15", "c": "motivation", "d": "2025-09-07", "s": 13, "v": 346, "l": 23, "m": "original sound"},
   {"id": "7547351621370432775", "t": "Keep Going Talk #16", "c": "motivation", "d": "2025-09-07", "s": 13, "v": 644, "l": 35, "m": "original sound"},
   {"id": "7546653815831809288", "t": "Before you skip, let's pray", "c": "faith", "d": "2025-09-05", "s": 18, "v": 346, "l": 23, "m": "original sound"},
-  {"id": "7545878079118363922", "t": "Duet and finish the heart", "c": "community", "d": "2025-09-03", "s": 7, "v": 731, "l": 21, "m": "crying and puking", "g": ["duet", "reposting", "duet", "reposting"]},
   {"id": "7544393293690309906", "t": "Note To Self #14", "c": "motivation", "d": "2025-08-30", "s": 13, "v": 885, "l": 36, "m": "original sound"},
   {"id": "7543600690870881554", "t": "A Message For You #13 · This is not my sound", "c": "motivation", "d": "2025-08-28", "s": 11, "v": 888, "l": 40, "m": "This is not my sound"},
   {"id": "7542762243964816658", "t": "Backyard kid days", "c": "outside", "d": "2025-08-26", "s": 59, "v": 315, "l": 21, "m": "original sound"},
-  {"id": "7542871545337613576", "sl": 1, "t": "Convince me to delete this TikTok account (or not)", "c": "community", "d": "2025-08-26", "s": 60, "v": 492, "l": 16, "m": "Don't Let Me Down"},
   {"id": "7542879196494810386", "t": "Mindset Check #12", "c": "motivation", "d": "2025-08-26", "s": 15, "v": 626, "l": 32, "m": "original sound"},
   {"id": "7542457210413141256", "t": "Lip Sync #9", "c": "songs", "d": "2025-08-25", "s": 28, "v": 471, "l": 27, "m": "original sound"},
   {"id": "7542111725403786514", "t": "Pep Talk #11", "c": "motivation", "d": "2025-08-24", "s": 47, "v": 433, "l": 24, "m": "original sound"},
@@ -432,7 +412,6 @@ window.SITE = {
   {"id": "7541373790148644104", "t": "Late Night Reflection #1 · Talking to the Moon", "c": "reflect", "d": "2025-08-22", "s": 32, "v": 497, "l": 29, "m": "Talking to the Moon"},
   {"id": "7540142310680481031", "t": "Vibe Check #8 · Ратата", "c": "songs", "d": "2025-08-19", "s": 9, "v": 8865, "l": 382, "m": "Ратата"},
   {"id": "7539499662512803080", "t": "Mood Track #7 · CAN'T STOP THE FEELING! (from Drea", "c": "songs", "d": "2025-08-17", "s": 8, "v": 748, "l": 29, "m": "CAN'T STOP THE FEELING! (from DreamWorks Animation's \"TROLLS\")"},
-  {"id": "7538779029176847623", "t": "My comments: 'you're chopped, just quit'", "c": "community", "d": "2025-08-15", "s": 8, "v": 2340, "l": 181, "m": "original sound"},
   {"id": "7538033806855376146", "t": "You Got This Talk #9", "c": "motivation", "d": "2025-08-13", "s": 15, "v": 477, "l": 22, "m": "original sound"},
   {"id": "7536798513754066194", "t": "Honest Words #8", "c": "motivation", "d": "2025-08-10", "s": 20, "v": 678, "l": 27, "m": "original sound"},
   {"id": "7535085710731185415", "t": "Song Moment #6 · I Want It That Way", "c": "songs", "d": "2025-08-05", "s": 10, "v": 573, "l": 28, "m": "I Want It That Way"},
@@ -441,14 +420,12 @@ window.SITE = {
   {"id": "7527552156900035858", "t": "Note To Self #4", "c": "motivation", "d": "2025-07-16", "s": 20, "v": 698, "l": 36, "m": "original sound"},
   {"id": "7527659234012499208", "t": "Straight Talk #5", "c": "motivation", "d": "2025-07-16", "s": 38, "v": 661, "l": 34, "m": "original sound"},
   {"id": "7526893032424148242", "t": "A Message For You #3", "c": "motivation", "d": "2025-07-14", "s": 17, "v": 1335, "l": 46, "m": "original sound"},
-  {"id": "7525283486068952338", "t": "Reply: making TikToks with kids is wrong", "c": "community", "d": "2025-07-10", "s": 20, "v": 494, "l": 18, "m": "Эщкере"},
   {"id": "7525450414158925064", "t": "Vibe Check #4", "c": "songs", "d": "2025-07-10", "s": 15, "v": 1071, "l": 38, "m": "original sound", "g": ["song", "song"]},
   {"id": "7525477173445086482", "t": "Lip Sync #5 · Galaway girl", "c": "songs", "d": "2025-07-10", "s": 15, "v": 1541, "l": 70, "m": "Galaway girl", "g": ["song", "song"]},
   {"id": "7522098110558932242", "t": "Mood Track #3", "c": "songs", "d": "2025-07-01", "s": 15, "v": 807, "l": 31, "m": "original sound", "g": ["song", "song"]},
   {"id": "7522128291008908552", "sl": 1, "t": "Romans 5:7-8, Christ died for us", "c": "faith", "d": "2025-07-01", "s": 18, "v": 772, "l": 38, "m": "original sound", "g": ["squidgame", "christiantiktok", "squidgame", "christiantiktok"]},
   {"id": "7521721061340204295", "t": "Song Moment #2 · Memories x Another Love", "c": "songs", "d": "2025-06-30", "s": 10, "v": 1325, "l": 44, "m": "Memories x Another Love", "g": ["heartfeeling", "song", "heartfeeling", "song"]},
   {"id": "7521323417136680199", "t": "Grace Reminder #3", "c": "faith", "d": "2025-06-29", "s": 16, "v": 1087, "l": 48, "m": "original sound"},
-  {"id": "7521347778379926802", "sl": 1, "t": "Give this cartoon character a name", "c": "community", "d": "2025-06-29", "s": 15, "v": 602, "l": 14, "m": "original sound", "g": ["comment", "comment"]},
   {"id": "7520957626851577095", "t": "Mindset Check #2", "c": "motivation", "d": "2025-06-28", "s": 54, "v": 1110, "l": 45, "m": "original sound"},
   {"id": "7520985487436238087", "t": "Lip Sync #1", "c": "songs", "d": "2025-06-28", "s": 15, "v": 958, "l": 40, "m": "original sound", "g": ["song", "song"]},
   {"id": "7520601776618294535", "t": "Praise Moment #2", "c": "faith", "d": "2025-06-27", "s": 13, "v": 18900, "l": 43, "m": "original sound", "g": ["christiantiktok", "christiantiktok"], "p": 1},
