@@ -1,7 +1,7 @@
 # TMNT Turtle Power: Story Mode - double-click to install and play (Minecraft Java, Windows).
 #
-# Puts the mod in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
-# "TMNT Story Mode" profile to the Minecraft Launcher that opens the world as soon as you press Play.
+# Puts the mod in .minecraft\mods, the pre-built world "vp" in .minecraft\saves, and adds a
+# "vp" profile to the Minecraft Launcher that opens that world as soon as you press Play.
 #
 # It downloads and installs NeoForge 1.20.1 (the mod loader) by itself, and a Java runtime from
 # Adoptium if the computer doesn't have one, so there is nothing else to download by hand.
@@ -21,9 +21,9 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'   # makes downloads much faster in Windows PowerShell
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
-$WorldName = 'TMNT Story Mode'
-$ProfileId = 'tmnt-story-mode'
-$VersionId = 'TMNT-Story-Mode'
+$WorldName = 'vp'
+$ProfileId = 'vp'
+$VersionId = 'vp'
 $NeoVersion = '1.20.1-47.1.106'
 $NeoUrl = "https://maven.neoforged.net/releases/net/neoforged/forge/$NeoVersion/forge-$NeoVersion-installer.jar"
 $JreUrl = 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jre/hotspot/normal/eclipse'
@@ -322,7 +322,7 @@ try {
     $lp = Get-Content $profilesFile -Raw | ConvertFrom-Json
     if (-not $lp.profiles) { $lp | Add-Member -NotePropertyName profiles -NotePropertyValue ([pscustomobject]@{}) -Force }
     $newProfile = [pscustomobject][ordered]@{
-        name          = 'TMNT Story Mode'
+        name          = 'vp'
         type          = 'custom'
         lastVersionId = $VersionId
         lastUsed      = $now
@@ -332,7 +332,7 @@ try {
     }
     $lp.profiles | Add-Member -NotePropertyName $ProfileId -NotePropertyValue $newProfile -Force
     [IO.File]::WriteAllText($profilesFile, ($lp | ConvertTo-Json -Depth 64), $utf8)
-    Say "  added 'TMNT Story Mode' to the Minecraft Launcher ($xmx of RAM for the game)" 'Gray'
+    Say "  added 'vp' to the Minecraft Launcher ($xmx of RAM for the game)" 'Gray'
 } catch {
     Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to PLAY instead.)" 'Yellow'
 }
@@ -342,8 +342,8 @@ Say ''
 Say 'ALL DONE! COWABUNGA!' 'Green'
 Say ''
 Say 'Opening the Minecraft Launcher...' 'Cyan'
-Say "Press the big green PLAY button ('TMNT Story Mode' should already be picked next to it)."
-Say 'Minecraft loads straight into the lair. You are Raphael!'
+Say "Press the big green PLAY button ('vp' should already be picked next to it)."
+Say "Minecraft loads straight into the 'vp' world. You are Raphael!"
 Say 'Verity shows up in his box after a bit. Hold V and talk to him. Be nice... or not.' 'Magenta'
 Say 'Next time you can just open the Minecraft Launcher and press PLAY, or double-click me again.' 'Gray'
 $launched = $false

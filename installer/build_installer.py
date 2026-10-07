@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Builds download/Play-TMNT-Story-Mode.bat: a single double-click installer.
+Builds download/Play-VP.bat: the one-click file. Double-click it: it installs everything and opens the game.
 
 The .bat is three parts glued together:
   1. a few lines of batch that start PowerShell and run part 2
@@ -20,15 +20,15 @@ import zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOWNLOAD = os.path.join(ROOT, "download")
 JAR = os.path.join(DOWNLOAD, "turtlepower-1.0.0.jar")
-WORLD_ZIP = os.path.join(DOWNLOAD, "TMNT-Story-Mode-World.zip")
+WORLD_ZIP = os.path.join(DOWNLOAD, "vp-world.zip")
 LOGO = os.path.join(ROOT, "tmnt-story-mode", "src", "main", "resources", "turtlepower_logo.png")
 PS1 = os.path.join(ROOT, "installer", "install.ps1")
 LOCK = os.path.join(ROOT, "installer", "mods.lock.json")
-OUT = os.path.join(DOWNLOAD, "Play-TMNT-Story-Mode.bat")
+OUT = os.path.join(DOWNLOAD, "Play-VP.bat")
 
 HEADER = r"""@echo off
 setlocal
-title TMNT Turtle Power: Story Mode - Installer
+title vp - TMNT Turtle Power: Story Mode
 set "TMNT_SELF=%~f0"
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$t=[IO.File]::ReadAllText($env:TMNT_SELF); $m='#'+'#PS'; $p=$t.Split(@($m),[StringSplitOptions]::None); Invoke-Expression $p[1]"
 echo.
