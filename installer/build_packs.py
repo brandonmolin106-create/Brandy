@@ -22,7 +22,7 @@ import zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOWNLOAD = os.path.join(ROOT, "download")
 JAR = os.path.join(DOWNLOAD, "turtlepower-1.0.0.jar")
-WORLD_ZIP = os.path.join(DOWNLOAD, "verity-world.zip")
+WORLD_ZIP = os.path.join(DOWNLOAD, "TMNT-Story-Mode-World.zip")
 LOCK = os.path.join(ROOT, "installer", "mods.lock.json")
 
 PACK_NAME = "TMNT Story Mode"
@@ -61,8 +61,8 @@ key_key.verity.cycle_mic:key.keyboard.comma
 HOW_TO = """\
 TMNT STORY MODE - ALL IN ONE (Minecraft Java 1.20.1, Forge)
 
-This zip has the TMNT mod, the saved New York world (named "verity") and the configs together.
-The EASIEST way to play is the one-file installer: Play-Verity.bat (Windows). It does
+This zip has the TMNT mod, the saved New York world (named "TMNT Story Mode") and the configs together.
+The EASIEST way to play is the one-file installer: Play-TMNT-Story-Mode.bat (Windows). It does
 all of this for you and also downloads the extra mods (Verity, voice chat, maps...).
 
 By hand:
@@ -76,7 +76,7 @@ By hand:
    Or skip them - the TMNT story works with just the TMNT mod.
 5. Verity's brain: get a free Groq API key at https://console.groq.com and paste it into
    config/verity-client.toml (apiKey = "gsk_...") or in-game: Mods > Verity > Config > AI Settings.
-6. Start Minecraft with the "forge" profile -> Singleplayer -> "verity".
+6. Start Minecraft with the "forge" profile -> Singleplayer -> "TMNT Story Mode".
    Give the game 3-4 GB of RAM in the launcher (Installations > Edit > More options > JVM arguments: -Xmx4G).
 
 You are Raphael. Hold V to talk to Verity. Have fun!
@@ -110,7 +110,7 @@ def mods_txt(lk):
         f"TMNT STORY MODE {PACK_VERSION} - MODS  (Minecraft {MC}, Forge {FORGE})",
         "",
         "The TMNT mod (turtlepower-1.0.0.jar) is ours. Everything below is a free mod from modrinth.com.",
-        "Play-Verity.bat downloads all of them for you. The .mrpack has them too.",
+        "Play-TMNT-Story-Mode.bat downloads all of them for you. The .mrpack has them too.",
         f"Total: {len(lk['mods'])} mods, {lk['total_bytes'] / 1e6:.0f} MB.",
         "",
     ]

@@ -1,7 +1,8 @@
-# TMNT Turtle Power: Story Mode - double-click to install and play (Minecraft Java, Windows).
+# __PACK_TITLE__ - double-click to install and play (Minecraft Java, Windows).
+# (Template: build_installer.py fills in the __PLACEHOLDERS__ for each pack.)
 #
-# Puts the mod in .minecraft\mods, the pre-built world "verity" in .minecraft\saves, and adds a
-# "verity" profile to the Minecraft Launcher that opens that world as soon as you press Play.
+# Puts the pack's mods in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
+# launcher profile that opens that world as soon as you press Play.
 #
 # It downloads and installs NeoForge 1.20.1 (the mod loader) by itself, and a Java runtime from
 # Adoptium if the computer doesn't have one, so there is nothing else to download by hand.
@@ -16,14 +17,14 @@
 # offline, inside the mod. Its brain needs a free Groq API key (console.groq.com); the installer asks
 # for one and writes it into Verity's config, or you can add it later in Mods > Verity > Config.
 #
-# The TMNT mod + world are glued to the end of the .bat file (base64) so everything is in one file.
+# The world (and any mod of our own) is glued to the end of the .bat file (base64) so everything is in one file.
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'   # makes downloads much faster in Windows PowerShell
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
-$WorldName = 'verity'
-$ProfileId = 'verity'
-$VersionId = 'verity'
+$WorldName = '__WORLD_NAME__'
+$ProfileId = '__PROFILE_ID__'
+$VersionId = '__PROFILE_ID__'
 $NeoVersion = '1.20.1-47.1.106'
 $NeoUrl = "https://maven.neoforged.net/releases/net/neoforged/forge/$NeoVersion/forge-$NeoVersion-installer.jar"
 $JreUrl = 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jre/hotspot/normal/eclipse'
@@ -43,7 +44,7 @@ function Quit([string]$text) {
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
 Say '=============================================' 'Green'
-Say '   TMNT TURTLE POWER: STORY MODE  - installer' 'Green'
+Say '   __BANNER__' 'Green'
 Say '=============================================' 'Green'
 Say ''
 
@@ -60,7 +61,7 @@ function Find-Java {
     $cmd = Get-Command java -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
     $roots = @(
-        (J $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'),
+        (J $env:LOCALAPPDATA 'EchoesInTheDark\jre'),
         (J $mc 'runtime'),
         (J $env:LOCALAPPDATA 'Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime'),
         (J ${env:ProgramFiles(x86)} 'Minecraft Launcher\runtime'),
@@ -91,7 +92,7 @@ if (-not $loader) {
     if (-not $java) {
         Say 'Getting Java (needed once to set up the mod loader, about 45 MB)...' 'Cyan'
         $jreZip = Join-Path $env:TEMP 'tmnt-jre.zip'
-        $jreDir = Join-Path $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'
+        $jreDir = Join-Path $env:LOCALAPPDATA 'EchoesInTheDark\jre'
         Invoke-WebRequest -UseBasicParsing -Uri $JreUrl -OutFile $jreZip
         if (Test-Path $jreDir) { Remove-Item $jreDir -Recurse -Force }
         Expand-Archive -Path $jreZip -DestinationPath $jreDir -Force
@@ -117,8 +118,8 @@ if (-not $loader) {
 }
 Say "Mod loader is ready: $($loader.Name)" 'Green'
 
-# --- 4. Unpack the TMNT mod and the world -------------------------------------------------------
-Say 'Unpacking the TMNT mod and the New York world...' 'Cyan'
+# --- 4. Unpack the world (and the pack's own mod, if it has one) --------------------------------
+Say "Unpacking the '$WorldName' world..." 'Cyan'
 $all = [IO.File]::ReadAllText($env:TMNT_SELF)
 $marker = '#' + '#PAYLOAD'
 $parts = $all.Split(@($marker), [StringSplitOptions]::None)
@@ -131,9 +132,11 @@ Expand-Archive -Path $zip -DestinationPath $unpack -Force
 
 $mods = Join-Path $mc 'mods'
 New-Item -ItemType Directory -Force -Path $mods | Out-Null
-Get-ChildItem $mods -Filter 'turtlepower-*.jar' -ErrorAction SilentlyContinue | Remove-Item -Force
-Copy-Item (Join-Path $unpack 'mods\*') $mods -Force
-Say '  TMNT mod -> mods folder' 'Gray'
+if (Test-Path (Join-Path $unpack 'mods')) {
+    Get-ChildItem $mods -Filter 'turtlepower-*.jar' -ErrorAction SilentlyContinue | Remove-Item -Force
+    Copy-Item (Join-Path $unpack 'mods\*') $mods -Force
+    Say '  TMNT mod -> mods folder' 'Gray'
+}
 
 # The starting world is never overwritten: if it is already there, the player's progress stays.
 $saves = Join-Path $mc 'saves'
@@ -264,7 +267,7 @@ if ($groqKey -and -not $groqKey.StartsWith('gsk_')) {
     Say "  Hmm, Groq keys start with gsk_ - I'll save it anyway, but double-check it in Mods > Verity > Config." 'Yellow'
 }
 foreach ($p in $verityCfgs) {
-    Set-TomlValue $p '' 'playVideo' 'false'                 # keep the TMNT title screen, not Verity's intro video
+    Set-TomlValue $p '' 'playVideo' 'false'                 # normal title screen, not Verity's intro video
     Set-TomlValue $p '' 'canCrash' 'false'                  # Verity may not kick you out of story mode
     Set-TomlValue $p 'AISettings' 'aiProvider' '"GROQ"'
     Set-TomlValue $p 'AISettings' 'useLocalStt' 'true'      # offline speech-to-text (built into the mod)
@@ -311,7 +314,7 @@ $version = [ordered]@{
 }
 [IO.File]::WriteAllText((Join-Path $vdir "$VersionId.json"), ($version | ConvertTo-Json -Depth 8), $utf8)
 
-# --- 8. Add the "TMNT Story Mode" profile and pick it ------------------------------------------
+# --- 8. Add the launcher profile and pick it ------------------------------------------------------
 # 26 mods + Verity's speech models want more than the launcher's 2 GB default.
 $ramGb = 8
 try { $ramGb = [math]::Floor((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB) } catch { }
@@ -322,28 +325,28 @@ try {
     $lp = Get-Content $profilesFile -Raw | ConvertFrom-Json
     if (-not $lp.profiles) { $lp | Add-Member -NotePropertyName profiles -NotePropertyValue ([pscustomobject]@{}) -Force }
     $newProfile = [pscustomobject][ordered]@{
-        name          = 'verity'
+        name          = '__PROFILE_NAME__'
         type          = 'custom'
         lastVersionId = $VersionId
         lastUsed      = $now
         created       = $now
         javaArgs      = $javaArgs
-        icon          = 'data:image/png;base64,__ICON__'
+        icon          = '__ICON__'
     }
     $lp.profiles | Add-Member -NotePropertyName $ProfileId -NotePropertyValue $newProfile -Force
     [IO.File]::WriteAllText($profilesFile, ($lp | ConvertTo-Json -Depth 64), $utf8)
-    Say "  added 'verity' to the Minecraft Launcher ($xmx of RAM for the game)" 'Gray'
+    Say "  added '__PROFILE_NAME__' to the Minecraft Launcher ($xmx of RAM for the game)" 'Gray'
 } catch {
     Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to PLAY instead.)" 'Yellow'
 }
 
 # --- 9. Done! -----------------------------------------------------------------------------------
 Say ''
-Say 'ALL DONE! COWABUNGA!' 'Green'
+Say '__DONE_LINE__' 'Green'
 Say ''
 Say 'Opening the Minecraft Launcher...' 'Cyan'
-Say "Press the big green PLAY button ('verity' should already be picked next to it)."
-Say "Minecraft loads straight into the 'verity' world. You are Raphael!"
+Say "Press the big green PLAY button ('__PROFILE_NAME__' should already be picked next to it)."
+Say "__PLAY_LINE__"
 Say 'Verity shows up in his box after a bit. Hold V and talk to him. Be nice... or not.' 'Magenta'
 Say 'Next time you can just open the Minecraft Launcher and press PLAY, or double-click me again.' 'Gray'
 $launched = $false

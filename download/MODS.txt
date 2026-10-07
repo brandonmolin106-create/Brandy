@@ -1,7 +1,7 @@
 TMNT STORY MODE 1.1.0 - MODS  (Minecraft 1.20.1, Forge 47.4.10)
 
 The TMNT mod (turtlepower-1.0.0.jar) is ours. Everything below is a free mod from modrinth.com.
-Play-Verity.bat downloads all of them for you. The .mrpack has them too.
+Play-TMNT-Story-Mode.bat downloads all of them for you. The .mrpack has them too.
 Total: 26 mods, 327 MB.
 
 Verity JE  v5.7.4
