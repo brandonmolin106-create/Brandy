@@ -1,0 +1,105 @@
+{
+  "_comment": [
+    "Mods that ship with TMNT Story Mode on top of the turtlepower jar. All from Modrinth, Forge 1.20.1.",
+    "Run  python3 installer/resolve_mods.py  to turn this into mods.lock.json (exact files, URLs, hashes).",
+    "Required dependencies (GeckoLib, YACL, Searchables, CreativeCore...) are pulled in automatically.",
+    "World-gen and big content mods (Terralith, Biomes O' Plenty, Create, Cobblemon) are left out on",
+    "purpose: they would change the New York world and the story. Keep this list client-friendly."
+  ],
+  "minecraft": "1.20.1",
+  "loader": "forge",
+  "mods": [
+    {
+      "slug": "verity-je-official",
+      "why": "Verity - the AI helper friend that turns into a horror. Voice built in (talk with V)."
+    },
+    {
+      "slug": "yacl",
+      "why": "Config library Verity needs (not listed on Modrinth, but required in its mods.toml)."
+    },
+    {
+      "slug": "simple-voice-chat",
+      "why": "Proximity voice chat for playing with friends."
+    },
+    {
+      "slug": "sound-physics-remastered",
+      "why": "Echoes in the sewers. Realistic sound + voice chat reverb."
+    },
+    {
+      "slug": "embeddium",
+      "why": "Big FPS boost (Sodium for Forge)."
+    },
+    {
+      "slug": "oculus",
+      "why": "Shaders support on top of Embeddium (optional, no shaderpack by default)."
+    },
+    {
+      "slug": "ferrite-core",
+      "why": "Less RAM."
+    },
+    {
+      "slug": "modernfix",
+      "why": "Faster loading, fewer lag spikes."
+    },
+    {
+      "slug": "entityculling",
+      "why": "Don't render mobs you can't see."
+    },
+    {
+      "slug": "immediatelyfast",
+      "why": "Faster HUD/text rendering."
+    },
+    {
+      "slug": "dynamic-fps",
+      "why": "Saves the GPU when the game is in the background."
+    },
+    {
+      "slug": "jei",
+      "why": "Just Enough Items - recipes for everything, including TMNT items."
+    },
+    {
+      "slug": "jade",
+      "why": "Shows what you're looking at."
+    },
+    {
+      "slug": "appleskin",
+      "why": "Shows food/saturation (pizza stats!)."
+    },
+    {
+      "slug": "xaeros-minimap",
+      "why": "Minimap of New York."
+    },
+    {
+      "slug": "xaeros-world-map",
+      "why": "Full map of New York."
+    },
+    {
+      "slug": "mouse-tweaks",
+      "why": "Better inventory dragging."
+    },
+    {
+      "slug": "controlling",
+      "why": "Search key binds (lots of mods = lots of keys)."
+    },
+    {
+      "slug": "clumps",
+      "why": "XP orbs merge, less lag."
+    },
+    {
+      "slug": "not-enough-animations",
+      "why": "Better player animations."
+    },
+    {
+      "slug": "3dskinlayers",
+      "why": "3D skin layers."
+    },
+    {
+      "slug": "ambientsounds",
+      "why": "Ambient sounds for the city and sewers."
+    },
+    {
+      "slug": "chat-heads",
+      "why": "Player heads in chat."
+    }
+  ]
+}

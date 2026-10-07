@@ -1,24 +1,37 @@
-# TMNT Turtle Power: Story Mode - double-click to install and play (Minecraft Java, Windows).
+# __PACK_TITLE__ - double-click to install and play (Minecraft Java, Windows).
+# (Template: build_installer.py fills in the __PLACEHOLDERS__ for each pack.)
 #
-# Puts the mod in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
-# "TMNT Story Mode" profile to the Minecraft Launcher that opens the world as soon as you press Play.
+# Puts the pack's mods in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
+# launcher profile that opens that world as soon as you press Play.
 #
 # It downloads and installs NeoForge 1.20.1 (the mod loader) by itself, and a Java runtime from
 # Adoptium if the computer doesn't have one, so there is nothing else to download by hand.
 # (Regular Forge asks people not to automate its download, so we use NeoForge, which runs Forge
 # 1.20.1 mods.)
 #
-# The mod + world are glued to the end of the .bat file (base64) so everything is in one file.
+# It also downloads the pack's extra mods from Modrinth (Verity, Simple Voice Chat, Embeddium, JEI,
+# Xaero's maps...). The list lives in installer/mods.lock.json and is glued into this script by
+# build_installer.py (into the $ModsJson here-string below). Every file is checked against its SHA-1.
+#
+# Verity is an AI friend you can TALK to (hold V). Its voice (speech-to-text + text-to-speech) runs
+# offline, inside the mod. Its brain needs a free Groq API key (console.groq.com); the installer asks
+# for one and writes it into Verity's config, or you can add it later in Mods > Verity > Config.
+#
+# The world (and any mod of our own) is glued to the end of the .bat file (base64) so everything is in one file.
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'   # makes downloads much faster in Windows PowerShell
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
-$WorldName = 'TMNT Story Mode'
-$ProfileId = 'tmnt-story-mode'
-$VersionId = 'TMNT-Story-Mode'
+$WorldName = '__WORLD_NAME__'
+$ProfileId = '__PROFILE_ID__'
+$VersionId = '__PROFILE_ID__'
 $NeoVersion = '1.20.1-47.1.106'
 $NeoUrl = "https://maven.neoforged.net/releases/net/neoforged/forge/$NeoVersion/forge-$NeoVersion-installer.jar"
 $JreUrl = 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jre/hotspot/normal/eclipse'
+$InstalledList = 'tmnt-story-mode.installed.json'   # which mod jars we put in mods\, so updates can clean up
+$ModsJson = @'
+__MODS__
+'@
 
 function Say([string]$text, [string]$color = 'White') { Write-Host $text -ForegroundColor $color }
 # Join-Path that just gives $null when the base folder variable doesn't exist on this PC.
@@ -28,9 +41,10 @@ function Quit([string]$text) {
     Say $text 'Yellow'
     exit 1
 }
+$utf8 = New-Object System.Text.UTF8Encoding($false)
 
 Say '=============================================' 'Green'
-Say '   TMNT TURTLE POWER: STORY MODE  - installer' 'Green'
+Say '   __BANNER__' 'Green'
 Say '=============================================' 'Green'
 Say ''
 
@@ -47,7 +61,7 @@ function Find-Java {
     $cmd = Get-Command java -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
     $roots = @(
-        (J $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'),
+        (J $env:LOCALAPPDATA 'EchoesInTheDark\jre'),
         (J $mc 'runtime'),
         (J $env:LOCALAPPDATA 'Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime'),
         (J ${env:ProgramFiles(x86)} 'Minecraft Launcher\runtime'),
@@ -78,7 +92,7 @@ if (-not $loader) {
     if (-not $java) {
         Say 'Getting Java (needed once to set up the mod loader, about 45 MB)...' 'Cyan'
         $jreZip = Join-Path $env:TEMP 'tmnt-jre.zip'
-        $jreDir = Join-Path $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'
+        $jreDir = Join-Path $env:LOCALAPPDATA 'EchoesInTheDark\jre'
         Invoke-WebRequest -UseBasicParsing -Uri $JreUrl -OutFile $jreZip
         if (Test-Path $jreDir) { Remove-Item $jreDir -Recurse -Force }
         Expand-Archive -Path $jreZip -DestinationPath $jreDir -Force
@@ -104,8 +118,8 @@ if (-not $loader) {
 }
 Say "Mod loader is ready: $($loader.Name)" 'Green'
 
-# --- 4. Unpack the mod and the world ------------------------------------------------------------
-Say 'Unpacking the TMNT mod and the New York world...' 'Cyan'
+# --- 4. Unpack the world (and the pack's own mod, if it has one) --------------------------------
+Say "Unpacking the '$WorldName' world..." 'Cyan'
 $all = [IO.File]::ReadAllText($env:TMNT_SELF)
 $marker = '#' + '#PAYLOAD'
 $parts = $all.Split(@($marker), [StringSplitOptions]::None)
@@ -118,10 +132,13 @@ Expand-Archive -Path $zip -DestinationPath $unpack -Force
 
 $mods = Join-Path $mc 'mods'
 New-Item -ItemType Directory -Force -Path $mods | Out-Null
-Get-ChildItem $mods -Filter 'turtlepower-*.jar' -ErrorAction SilentlyContinue | Remove-Item -Force
-Copy-Item (Join-Path $unpack 'mods\*') $mods -Force
-Say '  mod -> mods folder' 'Gray'
+if (Test-Path (Join-Path $unpack 'mods')) {
+    Get-ChildItem $mods -Filter 'turtlepower-*.jar' -ErrorAction SilentlyContinue | Remove-Item -Force
+    Copy-Item (Join-Path $unpack 'mods\*') $mods -Force
+    Say '  TMNT mod -> mods folder' 'Gray'
+}
 
+# The starting world is never overwritten: if it is already there, the player's progress stays.
 $saves = Join-Path $mc 'saves'
 $world = Join-Path $saves $WorldName
 New-Item -ItemType Directory -Force -Path $saves | Out-Null
@@ -129,11 +146,158 @@ if (Test-Path $world) {
     Say "  You already have the '$WorldName' world, so I kept it (your progress is safe)." 'Gray'
 } else {
     Copy-Item (Join-Path $unpack "saves\$WorldName") $saves -Recurse -Force
-    Say '  world -> saves folder' 'Gray'
+    Say '  starting world -> saves folder' 'Gray'
 }
 Remove-Item $zip, $unpack -Recurse -Force -ErrorAction SilentlyContinue
 
-# --- 5. A launcher version that opens the world straight away -----------------------------------
+# --- 5. The extra mods: Verity, voice chat and the rest, from Modrinth --------------------------
+$modList = @((ConvertFrom-Json $ModsJson).mods)
+$totalMb = [math]::Round((($modList | Measure-Object -Property size -Sum).Sum) / 1MB)
+Say "Getting $($modList.Count) mods from Modrinth (about $totalMb MB, Verity alone is 246 MB)..." 'Cyan'
+
+function Get-Mod($mod, [string]$dir) {
+    $target = Join-Path $dir $mod.filename
+    if (Test-Path $target) {
+        if ((Get-FileHash $target -Algorithm SHA1).Hash.ToLower() -eq $mod.sha1) {
+            Say "  ok       $($mod.filename)" 'Gray'
+            return
+        }
+        Remove-Item $target -Force
+    }
+    $mb = [math]::Round($mod.size / 1MB, 1)
+    Say "  getting  $($mod.title) ($mb MB)" 'Gray'
+    $tmp = "$target.part"
+    for ($try = 1; $try -le 3; $try++) {
+        try {
+            Invoke-WebRequest -UseBasicParsing -Uri $mod.url -OutFile $tmp
+            if ((Get-FileHash $tmp -Algorithm SHA1).Hash.ToLower() -ne $mod.sha1) { throw 'the file came down damaged (checksum mismatch)' }
+            Move-Item $tmp $target -Force
+            return
+        } catch {
+            Remove-Item $tmp -Force -ErrorAction SilentlyContinue
+            if ($try -eq 3) { throw "Couldn't download $($mod.filename): $_" }
+            Say "  retrying $($mod.filename) ($try/3)..." 'Yellow'
+            Start-Sleep -Seconds (3 * $try)
+        }
+    }
+}
+
+# Remove jars that an older version of this installer put there and that are not in the list anymore.
+$stamp = Join-Path $mods $InstalledList
+$previous = @()
+if (Test-Path $stamp) { try { $previous = @(Get-Content $stamp -Raw | ConvertFrom-Json) } catch { } }
+$wantedNames = @($modList | ForEach-Object { $_.filename })
+foreach ($old in $previous) {
+    if ($old -and ($wantedNames -notcontains $old) -and (Test-Path (Join-Path $mods $old))) {
+        Remove-Item (Join-Path $mods $old) -Force -ErrorAction SilentlyContinue
+        Say "  removed old $old" 'Gray'
+    }
+}
+foreach ($mod in $modList) { Get-Mod $mod $mods }
+[IO.File]::WriteAllText($stamp, (ConvertTo-Json -InputObject $wantedNames), $utf8)
+Say "  all $($modList.Count) mods are in place" 'Green'
+
+# --- 6. Verity: voice on, brain = Groq ------------------------------------------------------------
+# Verity's config is a Forge TOML (config\verity-client.toml + verity-common.toml, same keys). We only
+# set the keys we care about; Forge fills in the rest with defaults on first launch.
+function Set-TomlValue([string]$path, [string]$section, [string]$key, [string]$literal) {
+    $path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($path)
+    $lines = @()
+    if (Test-Path $path) { $lines = @(Get-Content $path) }
+    $indent = ''
+    $start = 0
+    $end = $lines.Count
+    if ($section) {
+        $indent = "`t"
+        $idx = -1
+        for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim() -eq "[$section]") { $idx = $i; break } }
+        if ($idx -lt 0) { $lines += "[$section]"; $idx = $lines.Count - 1 }
+        $start = $idx + 1
+        $end = $lines.Count
+        for ($i = $start; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim().StartsWith('[')) { $end = $i; break } }
+    } else {
+        for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim().StartsWith('[')) { $end = $i; break } }
+    }
+    $pattern = '^\s*' + [regex]::Escape($key) + '\s*='
+    for ($i = $start; $i -lt $end; $i++) {
+        if ($lines[$i] -match $pattern) {
+            $lines[$i] = "$indent$key = $literal"
+            [IO.File]::WriteAllLines($path, [string[]]$lines, $utf8)
+            return
+        }
+    }
+    $new = @()
+    if ($end -gt 0) { $new += $lines[0..($end - 1)] }
+    $new += "$indent$key = $literal"
+    if ($end -lt $lines.Count) { $new += $lines[$end..($lines.Count - 1)] }
+    [IO.File]::WriteAllLines($path, [string[]]$new, $utf8)
+}
+function TomlString([string]$s) { '"' + $s.Replace('\', '\\').Replace('"', '\"') + '"' }
+
+$cfgDir = Join-Path $mc 'config'
+New-Item -ItemType Directory -Force -Path $cfgDir | Out-Null
+$verityCfgs = @((Join-Path $cfgDir 'verity-client.toml'), (Join-Path $cfgDir 'verity-common.toml'))
+
+$existingKey = ''
+foreach ($p in $verityCfgs) {
+    if ((Test-Path $p) -and ((Get-Content $p -Raw) -match '(?m)^\s*apiKey\s*=\s*"([^"]+)"')) { $existingKey = $Matches[1]; break }
+}
+$groqKey = ''
+if ($env:GROQ_API_KEY) { $groqKey = $env:GROQ_API_KEY.Trim() }
+Say ''
+Say 'VERITY - your AI helper friend (hold V to talk to him, he talks back)' 'Magenta'
+Say 'His voice works offline. His BRAIN needs a free Groq key:' 'White'
+Say '  1. go to https://console.groq.com  and make a free account' 'Gray'
+Say '  2. API Keys -> Create API Key -> copy it (it starts with gsk_)' 'Gray'
+if ($existingKey) {
+    Say '  (You already have a key saved. Press Enter to keep it.)' 'Gray'
+} else {
+    Say '  (No key yet? Press Enter to skip. Verity still spawns, you can add the key later in' 'Gray'
+    Say '   Mods > Verity > Config > AI Settings > API Key.)' 'Gray'
+}
+if (-not $groqKey) {
+    try {
+        $secure = Read-Host 'Paste your Groq API key here' -AsSecureString
+        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+        $groqKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr).Trim()
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+    } catch { $groqKey = '' }
+}
+if ($groqKey -and -not $groqKey.StartsWith('gsk_')) {
+    Say "  Hmm, Groq keys start with gsk_ - I'll save it anyway, but double-check it in Mods > Verity > Config." 'Yellow'
+}
+foreach ($p in $verityCfgs) {
+    Set-TomlValue $p '' 'playVideo' 'false'                 # normal title screen, not Verity's intro video
+    Set-TomlValue $p '' 'canCrash' 'false'                  # Verity may not kick you out of story mode
+    Set-TomlValue $p 'AISettings' 'aiProvider' '"GROQ"'
+    Set-TomlValue $p 'AISettings' 'useLocalStt' 'true'      # offline speech-to-text (built into the mod)
+    Set-TomlValue $p 'AISettings' 'useLocalTts' 'true'      # offline text-to-speech (built into the mod)
+    if ($groqKey) { Set-TomlValue $p 'AISettings' 'apiKey' (TomlString $groqKey) }
+}
+if ($groqKey) { Say '  Groq key saved. Verity has a brain.' 'Green' }
+elseif ($existingKey) { Say '  Kept your saved Groq key.' 'Green' }
+else { Say '  No key saved. Verity will spawn but stay quiet until you add one.' 'Yellow' }
+
+# Key binds: Verity talks on V and Simple Voice Chat's menu is also V (and both use M), so the voice
+# chat menu moves to B, voice chat mute to . and Verity's "cycle mic" to , - only if you haven't
+# bound them yourself already. Change any of them in Options > Controls (Controlling adds a search box).
+$opts = Join-Path $mc 'options.txt'
+$optLines = @()
+if (Test-Path $opts) { $optLines = @(Get-Content $opts) }
+$remap = [ordered]@{
+    'key_key.voice_chat'       = 'key.keyboard.b'
+    'key_key.mute_microphone'  = 'key.keyboard.period'
+    'key_key.verity.cycle_mic' = 'key.keyboard.comma'
+}
+$added = 0
+foreach ($k in $remap.Keys) {
+    $prefix = $k + ':'
+    if (-not ($optLines | Where-Object { $_.StartsWith($prefix) })) { $optLines += ($prefix + $remap[$k]); $added++ }
+}
+if ($added -gt 0) { [IO.File]::WriteAllLines($opts, [string[]]$optLines, $utf8) }
+Say '  key binds: V = talk to Verity, B = voice chat menu, M = world map' 'Gray'
+
+# --- 7. A launcher version that opens the world straight away -----------------------------------
 $loaderJson = Get-Content (Join-Path $loader.FullName "$($loader.Name).json") -Raw | ConvertFrom-Json
 $vdir = Join-Path $versions $VersionId
 New-Item -ItemType Directory -Force -Path $vdir | Out-Null
@@ -148,36 +312,42 @@ $version = [ordered]@{
     libraries    = @()
     arguments    = [ordered]@{ game = @('--quickPlaySingleplayer', $WorldName); jvm = @() }
 }
-$utf8 = New-Object System.Text.UTF8Encoding($false)
 [IO.File]::WriteAllText((Join-Path $vdir "$VersionId.json"), ($version | ConvertTo-Json -Depth 8), $utf8)
 
-# --- 6. Add the "TMNT Story Mode" profile and pick it ------------------------------------------
+# --- 8. Add the launcher profile and pick it ------------------------------------------------------
+# 26 mods + Verity's speech models want more than the launcher's 2 GB default.
+$ramGb = 8
+try { $ramGb = [math]::Floor((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB) } catch { }
+$xmx = if ($ramGb -ge 12) { '4G' } elseif ($ramGb -ge 8) { '3G' } else { '2G' }
+$javaArgs = "-Xmx$xmx -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
 try {
     Copy-Item $profilesFile "$profilesFile.before-tmnt" -Force
     $lp = Get-Content $profilesFile -Raw | ConvertFrom-Json
     if (-not $lp.profiles) { $lp | Add-Member -NotePropertyName profiles -NotePropertyValue ([pscustomobject]@{}) -Force }
     $newProfile = [pscustomobject][ordered]@{
-        name          = 'TMNT Story Mode'
+        name          = '__PROFILE_NAME__'
         type          = 'custom'
         lastVersionId = $VersionId
         lastUsed      = $now
         created       = $now
-        icon          = 'data:image/png;base64,__ICON__'
+        javaArgs      = $javaArgs
+        icon          = '__ICON__'
     }
     $lp.profiles | Add-Member -NotePropertyName $ProfileId -NotePropertyValue $newProfile -Force
     [IO.File]::WriteAllText($profilesFile, ($lp | ConvertTo-Json -Depth 64), $utf8)
-    Say "  added 'TMNT Story Mode' to the Minecraft Launcher" 'Gray'
+    Say "  added '__PROFILE_NAME__' to the Minecraft Launcher ($xmx of RAM for the game)" 'Gray'
 } catch {
     Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to PLAY instead.)" 'Yellow'
 }
 
-# --- 7. Done! -----------------------------------------------------------------------------------
+# --- 9. Done! -----------------------------------------------------------------------------------
 Say ''
-Say 'ALL DONE! COWABUNGA!' 'Green'
+Say '__DONE_LINE__' 'Green'
 Say ''
 Say 'Opening the Minecraft Launcher...' 'Cyan'
-Say "Press the big green PLAY button ('TMNT Story Mode' should already be picked next to it)."
-Say 'Minecraft loads straight into the lair. You are Raphael!'
+Say "Press the big green PLAY button ('__PROFILE_NAME__' should already be picked next to it)."
+Say "__PLAY_LINE__"
+Say 'Verity shows up in his box after a bit. Hold V and talk to him. Be nice... or not.' 'Magenta'
 Say 'Next time you can just open the Minecraft Launcher and press PLAY, or double-click me again.' 'Gray'
 $launched = $false
 foreach ($exe in @((J ${env:ProgramFiles(x86)} 'Minecraft Launcher\MinecraftLauncher.exe'),

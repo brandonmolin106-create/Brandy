@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title TMNT Turtle Power: Story Mode - Installer
+title TMNT Turtle Power: Story Mode
 set "TMNT_SELF=%~f0"
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$t=[IO.File]::ReadAllText($env:TMNT_SELF); $m='#'+'#PS'; $p=$t.Split(@($m),[StringSplitOptions]::None); Invoke-Expression $p[1]"
 echo.
@@ -8,26 +8,66 @@ pause
 exit /b
 ##PS
 # TMNT Turtle Power: Story Mode - double-click to install and play (Minecraft Java, Windows).
+# (Template: build_installer.py fills in the placeholders for each pack.)
 #
-# Puts the mod in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
-# "TMNT Story Mode" profile to the Minecraft Launcher that opens the world as soon as you press Play.
+# Puts the pack's mods in .minecraft\mods, the pre-built world in .minecraft\saves, and adds a
+# launcher profile that opens that world as soon as you press Play.
 #
 # It downloads and installs NeoForge 1.20.1 (the mod loader) by itself, and a Java runtime from
 # Adoptium if the computer doesn't have one, so there is nothing else to download by hand.
 # (Regular Forge asks people not to automate its download, so we use NeoForge, which runs Forge
 # 1.20.1 mods.)
 #
-# The mod + world are glued to the end of the .bat file (base64) so everything is in one file.
+# It also downloads the pack's extra mods from Modrinth (Verity, Simple Voice Chat, Embeddium, JEI,
+# Xaero's maps...). The list lives in installer/mods.lock.json and is glued into this script by
+# build_installer.py (into the $ModsJson here-string below). Every file is checked against its SHA-1.
+#
+# Verity is an AI friend you can TALK to (hold V). Its voice (speech-to-text + text-to-speech) runs
+# offline, inside the mod. Its brain needs a free Groq API key (console.groq.com); the installer asks
+# for one and writes it into Verity's config, or you can add it later in Mods > Verity > Config.
+#
+# The world (and any mod of our own) is glued to the end of the .bat file (base64) so everything is in one file.
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'   # makes downloads much faster in Windows PowerShell
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
 $WorldName = 'TMNT Story Mode'
 $ProfileId = 'tmnt-story-mode'
-$VersionId = 'TMNT-Story-Mode'
+$VersionId = 'tmnt-story-mode'
 $NeoVersion = '1.20.1-47.1.106'
 $NeoUrl = "https://maven.neoforged.net/releases/net/neoforged/forge/$NeoVersion/forge-$NeoVersion-installer.jar"
 $JreUrl = 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jre/hotspot/normal/eclipse'
+$InstalledList = 'tmnt-story-mode.installed.json'   # which mod jars we put in mods\, so updates can clean up
+$ModsJson = @'
+{"mods": [
+{"title": "Verity JE", "filename": "verity-5.7.4.jar", "url": "https://cdn.modrinth.com/data/on1Y0osD/versions/Tc8RyKmi/verity-5.7.4.jar", "size": 246483796, "sha1": "2c1a7a5d4105ce809c61846e42f39cda19375ef3"},
+{"title": "YetAnotherConfigLib (YACL)", "filename": "yet_another_config_lib_v3-3.6.6+1.20.1-forge.jar", "url": "https://cdn.modrinth.com/data/1eAoo2KR/versions/sCWgXDYQ/yet_another_config_lib_v3-3.6.6%2B1.20.1-forge.jar", "size": 1105891, "sha1": "644731e321c53a35a0b3177a3cc6347fe38002f4"},
+{"title": "Simple Voice Chat", "filename": "voicechat-forge-1.20.1-2.6.22.jar", "url": "https://cdn.modrinth.com/data/9eGKb6K1/versions/S11m0QIb/voicechat-forge-1.20.1-2.6.22.jar", "size": 4923439, "sha1": "ad9179e30cb7b3ffb42b3d9b8e2e9408b473d7fa"},
+{"title": "Sound Physics Remastered", "filename": "sound-physics-remastered-forge-1.20.1-1.4.10.jar", "url": "https://cdn.modrinth.com/data/qyVF9oeo/versions/qeWNOzYk/sound-physics-remastered-forge-1.20.1-1.4.10.jar", "size": 203819, "sha1": "6a1d847f7ec05e96ba3c33cc81fb8dce4c718c44"},
+{"title": "Embeddium", "filename": "embeddium-0.3.31+mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/sk9rgfiA/versions/UTbfe5d1/embeddium-0.3.31%2Bmc1.20.1.jar", "size": 1320675, "sha1": "bb2fa8f3e493af16af9160d049f96c614a1faf2f"},
+{"title": "Oculus", "filename": "oculus-mc1.20.1-1.8.0.jar", "url": "https://cdn.modrinth.com/data/GchcoXML/versions/iQ1SwGc3/oculus-mc1.20.1-1.8.0.jar", "size": 2851119, "sha1": "984f774e71790deaec674c7587bd24e0711871b2"},
+{"title": "FerriteCore", "filename": "ferritecore-6.0.1-forge.jar", "url": "https://cdn.modrinth.com/data/uXXizFIs/versions/DG5Fn9Sz/ferritecore-6.0.1-forge.jar", "size": 123034, "sha1": "417fb6ce8f52abf40bd9d0390371790f9576f8ba"},
+{"title": "ModernFix", "filename": "modernfix-forge-5.27.85+mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/nmDcB62a/versions/hHwYTQwa/modernfix-forge-5.27.85%2Bmc1.20.1.jar", "size": 1003271, "sha1": "ba76615cdaff6de931c2e33c71f0b05deb1dad41"},
+{"title": "Entity Culling", "filename": "entityculling-forge-1.11.2-mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/NNAgCjsB/versions/HPDH6g5B/entityculling-forge-1.11.2-mc1.20.1.jar", "size": 1515048, "sha1": "856ef2e3c5bbde87fa5f06515c42fbca8af24a74"},
+{"title": "ImmediatelyFast", "filename": "ImmediatelyFast-Forge-1.5.5+1.20.4.jar", "url": "https://cdn.modrinth.com/data/5ZwdcRci/versions/rvsLEEZU/ImmediatelyFast-Forge-1.5.5%2B1.20.4.jar", "size": 532063, "sha1": "9eacd407b7dea636d375dc47335d92f616484ea2"},
+{"title": "Dynamic FPS", "filename": "dynamic-fps-3.11.4+minecraft-1.20.0-forge.jar", "url": "https://cdn.modrinth.com/data/LQ3K71Q1/versions/EjdIWWqG/dynamic-fps-3.11.4%2Bminecraft-1.20.0-forge.jar", "size": 402345, "sha1": "43b3e0766a9e7a30651cc01756476657b865b7a2"},
+{"title": "Just Enough Items (JEI)", "filename": "jei-1.20.1-forge-15.56.0.205.jar", "url": "https://cdn.modrinth.com/data/u6dRKJwZ/versions/9jqubC9n/jei-1.20.1-forge-15.56.0.205.jar", "size": 1778129, "sha1": "7f64b7f8fde7f001ef054dabe3618a8780ba2650"},
+{"title": "Jade \ud83d\udd0d", "filename": "Jade-1.20.1-Forge-11.13.3.jar", "url": "https://cdn.modrinth.com/data/nvQzSEkH/versions/xJQHCmWJ/Jade-1.20.1-Forge-11.13.3.jar", "size": 553487, "sha1": "d08e64e66521d69e083c8525f1fc507f1c202384"},
+{"title": "AppleSkin", "filename": "appleskin-forge-mc1.20.1-2.5.1.jar", "url": "https://cdn.modrinth.com/data/EsAfCjCV/versions/XdXDExVF/appleskin-forge-mc1.20.1-2.5.1.jar", "size": 47428, "sha1": "81919356f84eab14258db98924b66c3c38e372b1"},
+{"title": "Xaero's Minimap", "filename": "xaerominimap-forge-1.20.1-26.6.0.jar", "url": "https://cdn.modrinth.com/data/1bokaNcj/versions/dB6E0CY9/xaerominimap-forge-1.20.1-26.6.0.jar", "size": 2196194, "sha1": "ee73886f2f5f27bf28cffa7cc8f2b9b4540df2aa"},
+{"title": "Xaero's World Map", "filename": "xaeroworldmap-forge-1.20.1-1.47.0.jar", "url": "https://cdn.modrinth.com/data/NcUtCpym/versions/KtEupJvB/xaeroworldmap-forge-1.20.1-1.47.0.jar", "size": 1429424, "sha1": "6715c1d3758a3805589d82c41dc581537fe185cd"},
+{"title": "Mouse Tweaks", "filename": "MouseTweaks-forge-mc1.20.1-2.25.1.jar", "url": "https://cdn.modrinth.com/data/aC3cM3Vq/versions/7JVXOe3K/MouseTweaks-forge-mc1.20.1-2.25.1.jar", "size": 76237, "sha1": "d751153e722a4e014691c83f39f5b07c6ec5333c"},
+{"title": "Controlling", "filename": "Controlling-forge-1.20.1-12.0.2.jar", "url": "https://cdn.modrinth.com/data/xv94TkTM/versions/LH6Bi6Am/Controlling-forge-1.20.1-12.0.2.jar", "size": 115280, "sha1": "6195a3d1464f8fb641d7e165163aea1a857ce08e"},
+{"title": "Clumps", "filename": "Clumps-forge-1.20.1-12.0.0.4.jar", "url": "https://cdn.modrinth.com/data/Wnxd13zP/versions/nAHGB5ls/Clumps-forge-1.20.1-12.0.0.4.jar", "size": 20300, "sha1": "8809c7aa6c71389e9c59abfe5def52c1cb8d4f1c"},
+{"title": "Not Enough Animations", "filename": "notenoughanimations-forge-1.12.6-mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/MPCX6s5C/versions/kGjMleOz/notenoughanimations-forge-1.12.6-mc1.20.1.jar", "size": 1870649, "sha1": "993252c9946e22aa4ba0b28cb5b81183d5bcf50d"},
+{"title": "3D Skin Layers", "filename": "skinlayers3d-forge-1.11.3-mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/zV5r3pPn/versions/WLmoJVE7/skinlayers3d-forge-1.11.3-mc1.20.1.jar", "size": 2093560, "sha1": "066d8ce36155f0018e30e905240fc12e422972e9"},
+{"title": "AmbientSounds", "filename": "AmbientSounds_FORGE_v6.3.9_mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/fM515JnW/versions/EPxVyOnf/AmbientSounds_FORGE_v6.3.9_mc1.20.1.jar", "size": 53431801, "sha1": "28441539a998b5e0822176d8db7b8594042bacbf"},
+{"title": "Chat Heads", "filename": "chat_heads-0.15.7-forge-1.20.jar", "url": "https://cdn.modrinth.com/data/Wb5oqrBJ/versions/UJALMfLK/chat_heads-0.15.7-forge-1.20.jar", "size": 724902, "sha1": "80582e413216eb014d83252b05c731a4a151fe9b"},
+{"title": "CreativeCore", "filename": "CreativeCore_FORGE_v2.12.40_mc1.20.1.jar", "url": "https://cdn.modrinth.com/data/OsZiaDHq/versions/ChKayKur/CreativeCore_FORGE_v2.12.40_mc1.20.1.jar", "size": 1144290, "sha1": "f8b65310e0183630dd00c1ade12f9b6ecd243287"},
+{"title": "Geckolib", "filename": "geckolib-forge-1.20.1-4.8.4.jar", "url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/aC5KMoNg/geckolib-forge-1.20.1-4.8.4.jar", "size": 1038209, "sha1": "50e1407869ef0e909e3bdda9328b8bd7db03fdc0"},
+{"title": "Searchables", "filename": "Searchables-forge-1.20.1-1.0.3.jar", "url": "https://cdn.modrinth.com/data/fuuu3xnx/versions/PM9yAW1G/Searchables-forge-1.20.1-1.0.3.jar", "size": 77732, "sha1": "5b976f6e76ec74cdef21865e31f56bcb11558db7"}
+]}
+'@
 
 function Say([string]$text, [string]$color = 'White') { Write-Host $text -ForegroundColor $color }
 # Join-Path that just gives $null when the base folder variable doesn't exist on this PC.
@@ -37,6 +77,7 @@ function Quit([string]$text) {
     Say $text 'Yellow'
     exit 1
 }
+$utf8 = New-Object System.Text.UTF8Encoding($false)
 
 Say '=============================================' 'Green'
 Say '   TMNT TURTLE POWER: STORY MODE  - installer' 'Green'
@@ -56,7 +97,7 @@ function Find-Java {
     $cmd = Get-Command java -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
     $roots = @(
-        (J $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'),
+        (J $env:LOCALAPPDATA 'EchoesInTheDark\jre'),
         (J $mc 'runtime'),
         (J $env:LOCALAPPDATA 'Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime'),
         (J ${env:ProgramFiles(x86)} 'Minecraft Launcher\runtime'),
@@ -87,7 +128,7 @@ if (-not $loader) {
     if (-not $java) {
         Say 'Getting Java (needed once to set up the mod loader, about 45 MB)...' 'Cyan'
         $jreZip = Join-Path $env:TEMP 'tmnt-jre.zip'
-        $jreDir = Join-Path $env:LOCALAPPDATA 'TMNT-Story-Mode\jre'
+        $jreDir = Join-Path $env:LOCALAPPDATA 'EchoesInTheDark\jre'
         Invoke-WebRequest -UseBasicParsing -Uri $JreUrl -OutFile $jreZip
         if (Test-Path $jreDir) { Remove-Item $jreDir -Recurse -Force }
         Expand-Archive -Path $jreZip -DestinationPath $jreDir -Force
@@ -113,8 +154,8 @@ if (-not $loader) {
 }
 Say "Mod loader is ready: $($loader.Name)" 'Green'
 
-# --- 4. Unpack the mod and the world ------------------------------------------------------------
-Say 'Unpacking the TMNT mod and the New York world...' 'Cyan'
+# --- 4. Unpack the world (and the pack's own mod, if it has one) --------------------------------
+Say "Unpacking the '$WorldName' world..." 'Cyan'
 $all = [IO.File]::ReadAllText($env:TMNT_SELF)
 $marker = '#' + '#PAYLOAD'
 $parts = $all.Split(@($marker), [StringSplitOptions]::None)
@@ -127,10 +168,13 @@ Expand-Archive -Path $zip -DestinationPath $unpack -Force
 
 $mods = Join-Path $mc 'mods'
 New-Item -ItemType Directory -Force -Path $mods | Out-Null
-Get-ChildItem $mods -Filter 'turtlepower-*.jar' -ErrorAction SilentlyContinue | Remove-Item -Force
-Copy-Item (Join-Path $unpack 'mods\*') $mods -Force
-Say '  mod -> mods folder' 'Gray'
+if (Test-Path (Join-Path $unpack 'mods')) {
+    Get-ChildItem $mods -Filter 'turtlepower-*.jar' -ErrorAction SilentlyContinue | Remove-Item -Force
+    Copy-Item (Join-Path $unpack 'mods\*') $mods -Force
+    Say '  TMNT mod -> mods folder' 'Gray'
+}
 
+# The starting world is never overwritten: if it is already there, the player's progress stays.
 $saves = Join-Path $mc 'saves'
 $world = Join-Path $saves $WorldName
 New-Item -ItemType Directory -Force -Path $saves | Out-Null
@@ -138,11 +182,158 @@ if (Test-Path $world) {
     Say "  You already have the '$WorldName' world, so I kept it (your progress is safe)." 'Gray'
 } else {
     Copy-Item (Join-Path $unpack "saves\$WorldName") $saves -Recurse -Force
-    Say '  world -> saves folder' 'Gray'
+    Say '  starting world -> saves folder' 'Gray'
 }
 Remove-Item $zip, $unpack -Recurse -Force -ErrorAction SilentlyContinue
 
-# --- 5. A launcher version that opens the world straight away -----------------------------------
+# --- 5. The extra mods: Verity, voice chat and the rest, from Modrinth --------------------------
+$modList = @((ConvertFrom-Json $ModsJson).mods)
+$totalMb = [math]::Round((($modList | Measure-Object -Property size -Sum).Sum) / 1MB)
+Say "Getting $($modList.Count) mods from Modrinth (about $totalMb MB, Verity alone is 246 MB)..." 'Cyan'
+
+function Get-Mod($mod, [string]$dir) {
+    $target = Join-Path $dir $mod.filename
+    if (Test-Path $target) {
+        if ((Get-FileHash $target -Algorithm SHA1).Hash.ToLower() -eq $mod.sha1) {
+            Say "  ok       $($mod.filename)" 'Gray'
+            return
+        }
+        Remove-Item $target -Force
+    }
+    $mb = [math]::Round($mod.size / 1MB, 1)
+    Say "  getting  $($mod.title) ($mb MB)" 'Gray'
+    $tmp = "$target.part"
+    for ($try = 1; $try -le 3; $try++) {
+        try {
+            Invoke-WebRequest -UseBasicParsing -Uri $mod.url -OutFile $tmp
+            if ((Get-FileHash $tmp -Algorithm SHA1).Hash.ToLower() -ne $mod.sha1) { throw 'the file came down damaged (checksum mismatch)' }
+            Move-Item $tmp $target -Force
+            return
+        } catch {
+            Remove-Item $tmp -Force -ErrorAction SilentlyContinue
+            if ($try -eq 3) { throw "Couldn't download $($mod.filename): $_" }
+            Say "  retrying $($mod.filename) ($try/3)..." 'Yellow'
+            Start-Sleep -Seconds (3 * $try)
+        }
+    }
+}
+
+# Remove jars that an older version of this installer put there and that are not in the list anymore.
+$stamp = Join-Path $mods $InstalledList
+$previous = @()
+if (Test-Path $stamp) { try { $previous = @(Get-Content $stamp -Raw | ConvertFrom-Json) } catch { } }
+$wantedNames = @($modList | ForEach-Object { $_.filename })
+foreach ($old in $previous) {
+    if ($old -and ($wantedNames -notcontains $old) -and (Test-Path (Join-Path $mods $old))) {
+        Remove-Item (Join-Path $mods $old) -Force -ErrorAction SilentlyContinue
+        Say "  removed old $old" 'Gray'
+    }
+}
+foreach ($mod in $modList) { Get-Mod $mod $mods }
+[IO.File]::WriteAllText($stamp, (ConvertTo-Json -InputObject $wantedNames), $utf8)
+Say "  all $($modList.Count) mods are in place" 'Green'
+
+# --- 6. Verity: voice on, brain = Groq ------------------------------------------------------------
+# Verity's config is a Forge TOML (config\verity-client.toml + verity-common.toml, same keys). We only
+# set the keys we care about; Forge fills in the rest with defaults on first launch.
+function Set-TomlValue([string]$path, [string]$section, [string]$key, [string]$literal) {
+    $path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($path)
+    $lines = @()
+    if (Test-Path $path) { $lines = @(Get-Content $path) }
+    $indent = ''
+    $start = 0
+    $end = $lines.Count
+    if ($section) {
+        $indent = "`t"
+        $idx = -1
+        for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim() -eq "[$section]") { $idx = $i; break } }
+        if ($idx -lt 0) { $lines += "[$section]"; $idx = $lines.Count - 1 }
+        $start = $idx + 1
+        $end = $lines.Count
+        for ($i = $start; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim().StartsWith('[')) { $end = $i; break } }
+    } else {
+        for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim().StartsWith('[')) { $end = $i; break } }
+    }
+    $pattern = '^\s*' + [regex]::Escape($key) + '\s*='
+    for ($i = $start; $i -lt $end; $i++) {
+        if ($lines[$i] -match $pattern) {
+            $lines[$i] = "$indent$key = $literal"
+            [IO.File]::WriteAllLines($path, [string[]]$lines, $utf8)
+            return
+        }
+    }
+    $new = @()
+    if ($end -gt 0) { $new += $lines[0..($end - 1)] }
+    $new += "$indent$key = $literal"
+    if ($end -lt $lines.Count) { $new += $lines[$end..($lines.Count - 1)] }
+    [IO.File]::WriteAllLines($path, [string[]]$new, $utf8)
+}
+function TomlString([string]$s) { '"' + $s.Replace('\', '\\').Replace('"', '\"') + '"' }
+
+$cfgDir = Join-Path $mc 'config'
+New-Item -ItemType Directory -Force -Path $cfgDir | Out-Null
+$verityCfgs = @((Join-Path $cfgDir 'verity-client.toml'), (Join-Path $cfgDir 'verity-common.toml'))
+
+$existingKey = ''
+foreach ($p in $verityCfgs) {
+    if ((Test-Path $p) -and ((Get-Content $p -Raw) -match '(?m)^\s*apiKey\s*=\s*"([^"]+)"')) { $existingKey = $Matches[1]; break }
+}
+$groqKey = ''
+if ($env:GROQ_API_KEY) { $groqKey = $env:GROQ_API_KEY.Trim() }
+Say ''
+Say 'VERITY - your AI helper friend (hold V to talk to him, he talks back)' 'Magenta'
+Say 'His voice works offline. His BRAIN needs a free Groq key:' 'White'
+Say '  1. go to https://console.groq.com  and make a free account' 'Gray'
+Say '  2. API Keys -> Create API Key -> copy it (it starts with gsk_)' 'Gray'
+if ($existingKey) {
+    Say '  (You already have a key saved. Press Enter to keep it.)' 'Gray'
+} else {
+    Say '  (No key yet? Press Enter to skip. Verity still spawns, you can add the key later in' 'Gray'
+    Say '   Mods > Verity > Config > AI Settings > API Key.)' 'Gray'
+}
+if (-not $groqKey) {
+    try {
+        $secure = Read-Host 'Paste your Groq API key here' -AsSecureString
+        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+        $groqKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr).Trim()
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+    } catch { $groqKey = '' }
+}
+if ($groqKey -and -not $groqKey.StartsWith('gsk_')) {
+    Say "  Hmm, Groq keys start with gsk_ - I'll save it anyway, but double-check it in Mods > Verity > Config." 'Yellow'
+}
+foreach ($p in $verityCfgs) {
+    Set-TomlValue $p '' 'playVideo' 'false'                 # normal title screen, not Verity's intro video
+    Set-TomlValue $p '' 'canCrash' 'false'                  # Verity may not kick you out of story mode
+    Set-TomlValue $p 'AISettings' 'aiProvider' '"GROQ"'
+    Set-TomlValue $p 'AISettings' 'useLocalStt' 'true'      # offline speech-to-text (built into the mod)
+    Set-TomlValue $p 'AISettings' 'useLocalTts' 'true'      # offline text-to-speech (built into the mod)
+    if ($groqKey) { Set-TomlValue $p 'AISettings' 'apiKey' (TomlString $groqKey) }
+}
+if ($groqKey) { Say '  Groq key saved. Verity has a brain.' 'Green' }
+elseif ($existingKey) { Say '  Kept your saved Groq key.' 'Green' }
+else { Say '  No key saved. Verity will spawn but stay quiet until you add one.' 'Yellow' }
+
+# Key binds: Verity talks on V and Simple Voice Chat's menu is also V (and both use M), so the voice
+# chat menu moves to B, voice chat mute to . and Verity's "cycle mic" to , - only if you haven't
+# bound them yourself already. Change any of them in Options > Controls (Controlling adds a search box).
+$opts = Join-Path $mc 'options.txt'
+$optLines = @()
+if (Test-Path $opts) { $optLines = @(Get-Content $opts) }
+$remap = [ordered]@{
+    'key_key.voice_chat'       = 'key.keyboard.b'
+    'key_key.mute_microphone'  = 'key.keyboard.period'
+    'key_key.verity.cycle_mic' = 'key.keyboard.comma'
+}
+$added = 0
+foreach ($k in $remap.Keys) {
+    $prefix = $k + ':'
+    if (-not ($optLines | Where-Object { $_.StartsWith($prefix) })) { $optLines += ($prefix + $remap[$k]); $added++ }
+}
+if ($added -gt 0) { [IO.File]::WriteAllLines($opts, [string[]]$optLines, $utf8) }
+Say '  key binds: V = talk to Verity, B = voice chat menu, M = world map' 'Gray'
+
+# --- 7. A launcher version that opens the world straight away -----------------------------------
 $loaderJson = Get-Content (Join-Path $loader.FullName "$($loader.Name).json") -Raw | ConvertFrom-Json
 $vdir = Join-Path $versions $VersionId
 New-Item -ItemType Directory -Force -Path $vdir | Out-Null
@@ -157,10 +348,14 @@ $version = [ordered]@{
     libraries    = @()
     arguments    = [ordered]@{ game = @('--quickPlaySingleplayer', $WorldName); jvm = @() }
 }
-$utf8 = New-Object System.Text.UTF8Encoding($false)
 [IO.File]::WriteAllText((Join-Path $vdir "$VersionId.json"), ($version | ConvertTo-Json -Depth 8), $utf8)
 
-# --- 6. Add the "TMNT Story Mode" profile and pick it ------------------------------------------
+# --- 8. Add the launcher profile and pick it ------------------------------------------------------
+# 26 mods + Verity's speech models want more than the launcher's 2 GB default.
+$ramGb = 8
+try { $ramGb = [math]::Floor((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB) } catch { }
+$xmx = if ($ramGb -ge 12) { '4G' } elseif ($ramGb -ge 8) { '3G' } else { '2G' }
+$javaArgs = "-Xmx$xmx -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
 try {
     Copy-Item $profilesFile "$profilesFile.before-tmnt" -Force
     $lp = Get-Content $profilesFile -Raw | ConvertFrom-Json
@@ -171,22 +366,24 @@ try {
         lastVersionId = $VersionId
         lastUsed      = $now
         created       = $now
+        javaArgs      = $javaArgs
         icon          = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAEmUlEQVR4nO2dT04UQRTGewZJdENAgokBQcEFmhAXsOYQnsATeAAOwAE8gSfwEISNiSyIiWGBhBn+aJiAmKiJQRg3djIOM6+6u+pNverv+23fTM/r+r561VVTqc4yQggujdgJaLO+sdr1+f7W5k6t26hWN+crdlHqZIqkb2RUgrtI2RDJJW5F9GGkZoZkkrUufD+pGMF0kqmJPgzLZjCZWF2E78eiEUwlVFfh+7FkhGbsBHJQxM8yW/ca3YmWGiMGsauB+o8vLs9AC+zLwV5HVSMzQwCJAw0ADg0ADg0ADg0AjqoB0Kd4IdBuQzUDUPxwaLblHY2Llkl46dmMGL++vhHjp+3vYnxlbVaMd77+EONfj+Xrzy/dF+OZoyX2P53JH/jH+sZqV2PRKHgFYM/XQ6NtgxqA4usTuo05CwAnmAHY+0dHyLYOYgCKP3pCtbm3ASh+PEK0vZcBKH58fDVQWQcIyfi4X4ofP5wEymQwjYY8NZ+Yuqv6+75UrgDs/Xbw0YLTQHAqGYC93x5VNSltAIpvlyracAgAp5QB2PvtU1YjVgBwCk+ytXr/zY182clpv3n03OMpMd4ck+fx7c8XYnxiUs7v/OynGNegzN4BVgBwChmAY396FNWMFQAcpwHY+9OliHasAODQAOCIBmD5Tx+XhtH3A5y0Lr3ivlz9vvb6vvZ+A204BIAz1AAs//VB0pIVABwaABwaAJyB/xgVGf/fvP0SPhtSmdevHjo/M+gfQlYAcGgAcGgAcGgAcGgAcG79FxBrBfDFSfU19d1Z+RwgLVLLedBeQVYAcGgAcGgAcGgAcGgAcGgAcGgAcGgAcKJvCs2JtZjjQ4o598MKAA4NAA4NAA4NAA4NAA4NAM4tA8R+mTHRY5C2ldcBimxDzrIsO37XFuNLzx+I8a7jEKnjw29i/NET+ZCormP7i+v6C46XRk1M3RPjO9stMT73cl6M+8IhABwaAJzoS8FHB/I5fL40x2SP/7nyOx+g5ThH0DqsAOAMNABnAvVjmKasAODQAODQAOAMNQCfA+qDpCUrADjR1wFW1uRtVa7z9k/bl16/73pfgYuFp9NifGf7UIxPTMpLxdqIFYDDQPq4NOQQAA4NAI7TABwG0qWIdqwA4BQyAKtAevCtYaQQhdcBtjZ3GhrnB12e/xLjzaZf8Wntn3t934Vrnh+DMhWbFQCcUgbgs4B9ymrECgBOaQOwCtilijaVKgBNYI+qmnAIAKeyAVgF7OCjRfT9AI2GnHs381t6cO03uOjI+w123x95/b51vIYAVoH4+Grg/QxAE8QjRNsHeQikCUZPqDYPNgugCUZHyLbmNBCcoAZgFdAndBsHrwA0gR4abasmVr53wHVEDJHJj4jR6lhqzwCsBOHQbEt1kRaXZ6K8hawuHOx1VDXiLAAcGgAcGgAcGgAcGgCc6FO1WO8qtkLs6XJ0A+SgGSG28DlmhgArDTIKLN2rmUR6qWs1sCR8jrmEeqmLESwKn2M2sX5SM4Nl0XtJIslerBshFeFzkkq2HytmSE30XpJNfBCjMkTKgvdTmxsZhq8p6iQ2IYT8z1+92mesZC81XAAAAABJRU5ErkJggg=='
     }
     $lp.profiles | Add-Member -NotePropertyName $ProfileId -NotePropertyValue $newProfile -Force
     [IO.File]::WriteAllText($profilesFile, ($lp | ConvertTo-Json -Depth 64), $utf8)
-    Say "  added 'TMNT Story Mode' to the Minecraft Launcher" 'Gray'
+    Say "  added 'TMNT Story Mode' to the Minecraft Launcher ($xmx of RAM for the game)" 'Gray'
 } catch {
     Say "  (Couldn't add the launcher profile. In the launcher, pick 'forge' next to PLAY instead.)" 'Yellow'
 }
 
-# --- 7. Done! -----------------------------------------------------------------------------------
+# --- 9. Done! -----------------------------------------------------------------------------------
 Say ''
 Say 'ALL DONE! COWABUNGA!' 'Green'
 Say ''
 Say 'Opening the Minecraft Launcher...' 'Cyan'
 Say "Press the big green PLAY button ('TMNT Story Mode' should already be picked next to it)."
-Say 'Minecraft loads straight into the lair. You are Raphael!'
+Say "Minecraft loads straight into the lair. You are Raphael!"
+Say 'Verity shows up in his box after a bit. Hold V and talk to him. Be nice... or not.' 'Magenta'
 Say 'Next time you can just open the Minecraft Launcher and press PLAY, or double-click me again.' 'Gray'
 $launched = $false
 foreach ($exe in @((J ${env:ProgramFiles(x86)} 'Minecraft Launcher\MinecraftLauncher.exe'),
@@ -202,7 +399,7 @@ if (-not $launched) { Say '(Open the Minecraft Launcher yourself - everything is
 
 ##PS
 ##PAYLOAD
-UEsDBBQAAAAIAOQAN12vcDdjFJ4EAAseBQAaAAAAbW9kcy90dXJ0bGVwb3dlci0xLjAuMC5qYXLM
+UEsDBBQAAAAIAM+9Rl2vcDdjFJ4EAAseBQAaAAAAbW9kcy90dXJ0bGVwb3dlci0xLjAuMC5qYXLM
 vAVUnWmyNXxwdwhOkEBwT3CX4O7u7u7u7gR3d3d3JxAsuBMgaHD7Id23Z6a/mXTuzF2z/mSdBLIO
 D7uqdlXtquclUqIgoKgASEhIAABAAPj7X1DPv8UF5HiohCUEaeTlwABA99bwABCAlCjEy5sBwL+/
 T+qPEzYBTOp/fwLq8+uPE8R5JIQFBWTlqMUF7SM5YIDpYAOueJ/4HIp6ZVHZDtbWtqxdm0as+w4g
@@ -5512,7 +5709,7 @@ WQgTFz9s4ZB+HHcklcxhAyJswNAh5o96xyGVGayQcSq1ThSCesb8McD43bHHNrND3jxDnjTC/MFC
 Pvui9bOU043Zb6ccedxCBT/bWEqqGya1RkTK8thc9h2nemua9LNLyRtezY8Pxqf72Co5ALNTjaVs
 8MBseNCKsHpfqfSxUQNPUHTkNS5+/+tSSUHiRGKySc0PnsVvab/NIIudAst+M0ebU1LSbL5gfowq
 nsuksquLXj8imB+N6oIRHp92MD+c1aJNzU4YxE8BLKp2oJ6jmhjv2Bb9vA7+Lk/kuOxz8FHu/1BL
-AwQUAAAACABSCjdd2zJpygmSAAD6kQAAHwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9sZXZlbC5k
+AwQUAAAACACtBEdd2zJpygmSAAD6kQAAHwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9sZXZlbC5k
 YXQAdECLvx+LCAgsGLNqAv9sZXZlbC5kYXQAlF0HoCRF0d7IcUe6gwvkjCR5ZBBMIKIkkYwkl9nd
 ebvDm91ZZmbfu3dGgpgQVFBBDKgoCmZMYMQsilnMOeec/fXvntQVumYW/1+8Y7/qqaqurq6u7q5e
 VautqjXnR/7K2tanBU7fGw+eEPRP86J4Va1Wa25eW6X+ep4bRl4wrm126Nxhh8wdunmtrf7lyf3a
@@ -6169,12 +6366,12 @@ TnYkcmZbkWsYCyYjqETQUSCtNkGQUa6VSW0zG4PaM2dYdblMRs4pVu3MzLmE85a7hpz5mZTwG8Hp
 QtvJ9T3PGV4lzFZ1yoUIqHzsvqu2XTvkLNJURDmmI/dOG8x2FqwRimBd8Oec8TpKmM1XSumqsBHU
 1Pkc6ip3mqDZVcFEECm5smDt6uPX7rhGkuWOgjSECjtcCq9cZInFlWr4Kfno510qZIL8y4kyKdps
 Z9aKlKnUU2V4aLQvvWOznZkr4+LPcvbCAowiX4j9pH4YUSCd2fIParAC+P8qd3+o4sUCAFBLAwQU
-AAAACABSCjddz5bp/y8AAAAwAAAAMQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9ESU0tMS9kYXRh
+AAAACACtBEddz5bp/y8AAAAwAAAAMQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9ESU0tMS9kYXRh
 L2NhcGFiaWxpdGllcy5kYXST7+ZgAIP/j5MSHiQleHrqeKYkpD0oY7yUuNL16MyflTw8e+byMJwV
-1YqTAyoDAFBLAwQUAAAACABSCjddO5xIIVoAAABZAAAAKgAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
+1YqTAyoDAFBLAwQUAAAACACtBEddO5xIIVoAAABZAAAAKgAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
 ZS9ESU0tMS9kYXRhL3JhaWRzLmRhdJPv5mAAg/+PkxIeJCV4eup4PklJ4PU646OZxsCYxla3/0qX
 0PFNR87MObJkToi/+AIFZWNmb4+0IrMJS3lCDr5luiI6LSpkzsz5xw8cuH2SgYFpXeI5H6B5AFBL
-AwQUAAAACABSCjddEQ7fZzQGAAAA4AAAJAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4w
+AwQUAAAACACtBEddEQ7fZzQGAAAA4AAAJAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4w
 Li0xLm1jYe3da1SMeRwH8KlUygyji9DNGLd0m5GSpAvpMt3cVrpgGqHUooQSwlTrNs3uTJGaVCdd
 FFJUCqnppowSUu052tYmIQdtOSRmh+PsHmv3HG+Yc8b3c87v/fP/vvs+z+95HgIBAAAAAAAAvg/y
 cgTCCMmMlMwoyahKRklO2lf17ShIzqooGRXJkCRDlIzyd3R+AAAAAAAA+B5sPK85/F8j7ev6Vr73
@@ -6203,7 +6400,7 @@ z2mNpbj4bqy8c25ZsmtR7NbfE7a+WxliRdk8caHn26Bl/hkFB9vn3782qeJ2tV3BjkYzF8/Xnnec
 CioyRA/GtVe8UKwfS22SdgYAAAAAAAAAsi7mQ/+njxbSyCPaZh3osrvhlDsjt7fXjqHt/XKqwLnv
 WkXc9OfeFUxirXO+blAbQelGqmALscNOV/Nuamp7vrHFnDD6ax+FvNjVrLMuXk2JwQYPMgu11ZaY
 9p2YYstRMow0jqkW7fMrYgum6emrWR7Zfeidbcvq0+3xS89++AFA5U1qnrRDAAAAAAAAAJBlfwFQ
-SwMEFAAAAAgAUgo3XcGLVvvlBgAAANAAACQAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcG9pL3Iu
+SwMEFAAAAAgArQRHXcGLVvvlBgAAANAAACQAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcG9pL3Iu
 LTEuMC5tY2Ht3Hs01HkfB/BhmMmtFEWGZZA4FTN72iKEJ1bC5OliSa65tlmXxnRxyW0SdrDjfslD
 h9hmPbJSphJNdCNic0vFEt1URtm1m9qlc/Y5zzn98fz1nN85s+/XOZ+/P5/f+/fX53y/vx+J9Hcj
 LUUiycyX7HxRpIibQ57A3uT53ovmi0rgDAvkCO6vSHB/AAAAAAAA+H/ZX7987r+LwDneE9ib8Of/
@@ -6235,7 +6432,7 @@ q4drzZXkF8UYjX/VVHMxetI+IK6gVW1ozyUK7V3Ht2Mey+wruzuzLXJ3GdYcZKt9/tw9/6ic5pVZ
 MvMUvY3oAAAAAAAAAAD+Bvjz+39shrP8/P7P9f7Wr/gMzWT0fsPqqSqP1Geq1KEK/cHDMmEvlNjy
 iY0RPoczN17OZMbbROjkm836l22Qr7/PeVC97I2lUJm2cPpvmazPava3dRzMvn6KZ/uk49WXRywE
 0j/FaC8SlFoKg4cuNx0vnSIfjiPdsIqfUbsrXnX/Zl9m1C7z4lBn5q2ulumEjaqs9WSiIwEAAAAA
-AACQLH8CUEsDBBQAAAAIAFIKN12sHYVehAsAAABAAQAjAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2Rl
+AACQLH8CUEsDBBQAAAAIAK0ER12sHYVehAsAAABAAQAjAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2Rl
 L3BvaS9yLjAuMC5tY2Ht3Wk4lesaB/CMayNDWWXIEBkyZJ4qEYnSQCUZWrEMmXWoJCVJxDZmRRFC
 hgbDMlfmsUzJUEhJKpVKaKLxLKfdvvbZH/ZH65z6/67rvt6P9/vc3/7P+77PO2cOvTEyfL8y064c
 tGKnFSvD7N7Db7R+82e55w9MtL7zaMVLK05azaUVYRbvhYvWi4VWbHRaPzetLw+degMAAAAAAMBs
@@ -6288,7 +6485,7 @@ Fd7d1hLRMWWbuSWOx91f0L9Gr5vJZvs2CqPMinMOfX47Mkyj2Z14K4sTRoeHgyK4E3IC34jElig6
 GBt8SM97tqzWUSQ0y739mJbOZa7NB4ukdubmLOHdd7PD5oH7CNHU7p64H1M9a1P7yQKJ9rqpCfLE
 2X3r3txdfU0n1tv6N+dMUoLKhY6gS9o+Gk5O990FD5snO92T7QhU+ai4Ns/URF39Umxj/deXWYJu
 cqEa9YJnKbHtpGKeymJPP6r0drUvB4zmdR7qzZEmsk+PrQ4IFy7MLqqn99QBAAAAAAAAZtG/AVBL
-AwQUAAAACABSCjddXXJv0ncGAAAAwAAAJQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4t
+AwQUAAAACACtBEddXXJv0ncGAAAAwAAAJQAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4t
 MS4tMS5tY2Ht3WtU03UYB/CxcVE2UCYMBLG46EAExsWUg9qmA2IDcigCBjoWQqKhzBAQs9BAGF4I
 mZlcSgRMU7l4ST0oMBEBxyYKhZA6c0AlcHACInGgkS/yTS/qnFzS93PO8+L/6v//fd895/f8z0Mg
 AAAAAAAAAPwbdLQIBG116alLV0vTX/PqkdRnJqprqrrIGjy/vvrdU/6H+QMAAAAAAMCrEHPWZPTl
@@ -6318,12 +6515,12 @@ cou2rPGBjCqpF7kuufnuGI3LLLx7MOpxeM70jSmXV0Z3ZM4s8by9dCDJoMXxZPONxUH2xcGyIFlC
 6qWpbL0LI+zR0167p67zlgjL9n+0Im1hXZ1NKstj1E5u3XglXWVX+ONYkMqj/bSglZf+3KT6J9G0
 z3pS92s6FgAAAAAAAIBJpfJv3P+Xvbj/J4VKx9Wm/oMBgAcn+HXR8w4/+UI/akfRrplV6sdglZRQ
 ouX9/iwjebpRSBdzZMHsP2YBiuYeIjjayZ0bdUOvVUure7NDss0OrVlF8dtMoVTmUwhNU2QFmg4P
-AAAAAAAA4HXwO1BLAwQUAAAACABSCjddz5bp/y8AAAAwAAAAKwAAAHNhdmVzL1RNTlQgU3Rvcnkg
+AAAAAAAA4HXwO1BLAwQUAAAACACtBEddz5bp/y8AAAAwAAAAKwAAAHNhdmVzL1RNTlQgU3Rvcnkg
 TW9kZS9kYXRhL2NhcGFiaWxpdGllcy5kYXST7+ZgAIP/j5MSHiQleHrqeKYkpD0oY7yUuNL16Myf
-lTw8e+byMJwV1YqTAyoDAFBLAwQUAAAACABSCjddO5xIIVoAAABZAAAAJAAAAHNhdmVzL1RNTlQg
+lTw8e+byMJwV1YqTAyoDAFBLAwQUAAAACACtBEddO5xIIVoAAABZAAAAJAAAAHNhdmVzL1RNTlQg
 U3RvcnkgTW9kZS9kYXRhL3JhaWRzLmRhdJPv5mAAg/+PkxIeJCV4eup4PklJ4PU646OZxsCYxla3
 /0qX0PFNR87MObJkToi/+AIFZWNmb4+0IrMJS3lCDr5luiI6LSpkzsz5xw8cuH2SgYFpXeI5H6B5
-AFBLAwQUAAAACABSCjddpHnr9ZkCAACUAgAAMAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9kYXRh
+AFBLAwQUAAAACACtBEddpHnr9ZkCAACUAgAAMAAAAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9kYXRh
 L3R1cnRsZXBvd2VyX3N0b3J5LmRhdAGUAmv9H4sIAAAAAAAA/41Wv28TMRh1moQml4QfgqESGQoI
 xMDQAcHAAFSRWEAtEkIUIVnOndu48Z0P21FL/wP+H0bExMAQiR0xMiEGJCoQYgifE7tKnXN0WSzr
 e+/5Pcf32RFCEaolRJMIndmSbI9lVVR5gRBqwLgD41UYX5o5ABvbgj1mSqsm6gwlIdkejiXRVEUA
@@ -6336,10 +6533,10 @@ LyQDmKKxpBrTQ6Y9mNvB68YWJ0ziAeHc2mp7WhvGlso5yzSVVuiXh7kHmConfStxpUCiTnLJeFEs
 mP87MeLczl0Al63KWQCdn7t4cEpm92Hh9RKhzkww05JkMfVEnbUbZmUdS4YTIaQF9Tx7X05AfaFU
 ADQG0AVFD+gsBOYkSahTXPOytMwfNFXMhdSEBzQ/AqxtYmJ7vwW7XIRWh0zHA+peCOteUHO6ajmR
 7siMvR3rmYyS5AMshUgDZ+Hp9D0i9oUV+b1w7oyRbU7eUKngi0StHjxensOEiQyhzlv0H+/vwPTT
-CAAAUEsDBBQAAAAIAFIKN11z4XNIOQAAADsAAAAlAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2Rh
+CAAAUEsDBBQAAAAIAK0ER11z4XNIOQAAADsAAAAlAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2Rh
 dGEvY2h1bmtzLmRhdJPv5mAAg/+PkxIeJCV4eup4PklMKD6t7+Xnm8jAmMaWJ74gISIrsDCtTo6Z
-OV+dmSFS+nONNlAHAFBLAwQUAAAACABSCjddAAAAAAIAAAAAAAAAKQAAAHNhdmVzL1RNTlQgU3Rv
-cnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhAwBQSwMEFAAAAAgAUgo3Xfy+NlQ6CgAAAHAAACkA
+OV+dmSFS+nONNlAHAFBLAwQUAAAACACtBEddAAAAAAIAAAAAAAAAKQAAAHNhdmVzL1RNTlQgU3Rv
+cnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhAwBQSwMEFAAAAAgArQRHXfy+NlQ6CgAAAHAAACkA
 AABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZW50aXRpZXMvci4tMS4wLm1jYe3Z+TcU6gPHcXuWyDJm
 ZIlmkH0d2fc1W0KEqTCWrNcaxhZGtlIoNESukbFNYwmVEcKEIZRwmbgRIfsSRX3v/Ru+53z7nnuf
 1znPz59fnueH93no6IB/J0Z6OjoG+l+3z/TXNssv3AcAAAAAAAAAAACAfz7/RijH3+ffug8AAAAA
@@ -6386,7 +6583,7 @@ xcx7CFQpX6Gcq11uWtUytwpLDd7Yl76xoRZ+UxNvJn52txCaFt2PtpE5O54dROHiJGcna66gs5/b
 QyEJAYLjWAaZqkwDpGnrdSNGdL5t6GRL+Tke2IPPrOUp+uT2Gun792ETHGN12bzSCpFHDgOYJ58+
 IE/LcL6jP4hDxgUdWkTJ6yzX8gyfkRDV1u5nXR6kaWEsvt/Akw2qYQM/kGijXqF+09PbLOLPjexH
 m0ynKO75C5mfqKhnGvSxIzeF3M63z1v26E9sTKpfimvJP09r3NyY+mzx8SXn10zOUr3WvZif7zTb
-Q5cu/nBfwmxdJXn4/flkirudMX77++1f/a4AAAAAAAAAAAD+v/wHUEsDBBQAAAAIAFIKN12rTdzf
+Q5cu/nBfwmxdJXn4/flkirudMX77++1f/a4AAAAAAAAAAAD+v/wHUEsDBBQAAAAIAK0ER12rTdzf
 4wIAAABAAAAoAAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2VudGl0aWVzL3IuMC4wLm1jYe3X6S8b
 ABzG8WJmdLZm7bDGMUcwGWJzLCaqOsOaOVYbcRXFoq455wi1KjZbGubslOiGmDi2lobMHJ0jMeJe
 qxE3HatjiyMNlr3dP7BJtt/nL3hePG++CAT4vynInfQCAAAAAAAAAAAA/FlUnhrypDcAAAAAAAAA
@@ -6401,7 +6598,7 @@ VzJH3dwJ9fbWzZwNxkFiBmeZZ2V246a3yAlzRRXb7U8YP61doD8kCJQGl5EkxBemTY+F2QvPAnlX
 J1drtNzSetBtYS7tghIkb5BwwXb2HMckvC9gGluaJ8V5HrGMeVoOU5qroVOhelSjJIHQi9yAG1lB
 fYt1NE747lr2+bnT+1U/8nx3+/EHfudeQrzZk/lw/CDFpqF5hYzNXKS+i8HYtqiQ1UXCZun59Jlc
 i0TdLr9qxS3cMLuqPzlfTEPcIkoEJ/1sAAAAAAAAAAC/g/6H/of+BwAAAAAAAIB/3S9QSwMEFAAA
-AAgAUgo3XUHeqp5DAwAAAEAAACoAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZW50aXRpZXMvci4t
+AAgArQRHXUHeqp5DAwAAAEAAACoAAABzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZW50aXRpZXMvci4t
 MS4tMS5tY2Ht1/9TywEcx/FpqSxT11a0jL5bM+sLik2xrfQF1xSavjGWEh+nsk7pGzXiYtW1K7aM
 UgvlXJ9OqimjczqtLuubvuyuL5RE7ZA03/4K53Tvx1/w+uX1wxODAQAAAAAAAAAAwOKGXfKvFwAA
 AAAAAAAAAODviketTDEYg8cGZ2XC0D1xBBYxQ7o9ub4GORpMtbDnicq0OVn9PzYhFdvtPP18ec5v
@@ -6416,8 +6613,8 @@ O4MnhHSLUu7SRvhPL1GCHM279Zz8zvIIm85DfS0t/U28J6kTY0LTRGmkg/r8I41gNfkdKo/WNsmm
 0fwIzmhbRsUt/qBNv4Qkn+LiXsdQ85yw7cgjKjGqj6tFEq2/210o3VZefQftdVookIQsxD2gFZX+
 PnIjsMRZY9jEMHH65jBCJxOZQ2NlPOo1bkT5431F8zvupR8k0E+6nrL7ekVMC7g/Y5XAjM5j0YrX
 +n9I8NEqbEPDhm3EX+u7uBmqV632akoBqQ7tw3luKaZquzPpvW05DZc/1hWQt+LMqweZ6gNCRU+k
-++FfXpNRpBDELku+9wV5x7/+DwAAAAAAAAD8X6D/of+h/wEAAAAAAABgsfsDUEsDBBQAAAAIAFIK
-N12abHc8GAMAAOUGAAA0AAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3NlcnZlcmNvbmZpZy9mb3Jn
+++FfXpNRpBDELku+9wV5x7/+DwAAAAAAAAD8X6D/of+h/wEAAAAAAABgsfsDUEsDBBQAAAAIAK0E
+R12abHc8GAMAAOUGAAA0AAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3NlcnZlcmNvbmZpZy9mb3Jn
 ZS1zZXJ2ZXIudG9tbNVVTXPbNhQ8W7/iTXJoeuEoh14y44NkMYlnFNkj2vUkmU4HBB5FNCCgAUDZ
 zKG/vQuQtN1pmubaEynifezu2wctXlbsT+xJOtvoQ+9F1M5S4Bi1PYTF55CPf1ucITBSbHWg6Cj6
 ntPTc+dOTMIOtDZOfilt1HFAmEix3t0HnBF77zxpSzoG6o9KRKaOY+sUPobIQpFrSBoX0BN5TGNX
@@ -6432,7 +6629,7 @@ g6+oh2+jmvEk+D8Opx6eAVn+gtgb1Dqy73TIE8apMnAu5qSoHp6Z+VHy7BoMHy2mCf0+Z+kGswUH
 drXDrmrYO7ssY9ORQps07o/JhqnAB/TWRyMG5AbpmS2JProOFzKqmAHg5568mZuNl/eN2+LOOM8Q
 v4/a6FMCzPOK4gTKAw53YZROTX8BIe3WsqC3+gFxNecLJZWYUsqBc0hpYft06XDCY4Y0xNaZvLXK
 3Y/cUkLdx+iwkxsdUp087XnjREiKSNcbNbourS9GJuQIJSMbQaIlP2Ce2YNOBciC6pc4u0PQZkL/
-ib17XMXFX1BLAwQUAAAACABSCjddZQHC5WexAwAAwB8AJwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
+ib17XMXFX1BLAwQUAAAACACtBEddZQHC5WexAwAAwB8AJwAAAHNhdmVzL1RNTlQgU3RvcnkgTW9k
 ZS9yZWdpb24vci4wLi0xLm1jYey6BVhVX7vou5YoKKkIgqRISat0CwgoSAkSUoKI0t2xFKS7RKQb
 pASkSyQWId3d3bmIFWfw/3/fPfvue859PPfu/Xx33+M7n98aa805xnhHvDEmCoH8kT/yR/7I/66i
 AIVANAHvAO8BsQA/wDOAHSAUYAzwAMQDXgJeA+QALgB9QDDgCyAMoAOwBDyB/p5+N1AvHBACeANQ
@@ -10679,7 +10876,7 @@ pCc3jkbR9yL/rzEgPpkfkf9XatU427MgMxRwZ3TlzbrqCxr6yqgI5jtGeYzH/gbPEHc/U1gOeey4
 k2JcYi8xOzCWz+BwH7OVEMJUUFNI4ADv1EQ+punMe7043KW0ACn0r1R+FSD6qjyyInHq4tmW9Uxu
 r3ahfIV1a/51/h/XN5X8i/y/CET+Hz6vKkN66zfEhwEtefh7Zcc5FX87GLodLAGynARZfuxYYrTy
 Rg4zOzXWQegJjuPxAMH5y4XFau50+r/k/3kPIPL/+HKzkRbdEfl/5Yj8v+3k5TJ5cw15x3xE/p/f
-rln3716IAAAAAAAAAAAAwC/0/wBQSwMEFAAAAAgAUgo3XT9t1buZcAQAAPAmACcAAABzYXZlcy9U
+rln3716IAAAAAAAAAAAAwC/0/wBQSwMEFAAAAAgArQRHXT9t1buZcAQAAPAmACcAAABzYXZlcy9U
 TU5UIFN0b3J5IE1vZGUvcmVnaW9uL3IuLTEuMC5tY2HstwdQVN236NndqKAkERGQJFlECUoGAQFB
 RHLOouQMklNLUDIoUSSD5BxFUpNzUiRLlhybnLp7dn/fm6o7r97M+1s19/6n5n6L+rFP2H3WWXuv
 dCCQf1Fg16EQSB8UAi0DCEEhMFEwcgJIwfFDMNqAEYsumKcGUAQ8B4C5kPsAWsBNAAHgCgAH0AD9
@@ -15785,7 +15982,7 @@ JdseGtKyl8JMgYXcAIhmqCiyX170YS2r85J8RszNUWMnJosKBqBy5XDYWHuqJ+XQ+akm1SBo56Ln
 xmFNNHEGvLWuc/2AhkPTXwfNp5+kJmkTkwtxj+EyDz5y+F+SApMrc+d2Af6aH4+lmiV7D3L/fwK1
 /2+uVruhzoTa/78zh4wAQB4AmEUdAPhD+n/zHDIFADJTUJLWOuewPtVYHEWiHEavxtZmQhRrE+sF
 LUq0tGL1rYiqqiv23MA8Yh4Lu28Y+H35bmAl7ufyTw8p1J0eez3ifMo1fmXBRbtNyJZgmWCJpnfo
-pF85AAAAAAAAAACAE/D/AFBLAwQUAAAACABSCjddCRdcWMAuBQAA0CgAJgAAAHNhdmVzL1RNTlQg
+pF85AAAAAAAAAACAE/D/AFBLAwQUAAAACACtBEddCRdcWMAuBQAA0CgAJgAAAHNhdmVzL1RNTlQg
 U3RvcnkgTW9kZS9yZWdpb24vci4wLjAubWNh7LkFWJTRu+g7M4AgCCiIgMSIEgLS0iUgII2IoHRK
 l3SnhJSS0ikgkgLSndLdPaR0N3PX/P/73Hv2fc4+j+c8e599zr2+Pr9Z33yzZr3fetdbIxBILxQC
 QQNgAm4B7gIoAQwAPoA4QBqgAHgNhcB8AXaAd1AI1AKAGncBK+AeLhiJAFcAHzD/TwQG5qEDsADg
@@ -21745,7 +21942,7 @@ XKHsavSzbHe23I5pM7Y4yUx9Hgsv+wDtcCPABwDUoVd3AgD84vgeI6rsMT99CwBAx2G4UZLhiCO1
 qRzgE3+eNeMoX6UxcdiG0JqgONVkba+fQwAAAAAAAAAAAODH+if6/xKg////cv9/f63JzF4/hgAA
 AAAAAAAAAMAPRjS/t/f/ZWkUM499PMdOy8j+JkyGAGp4lJaFigSmbWuujFnRj+X1ZttnMUAIwxQt
 YL0bOL1vLqqw45prWo9EPw6sohAK9x+2L3qnI7u0GjOZbnrUwEsovwas/4P1/79e/x/zim3a6/cN
-AAAAAAAAAABgb/wfUEsDBBQAAAAIAFIKN12ZR0hpC5UCAABgHgAoAAAAc2F2ZXMvVE1OVCBTdG9y
+AAAAAAAAAABgb/wfUEsDBBQAAAAIAK0ER12ZR0hpC5UCAABgHgAoAAAAc2F2ZXMvVE1OVCBTdG9y
 eSBNb2RlL3JlZ2lvbi9yLi0xLi0xLm1jYey6B1BUTbfvPSMqKkpOEkWQKBnJQUQyCig5gwQl5wyD
 KEFyjiIoSREcguQw5CBZcg5DzkFgCDNzm/c956vvO3XvrfNU3XPeuvU9PfWb3rN37167u/9rrd4o
 BPJ3+bv8Xf4uf5f/fVGAQiA2ADNAOEADoAeIAzwHuABSAB8AVoCXgDcANYAdQAXwDpAAcAMkAjSh
@@ -24715,44 +24912,44 @@ rmI7lEK13bpLvuW81sXsLRfeYdfICBFS/2f9/9KdCxVX3a3P+/8Nln+1/38g+7f6/3v+qv8/FCkJ
 WRTjT/3/D367/38aJXXr9OKv9f+X7k7z/mP/PzMO9HT19/T/h3zr/38jOCRy1hUj/9v9/4R/0//f
 8Q/9//XXa8U65WsFf/ZeBAAAAAAAAAAA+JH+8/l/0u/B/L//rvl/q7k29T97HQIAAAAAAAAAAAA/
 1u/P/+ME+X8g/+////w/kdbaGz97MwIAAAAAAAAAAPxA//n5P+X4/+L8/8EfeP5vC87//9jz/7Vl
-m8qfvQ4BAAAAAAAAAACAH+n/AVBLAwQUAAAACABSCjddz5bp/y8AAAAwAAAAMAAAAHNhdmVzL1RN
+m8qfvQ4BAAAAAAAAAACAH+n/AVBLAwQUAAAACACtBEddz5bp/y8AAAAwAAAAMAAAAHNhdmVzL1RN
 TlQgU3RvcnkgTW9kZS9ESU0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdJPv5mAAg/+PkxIeJCV4eup4
-piSkPShjvJS40vXozJ+VPDx75vIwnBXVipMDKgMAUEsDBBQAAAAIAFIKN107nEghWgAAAFkAAAAt
+piSkPShjvJS40vXozJ+VPDx75vIwnBXVipMDKgMAUEsDBBQAAAAIAK0ER107nEghWgAAAFkAAAAt
 AAAAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL0RJTTEvZGF0YS9yYWlkc19lbmQuZGF0k+/mYACD/4+T
 Eh4kJXh66ng+SUng9Trjo5nGwJjGVrf/SpfQ8U1Hzsw5smROiL/4AgVlY2Zvj7QiswlLeUIOvmW6
-IjotKmTOzPnHDxy4fZKBgWld4jkfoHkAUEsBAhQDFAAAAAgA5AA3Xa9wN2MUngQACx4FABoAAAAA
-AAAAAAAAAKSBAAAAAG1vZHMvdHVydGxlcG93ZXItMS4wLjAuamFyUEsBAhQDFAAAAAgAUgo3Xdsy
+IjotKmTOzPnHDxy4fZKBgWld4jkfoHkAUEsBAhQDFAAAAAgAz71GXa9wN2MUngQACx4FABoAAAAA
+AAAAAAAAAKSBAAAAAG1vZHMvdHVydGxlcG93ZXItMS4wLjAuamFyUEsBAhQDFAAAAAgArQRHXdsy
 acoJkgAA+pEAAB8AAAAAAAAAAAAAAIABTJ4EAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9sZXZlbC5k
-YXRQSwECFAMUAAAACABSCjddz5bp/y8AAAAwAAAAMQAAAAAAAAAAAAAAgAGSMAUAc2F2ZXMvVE1O
-VCBTdG9yeSBNb2RlL0RJTS0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAFIKN107
+YXRQSwECFAMUAAAACACtBEddz5bp/y8AAAAwAAAAMQAAAAAAAAAAAAAAgAGSMAUAc2F2ZXMvVE1O
+VCBTdG9yeSBNb2RlL0RJTS0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAK0ER107
 nEghWgAAAFkAAAAqAAAAAAAAAAAAAACAARAxBQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvRElNLTEv
-ZGF0YS9yYWlkcy5kYXRQSwECFAMUAAAACABSCjddEQ7fZzQGAAAA4AAAJAAAAAAAAAAAAAAAgAGy
-MQUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3BvaS9yLjAuLTEubWNhUEsBAhQDFAAAAAgAUgo3XcGL
+ZGF0YS9yYWlkcy5kYXRQSwECFAMUAAAACACtBEddEQ7fZzQGAAAA4AAAJAAAAAAAAAAAAAAAgAGy
+MQUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL3BvaS9yLjAuLTEubWNhUEsBAhQDFAAAAAgArQRHXcGL
 VvvlBgAAANAAACQAAAAAAAAAAAAAAIABKDgFAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9wb2kvci4t
-MS4wLm1jYVBLAQIUAxQAAAAIAFIKN12sHYVehAsAAABAAQAjAAAAAAAAAAAAAACAAU8/BQBzYXZl
-cy9UTU5UIFN0b3J5IE1vZGUvcG9pL3IuMC4wLm1jYVBLAQIUAxQAAAAIAFIKN11dcm/SdwYAAADA
+MS4wLm1jYVBLAQIUAxQAAAAIAK0ER12sHYVehAsAAABAAQAjAAAAAAAAAAAAAACAAU8/BQBzYXZl
+cy9UTU5UIFN0b3J5IE1vZGUvcG9pL3IuMC4wLm1jYVBLAQIUAxQAAAAIAK0ER11dcm/SdwYAAADA
 AAAlAAAAAAAAAAAAAACAARRLBQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcG9pL3IuLTEuLTEubWNh
-UEsBAhQDFAAAAAgAUgo3Xc+W6f8vAAAAMAAAACsAAAAAAAAAAAAAAIABzlEFAHNhdmVzL1RNTlQg
-U3RvcnkgTW9kZS9kYXRhL2NhcGFiaWxpdGllcy5kYXRQSwECFAMUAAAACABSCjddO5xIIVoAAABZ
+UEsBAhQDFAAAAAgArQRHXc+W6f8vAAAAMAAAACsAAAAAAAAAAAAAAIABzlEFAHNhdmVzL1RNTlQg
+U3RvcnkgTW9kZS9kYXRhL2NhcGFiaWxpdGllcy5kYXRQSwECFAMUAAAACACtBEddO5xIIVoAAABZ
 AAAAJAAAAAAAAAAAAAAAgAFGUgUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2RhdGEvcmFpZHMuZGF0
-UEsBAhQDFAAAAAgAUgo3XaR56/WZAgAAlAIAADAAAAAAAAAAAAAAAIAB4lIFAHNhdmVzL1RNTlQg
-U3RvcnkgTW9kZS9kYXRhL3R1cnRsZXBvd2VyX3N0b3J5LmRhdFBLAQIUAxQAAAAIAFIKN11z4XNI
+UEsBAhQDFAAAAAgArQRHXaR56/WZAgAAlAIAADAAAAAAAAAAAAAAAIAB4lIFAHNhdmVzL1RNTlQg
+U3RvcnkgTW9kZS9kYXRhL3R1cnRsZXBvd2VyX3N0b3J5LmRhdFBLAQIUAxQAAAAIAK0ER11z4XNI
 OQAAADsAAAAlAAAAAAAAAAAAAACAAclVBQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvZGF0YS9jaHVu
-a3MuZGF0UEsBAhQDFAAAAAgAUgo3XQAAAAACAAAAAAAAACkAAAAAAAAAAAAAAIABRVYFAHNhdmVz
-L1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhUEsBAhQDFAAAAAgAUgo3Xfy+NlQ6
+a3MuZGF0UEsBAhQDFAAAAAgArQRHXQAAAAACAAAAAAAAACkAAAAAAAAAAAAAAIABRVYFAHNhdmVz
+L1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuLTEubWNhUEsBAhQDFAAAAAgArQRHXfy+NlQ6
 CgAAAHAAACkAAAAAAAAAAAAAAIABjlYFAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9y
-Li0xLjAubWNhUEsBAhQDFAAAAAgAUgo3XatN3N/jAgAAAEAAACgAAAAAAAAAAAAAAIABD2EFAHNh
-dmVzL1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuMC5tY2FQSwECFAMUAAAACABSCjddQd6q
+Li0xLjAubWNhUEsBAhQDFAAAAAgArQRHXatN3N/jAgAAAEAAACgAAAAAAAAAAAAAAIABD2EFAHNh
+dmVzL1RNTlQgU3RvcnkgTW9kZS9lbnRpdGllcy9yLjAuMC5tY2FQSwECFAMUAAAACACtBEddQd6q
 nkMDAAAAQAAAKgAAAAAAAAAAAAAAgAE4ZAUAc2F2ZXMvVE1OVCBTdG9yeSBNb2RlL2VudGl0aWVz
-L3IuLTEuLTEubWNhUEsBAhQDFAAAAAgAUgo3XZpsdzwYAwAA5QYAADQAAAAAAAAAAAAAAIABw2cF
+L3IuLTEuLTEubWNhUEsBAhQDFAAAAAgArQRHXZpsdzwYAwAA5QYAADQAAAAAAAAAAAAAAIABw2cF
 AHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9zZXJ2ZXJjb25maWcvZm9yZ2Utc2VydmVyLnRvbWxQSwEC
-FAMUAAAACABSCjddZQHC5WexAwAAwB8AJwAAAAAAAAAAAAAAgAEtawUAc2F2ZXMvVE1OVCBTdG9y
-eSBNb2RlL3JlZ2lvbi9yLjAuLTEubWNhUEsBAhQDFAAAAAgAUgo3XT9t1buZcAQAAPAmACcAAAAA
+FAMUAAAACACtBEddZQHC5WexAwAAwB8AJwAAAAAAAAAAAAAAgAEtawUAc2F2ZXMvVE1OVCBTdG9y
+eSBNb2RlL3JlZ2lvbi9yLjAuLTEubWNhUEsBAhQDFAAAAAgArQRHXT9t1buZcAQAAPAmACcAAAAA
 AAAAAAAAAIAB2RwJAHNhdmVzL1RNTlQgU3RvcnkgTW9kZS9yZWdpb24vci4tMS4wLm1jYVBLAQIU
-AxQAAAAIAFIKN10JF1xYwC4FAADQKAAmAAAAAAAAAAAAAACAAbeNDQBzYXZlcy9UTU5UIFN0b3J5
-IE1vZGUvcmVnaW9uL3IuMC4wLm1jYVBLAQIUAxQAAAAIAFIKN12ZR0hpC5UCAABgHgAoAAAAAAAA
+AxQAAAAIAK0ER10JF1xYwC4FAADQKAAmAAAAAAAAAAAAAACAAbeNDQBzYXZlcy9UTU5UIFN0b3J5
+IE1vZGUvcmVnaW9uL3IuMC4wLm1jYVBLAQIUAxQAAAAIAK0ER12ZR0hpC5UCAABgHgAoAAAAAAAA
 AAAAAACAAbu8EgBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvcmVnaW9uL3IuLTEuLTEubWNhUEsBAhQD
-FAAAAAgAUgo3Xc+W6f8vAAAAMAAAADAAAAAAAAAAAAAAAIABDFIVAHNhdmVzL1RNTlQgU3Rvcnkg
-TW9kZS9ESU0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAFIKN107nEghWgAAAFkA
+FAAAAAgArQRHXc+W6f8vAAAAMAAAADAAAAAAAAAAAAAAAIABDFIVAHNhdmVzL1RNTlQgU3Rvcnkg
+TW9kZS9ESU0xL2RhdGEvY2FwYWJpbGl0aWVzLmRhdFBLAQIUAxQAAAAIAK0ER107nEghWgAAAFkA
 AAAtAAAAAAAAAAAAAACAAYlSFQBzYXZlcy9UTU5UIFN0b3J5IE1vZGUvRElNMS9kYXRhL3JhaWRz
 X2VuZC5kYXRQSwUGAAAAABcAFwC7BwAALlMVAAAA
