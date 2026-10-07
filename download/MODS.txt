@@ -1,0 +1,147 @@
+TMNT STORY MODE 1.1.0 - MODS  (Minecraft 1.20.1, Forge 47.4.10)
+
+The TMNT mod (turtlepower-1.0.0.jar) is ours. Everything below is a free mod from modrinth.com.
+Play-TMNT-Story-Mode.bat downloads all of them for you. The .mrpack has them too.
+Total: 26 mods, 327 MB.
+
+Verity JE  v5.7.4
+    Verity - the AI helper friend that turns into a horror. Voice built in (talk with V).
+    file: verity-5.7.4.jar
+    page: https://modrinth.com/mod/verity-je-official/version/Tc8RyKmi
+
+YetAnotherConfigLib (YACL)  3.6.6+1.20.1-forge
+    Config library Verity needs (not listed on Modrinth, but required in its mods.toml).
+    file: yet_another_config_lib_v3-3.6.6+1.20.1-forge.jar
+    page: https://modrinth.com/mod/yacl/version/sCWgXDYQ
+
+Simple Voice Chat  forge-1.20.1-2.6.22
+    Proximity voice chat for playing with friends.
+    file: voicechat-forge-1.20.1-2.6.22.jar
+    page: https://modrinth.com/mod/simple-voice-chat/version/S11m0QIb
+
+Sound Physics Remastered  forge-1.20.1-1.4.10
+    Echoes in the sewers. Realistic sound + voice chat reverb.
+    file: sound-physics-remastered-forge-1.20.1-1.4.10.jar
+    page: https://modrinth.com/mod/sound-physics-remastered/version/qeWNOzYk
+
+Embeddium  0.3.31+mc1.20.1
+    Big FPS boost (Sodium for Forge).
+    file: embeddium-0.3.31+mc1.20.1.jar
+    page: https://modrinth.com/mod/embeddium/version/UTbfe5d1
+
+Oculus  1.20.1-1.8.0
+    Shaders support on top of Embeddium (optional, no shaderpack by default).
+    file: oculus-mc1.20.1-1.8.0.jar
+    page: https://modrinth.com/mod/oculus/version/iQ1SwGc3
+
+FerriteCore  6.0.1
+    Less RAM.
+    file: ferritecore-6.0.1-forge.jar
+    page: https://modrinth.com/mod/ferrite-core/version/DG5Fn9Sz
+
+ModernFix  5.27.85+mc1.20.1
+    Faster loading, fewer lag spikes.
+    file: modernfix-forge-5.27.85+mc1.20.1.jar
+    page: https://modrinth.com/mod/modernfix/version/hHwYTQwa
+
+Entity Culling  1.11.2
+    Don't render mobs you can't see.
+    file: entityculling-forge-1.11.2-mc1.20.1.jar
+    page: https://modrinth.com/mod/entityculling/version/HPDH6g5B
+
+ImmediatelyFast  1.5.5+1.20.4-forge
+    Faster HUD/text rendering.
+    file: ImmediatelyFast-Forge-1.5.5+1.20.4.jar
+    page: https://modrinth.com/mod/immediatelyfast/version/rvsLEEZU
+
+Dynamic FPS  3.11.4
+    Saves the GPU when the game is in the background.
+    file: dynamic-fps-3.11.4+minecraft-1.20.0-forge.jar
+    page: https://modrinth.com/mod/dynamic-fps/version/EjdIWWqG
+
+Just Enough Items (JEI)  15.56.0.205
+    Just Enough Items - recipes for everything, including TMNT items.
+    file: jei-1.20.1-forge-15.56.0.205.jar
+    page: https://modrinth.com/mod/jei/version/9jqubC9n
+
+Jade 🔍  11.13.3+forge
+    Shows what you're looking at.
+    file: Jade-1.20.1-Forge-11.13.3.jar
+    page: https://modrinth.com/mod/jade/version/xJQHCmWJ
+
+AppleSkin  2.5.1+mc1.20.1
+    Shows food/saturation (pizza stats!).
+    file: appleskin-forge-mc1.20.1-2.5.1.jar
+    page: https://modrinth.com/mod/appleskin/version/XdXDExVF
+
+Xaero's Minimap  forge-1.20.1-26.6.0
+    Minimap of New York.
+    file: xaerominimap-forge-1.20.1-26.6.0.jar
+    page: https://modrinth.com/mod/xaeros-minimap/version/dB6E0CY9
+
+Xaero's World Map  forge-1.20.1-1.47.0
+    Full map of New York.
+    file: xaeroworldmap-forge-1.20.1-1.47.0.jar
+    page: https://modrinth.com/mod/xaeros-world-map/version/KtEupJvB
+
+Mouse Tweaks  1.20.1-2.25.1-forge
+    Better inventory dragging.
+    file: MouseTweaks-forge-mc1.20.1-2.25.1.jar
+    page: https://modrinth.com/mod/mouse-tweaks/version/7JVXOe3K
+
+Controlling  12.0.2
+    Search key binds (lots of mods = lots of keys).
+    file: Controlling-forge-1.20.1-12.0.2.jar
+    page: https://modrinth.com/mod/controlling/version/LH6Bi6Am
+
+Clumps  12.0.0.4
+    XP orbs merge, less lag.
+    file: Clumps-forge-1.20.1-12.0.0.4.jar
+    page: https://modrinth.com/mod/clumps/version/nAHGB5ls
+
+Not Enough Animations  1.12.6
+    Better player animations.
+    file: notenoughanimations-forge-1.12.6-mc1.20.1.jar
+    page: https://modrinth.com/mod/not-enough-animations/version/kGjMleOz
+
+3D Skin Layers  1.11.3
+    3D skin layers.
+    file: skinlayers3d-forge-1.11.3-mc1.20.1.jar
+    page: https://modrinth.com/mod/3dskinlayers/version/WLmoJVE7
+
+AmbientSounds  6.3.9
+    Ambient sounds for the city and sewers.
+    file: AmbientSounds_FORGE_v6.3.9_mc1.20.1.jar
+    page: https://modrinth.com/mod/ambientsounds/version/EPxVyOnf
+
+Chat Heads  0.15.7
+    Player heads in chat.
+    file: chat_heads-0.15.7-forge-1.20.jar
+    page: https://modrinth.com/mod/chat-heads/version/UJALMfLK
+
+CreativeCore  2.12.40   (needed by another mod)
+    dependency
+    file: CreativeCore_FORGE_v2.12.40_mc1.20.1.jar
+    page: https://modrinth.com/mod/creativecore/version/ChKayKur
+
+Geckolib  4.8.4   (needed by another mod)
+    dependency
+    file: geckolib-forge-1.20.1-4.8.4.jar
+    page: https://modrinth.com/mod/geckolib/version/aC5KMoNg
+
+Searchables  1.0.3   (needed by another mod)
+    dependency
+    file: Searchables-forge-1.20.1-1.0.3.jar
+    page: https://modrinth.com/mod/searchables/version/PM9yAW1G
+
+VERITY - the AI friend (hold V to talk, he talks back)
+  Voice (speech-to-text + text-to-speech) runs offline inside the mod.
+  His brain needs a free Groq API key: https://console.groq.com -> API Keys -> Create.
+  Paste it in Mods > Verity > Config > AI Settings > API Key (or the installer asks for it).
+  Never paste the key into chat, screenshots or logs.
+
+KEYS: V = talk to Verity | B = voice chat menu (Simple Voice Chat) | . = mute mic | , = Verity cycle mic
+      M = world map (Xaero) | Options > Controls has a search box (Controlling) if anything clashes.
+
+Left out on purpose: Create, Cobblemon, Terralith, Biomes O' Plenty and other world-gen/content
+mods. They would change the New York world and the TMNT story.
