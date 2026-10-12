@@ -24,7 +24,7 @@ https://jackson106.gumroad.com/l/clean-ui-sound-kit
 
 #indiedev #uidesign
 ---
-# Post 0 — teaser (only if the product is not public yet)
+# Post 0 — teaser (posted 2026-10-12: https://x.com/jacksonf5l/status/2109633076179415329)
 Dropping today on Jacksons world: Clean UI Sound Kit 🔊
 
 113 soft, modern interface sounds for apps, web, games and video. Clicks, toggles, success, error, notifications, swipes, loops. WAV + OGG + MP3, royalty-free.

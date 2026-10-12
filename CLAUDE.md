@@ -24,7 +24,7 @@ This file is loaded automatically every session. It is the studio's persistent m
 | Product | Gumroad | Price | Public? | X |
 |---|---|---|---|---|
 | Echoes 8-Bit SFX Pack Vol. 1 (`products/echoes-8bit-sfx-pack/`) | https://jackson106.gumroad.com/l/echoes-8bit-sfx (id `ysyCqskRJ3SVYBuTKctZKg==`) | A$14, code LAUNCH30 | No: waiting on store email confirmation, then `PUT /enable`. Zip + cover still need attaching in the dashboard. | Teaser live: https://x.com/jacksonf5l/status/2109626804491129061. Launch post (Post 1 in captions.md) fires once public. |
-| Clean UI Sound Kit Vol. 1 (`products/clean-ui-sound-kit/`) | https://jackson106.gumroad.com/l/clean-ui-sound-kit (id `nEo6fTbIDGmnXQm4WMpzmQ==`) | A$12, code LAUNCH30 | No: same email confirmation block, then `PUT /enable`. Zip + cover need attaching in the dashboard. | Teaser: pending (see captions.md). Launch post fires once public. |
+| Clean UI Sound Kit Vol. 1 (`products/clean-ui-sound-kit/`) | https://jackson106.gumroad.com/l/clean-ui-sound-kit (id `nEo6fTbIDGmnXQm4WMpzmQ==`) | A$12, code LAUNCH30 | No: same email confirmation block, then `PUT /enable`. Zip + cover need attaching in the dashboard. | Teaser live: https://x.com/jacksonf5l/status/2109633076179415329. Launch post (Post 1) fires once public. |
 
 When Brandon says "confirmed": enable every unpublished product, verify `published: true`, post each one's Post 1 with the link, update this table.
 
