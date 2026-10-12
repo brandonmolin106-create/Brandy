@@ -7,7 +7,7 @@ move the findings to `docs/TRENDS.md`.
 |---|---|---|---|---|
 | Echoes 8-Bit SFX Pack Vol. 1 | indie devs, jam entrants | A$14 | built | On Gumroad, unpublished pending email confirm. |
 | 8-Bit SFX Vol. 2: weapons, magic, vehicles | same buyers | A$14 | next | Cheapest follow-up: new recipes in the existing engine. Do it if Vol. 1 gets 10 sales. |
-| UI Sound Kit (modern, not retro): clicks, toggles, notifications, errors | app devs, web devs, YouTubers | A$12 | next | Same engine, sine/triangle + soft envelopes. Huge audience outside games. |
+| Clean UI Sound Kit Vol. 1 (`products/clean-ui-sound-kit/`) | app devs, web devs, YouTubers | A$12 | built | 113 sounds, 26 categories, WAV+OGG+MP3. On Gumroad, unpublished pending email confirm. |
 | Seamless Ambient Loop Pack: rain, wind, cave, engine, space hum | game devs, streamers, focus-music editors | A$12 | next | Noise + filters + slow LFOs. Loops already proven in Vol. 1. |
 | Godot 4 SFX Manager addon: random variation, pitch jitter, pooling, one-call API | Godot devs | A$9 | next | Pairs with every sound pack. GDScript, small, testable. |
 | Game Design Doc + Devlog template kit (Markdown/Notion/Obsidian) | solo devs, students | A$9 | next | Templates sell steadily on Gumroad. Include a filled example. |
