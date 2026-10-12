@@ -15,3 +15,4 @@ move the findings to `docs/TRENDS.md`.
 | Minecraft datapack: original mini-game (no third-party IP) | Minecraft server owners, kids | A$7 | waiting | Needs a way to test in-game from the cloud; otherwise ship untested, which we don't do. |
 | TMNT Story Mode world | | | dropped | Licensed IP. Cannot be sold. Free release only, if ever. |
 | LoopDay Pro: routine & habit tracker, one HTML file (`products/loopday/`) | subscription-weary productivity/fitness people | A$9 | built | Free web version public via htmlpreview; Pro on Gumroad, unpublished pending email confirm. |
+| Beamline: laser & mirror puzzle game, 40 levels + Zen (`products/beamline/`) | casual puzzle players, browser-game fans | A$5 | built | Free 20 levels public via htmlpreview; full edition on Gumroad, unpublished pending email confirm. |

@@ -113,6 +113,17 @@ Commit everything (never `__pycache__`, never tokens), push, open or update the 
 product name and price, zip path, Gumroad link and whether it is public, what (if anything) Brandon must click, and the
 X post URL. If the X post did not go out, say exactly why. Never say "live" or "posted" without a URL from the API.
 
+## The ship spec (non-negotiable, applies to every run)
+Act as a senior product engineer + designer + monetization strategist. The only acceptable output is a COMPLETE,
+PUBLICLY RELEASED, MONEY-WORTH product: fully playable/usable/completable by a stranger with zero extra work, every
+asset included or generated, real progression and completion states, tested by script before it is called done.
+Monetization built in (free public edition + paid full edition on Gumroad with the buy button inside the product, or an
+equivalent that actually takes money). Public release path prepared: free edition pushed and live at the htmlpreview
+URL for this branch, itch.io-ready zip, Gumroad zip. Never "I can't run code": run it (Node, Python, Playwright are
+here). Final message follows the six-part order in CLAUDE.md ("The ship spec"). The Gumroad **Content** tab (the
+post-purchase area at gumroad.com/products/<id>/edit/content) cannot be written by the API: name the exact zip Brandon
+must drop in it, per product, in the quality-check section.
+
 ## Hard rules
 - **Original work only.** Nothing built on someone else's characters, brands or trademarks goes up for money
   (no TMNT, no Nintendo, no Marvel). One licensed listing can get the whole store removed. If the user asks for one,

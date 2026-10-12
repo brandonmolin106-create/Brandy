@@ -26,8 +26,28 @@ This file is loaded automatically every session. It is the studio's persistent m
 | Echoes 8-Bit SFX Pack Vol. 1 (`products/echoes-8bit-sfx-pack/`) | https://jackson106.gumroad.com/l/echoes-8bit-sfx (id `ysyCqskRJ3SVYBuTKctZKg==`) | A$14, code LAUNCH30 | No: waiting on store email confirmation, then `PUT /enable`. Zip + cover still need attaching in the dashboard. | Teaser live: https://x.com/jacksonf5l/status/2109626804491129061. Launch post (Post 1 in captions.md) fires once public. |
 | Clean UI Sound Kit Vol. 1 (`products/clean-ui-sound-kit/`) | https://jackson106.gumroad.com/l/clean-ui-sound-kit (id `nEo6fTbIDGmnXQm4WMpzmQ==`) | A$12, code LAUNCH30 | No: same email confirmation block, then `PUT /enable`. Zip + cover need attaching in the dashboard. | Teaser live: https://x.com/jacksonf5l/status/2109633076179415329. Launch post (Post 1) fires once public. |
 | LoopDay Pro, routine & habit tracker (`products/loopday/`) | https://jackson106.gumroad.com/l/loopday (id `z5CjTKpxPN_ss_qocVsGKg==`) | A$9, code LAUNCH30 | No: same email confirmation block. Zip `products/loopday/dist/loopday-pro-v1.0.0.zip` + square banner need attaching in the dashboard. Free version is public: https://htmlpreview.github.io/?https://raw.githubusercontent.com/brandonmolin106-create/Brandy/claude/gracious-archimedes-tk01xr/products/loopday/examples/LoopDay-free.html | Teaser pending; launch post fires once public. |
+| Beamline, laser puzzle game (`products/beamline/`) | https://jackson106.gumroad.com/l/beamline (id `7Jah-pyebFxd4Hop2C5ong==`) | A$5, code LAUNCH30 | No: same email confirmation block. Full edition `products/beamline/dist/beamline-full-v1.0.0.zip` + square banner need attaching in the dashboard Content tab. Free 20 levels public: https://htmlpreview.github.io/?https://raw.githubusercontent.com/brandonmolin106-create/Brandy/claude/gracious-archimedes-tk01xr/products/beamline/build/free/index.html | Teaser pending; launch post fires once public. |
 
 When Brandon says "confirmed": enable every unpublished product, verify `published: true`, post each one's Post 1 with the link, update this table.
+
+## The ship spec (every product task is held to this)
+Act as a senior product engineer + designer + monetization strategist whose only job is to ship a COMPLETE, PUBLICLY
+RELEASED, MONEY-WORTH product in the session. No ideas, outlines, partial code or "here's how you could."
+- One of: playable browser game / fitness tracker + routine system / health habit app / educational interactive
+  storybook / short course with quizzes / simple SaaS tool (or a sound/asset pack when the trend check says so).
+- Fully usable by a stranger with zero extra work: real logic, real progression, real win/lose or completion states,
+  every asset generated or synthesised, tested by script (Playwright) before it is called done.
+- Monetization built in: free edition public now + paid full edition on Gumroad (A$3–9) with the buy button inside
+  the product; same link doubles as a tip jar.
+- Public release path prepared: free edition pushed to the repo and served at the htmlpreview URL on this branch
+  (works today, no clicks), plus an itch.io-ready zip of the free edition and the Gumroad zip of the full edition.
+- Final message, always in this order: 1) name + one-line pitch, 2) where the complete files are (paths + public
+  URL), 3) exact setup & publish steps, 4) monetization setup + realistic revenue estimate, 5) user-facing materials
+  (under-150-word description, thumbnail description, 3-bullet what-you-get), 6) quality check: what was verified and
+  the remaining one-time steps for Brandon (max 3, each under 5 minutes).
+- Gumroad: the API cannot write the product's **Content** tab (gumroad.com/products/<id>/edit/content) or upload
+  files. The deliverable zip must be added there by Brandon; the API only sets name, price, description, offer codes
+  and publish. Say exactly which zip goes in which product's Content tab, every time.
 
 ## Gumroad product builder (always-on behaviour)
 When asked for a product, something to sell, a listing, a template pack, or "/gumroad": use the
