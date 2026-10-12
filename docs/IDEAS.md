@@ -14,3 +14,4 @@ move the findings to `docs/TRENDS.md`.
 | Procedural pixel tileset generator + 3 sample tilesets (grass, cave, dungeon) | 2D game devs | A$19 | waiting | Needs a quality bar check: generated tiles must look good, not just exist. |
 | Minecraft datapack: original mini-game (no third-party IP) | Minecraft server owners, kids | A$7 | waiting | Needs a way to test in-game from the cloud; otherwise ship untested, which we don't do. |
 | TMNT Story Mode world | | | dropped | Licensed IP. Cannot be sold. Free release only, if ever. |
+| LoopDay Pro: routine & habit tracker, one HTML file (`products/loopday/`) | subscription-weary productivity/fitness people | A$9 | built | Free web version public via githack; Pro on Gumroad, unpublished pending email confirm. |

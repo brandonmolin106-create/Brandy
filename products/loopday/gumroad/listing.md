@@ -2,7 +2,8 @@
 
 **Store:** Jacksons world, https://jackson106.gumroad.com (AUD)
 **Permalink:** `loopday` → https://jackson106.gumroad.com/l/loopday
-**Free version (try before you buy):** public web app, link in the description.
+**Free version (try before you buy):** https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html
+**Also as a claude.ai artifact (private until shared):** https://claude.ai/artifact/PHd7LeUvGnPQQwuHrjKDdA
 
 ## Title
 LoopDay Pro — Routine & Habit Tracker (one file, works offline, no subscription)

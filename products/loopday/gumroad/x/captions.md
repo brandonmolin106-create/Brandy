@@ -3,7 +3,7 @@ New on Jacksons world: LoopDay 🔁
 
 A habit + routine tracker that's ONE file. Streaks, 12-week heat maps, routines with a step timer and chimes. No account, no subscription, data stays on your phone.
 
-Free version: __FREE_URL__
+Free version: https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html
 Pro A$9 (code LAUNCH30): https://jackson106.gumroad.com/l/loopday
 
 #habits #productivity
@@ -13,7 +13,7 @@ The part people like: routines.
 
 Build a list of timed steps (morning reset, workout circuit), hit Start, and LoopDay counts each one down with a chime, keeps the screen on, and logs it.
 
-Try it free: __FREE_URL__
+Try it free: https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html
 
 #productivity #morningroutine #indiedev
 ---
@@ -22,7 +22,7 @@ Why I made it: every habit app wants A$80 a year and your data on their server.
 
 LoopDay is one HTML file. Open it, add to home screen, done. Free with 3 habits, A$9 once for unlimited.
 
-__FREE_URL__
+https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html
 
 #buildinpublic #privacy #habits
 ---
@@ -31,6 +31,6 @@ Dropping today on Jacksons world: LoopDay 🔁
 
 A habit + routine tracker that's one file. Streaks, heat maps, routines with a step timer and chimes. No account, no subscription, your data stays on your phone.
 
-Play with the free version now: __FREE_URL__
+Play with the free version now: https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html
 
 #habits #productivity #indiedev

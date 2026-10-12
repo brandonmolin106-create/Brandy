@@ -9,7 +9,7 @@ New on Jacksons world: LoopDay Pro.
 
 Habits with streaks and 12-week heat maps. Routines with a step-by-step timer and chimes. Today view, stats, dark mode. One HTML file you open on your phone or computer, no account, no subscription, your data stays with you.
 
-Try the free version first (same app, capped at 3 habits): [free link]
+Try the free version first (same app, capped at 3 habits): https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html
 Pro is A$9 one-time. First 50 buyers get 30% off with LAUNCH30.
 
 https://jackson106.gumroad.com/l/loopday
@@ -24,7 +24,7 @@ Hey,
 
 Most habit apps stop at check boxes. LoopDay also runs your routines: build a list of timed steps, hit Start, and it counts each one down with a chime, keeps the screen on, and logs it when you finish. Morning reset, workout circuit, wind-down.
 
-Free version: [free link]. Pro removes the caps and adds backup export.
+Free version: https://rawcdn.githack.com/brandonmolin106-create/Brandy/5f4cf589c04963144d421831fb23c3bee027639e/products/loopday/examples/LoopDay-free.html. Pro removes the caps and adds backup export.
 
 https://jackson106.gumroad.com/l/loopday
 
