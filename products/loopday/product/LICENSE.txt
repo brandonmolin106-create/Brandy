@@ -1,0 +1,12 @@
+LoopDay Pro
+Copyright (c) 2026 Jacksons world (jackson106.gumroad.com)
+
+PERSONAL LICENCE
+
+1. You may use LoopDay Pro on any number of devices you personally own, for as long as you like.
+2. You may make backup copies for your own use.
+3. You may not sell, share, publish, host or otherwise redistribute the file, modified or not.
+4. Updates to version 1.x are free to buyers.
+5. The software is provided as-is. Jacksons world is not liable for any loss of data or other damages.
+   Export a backup regularly (Settings -> Export JSON).
+6. 30-day money-back guarantee, no questions asked. Reply to your Gumroad receipt.

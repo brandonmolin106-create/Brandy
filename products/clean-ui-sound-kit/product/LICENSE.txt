@@ -1,0 +1,28 @@
+Clean UI Sound Kit - Vol. 1
+Copyright (c) 2026 Jacksons world (jackson106.gumroad.com)
+
+ROYALTY-FREE LICENCE
+
+1. What you may do
+   Use, edit, mix, pitch-shift and otherwise modify the sounds in this kit in any number
+   of your own projects: apps, websites, games, videos, streams, animations, podcasts and
+   similar works, free or commercial, with no further payment and no attribution required.
+
+2. What you may not do
+   Sell, give away, upload or otherwise redistribute the sounds (or trivially modified
+   versions of them) on their own or as part of another sound library, asset pack, sample
+   pack, UI kit or template. Do not claim authorship of the kit.
+
+3. Generated sounds
+   Sounds you create with the bundled generator (bonus/generate_ui_sfx.py) are covered by
+   sections 1 and 2 exactly as if they were part of the kit.
+
+4. Team use
+   One purchase covers one person or one team of up to 5 people on the same projects.
+   Larger teams, please buy additional copies.
+
+5. No warranty
+   Provided as-is. Jacksons world is not liable for any damages arising from its use.
+
+6. Refunds
+   30-day money-back guarantee, no questions asked. Reply to your Gumroad receipt.

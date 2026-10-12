@@ -1,0 +1,114 @@
+file,category,description,seconds
+click_01.wav,click,"Button click, crisp",0.040
+click_02.wav,click,"Button click, crisp",0.040
+click_03.wav,click,"Button click, crisp",0.040
+click_04.wav,click,"Button click, crisp",0.040
+click_05.wav,click,"Button click, crisp",0.040
+click_06.wav,click,"Button click, crisp",0.040
+click_07.wav,click,"Button click, crisp",0.040
+click_08.wav,click,"Button click, crisp",0.040
+tap_01.wav,tap,Soft tap,0.055
+tap_02.wav,tap,Soft tap,0.055
+tap_03.wav,tap,Soft tap,0.055
+tap_04.wav,tap,Soft tap,0.055
+tap_05.wav,tap,Soft tap,0.055
+tap_06.wav,tap,Soft tap,0.055
+hover_01.wav,hover,"Hover / focus, quiet",0.060
+hover_02.wav,hover,"Hover / focus, quiet",0.060
+hover_03.wav,hover,"Hover / focus, quiet",0.060
+hover_04.wav,hover,"Hover / focus, quiet",0.060
+toggle_on_01.wav,toggle_on,Toggle on (rising),0.140
+toggle_on_02.wav,toggle_on,Toggle on (rising),0.140
+toggle_on_03.wav,toggle_on,Toggle on (rising),0.140
+toggle_on_04.wav,toggle_on,Toggle on (rising),0.140
+toggle_off_01.wav,toggle_off,Toggle off (falling),0.140
+toggle_off_02.wav,toggle_off,Toggle off (falling),0.140
+toggle_off_03.wav,toggle_off,Toggle off (falling),0.140
+toggle_off_04.wav,toggle_off,Toggle off (falling),0.140
+switch_01.wav,switch,Physical-feel switch,0.110
+switch_02.wav,switch,Physical-feel switch,0.110
+switch_03.wav,switch,Physical-feel switch,0.110
+switch_04.wav,switch,Physical-feel switch,0.110
+success_01.wav,success,Success / confirm chime,0.870
+success_02.wav,success,Success / confirm chime,0.870
+success_03.wav,success,Success / confirm chime,0.870
+success_04.wav,success,Success / confirm chime,0.870
+success_05.wav,success,Success / confirm chime,0.870
+success_06.wav,success,Success / confirm chime,0.870
+error_01.wav,error,"Error, soft two-note",0.330
+error_02.wav,error,"Error, soft two-note",0.330
+error_03.wav,error,"Error, soft two-note",0.330
+error_04.wav,error,"Error, soft two-note",0.330
+error_05.wav,error,"Error, soft two-note",0.330
+error_06.wav,error,"Error, soft two-note",0.330
+warning_01.wav,warning,Warning double-beep,0.360
+warning_02.wav,warning,Warning double-beep,0.360
+warning_03.wav,warning,Warning double-beep,0.360
+warning_04.wav,warning,Warning double-beep,0.360
+notification_01.wav,notification,Notification two-note,0.820
+notification_02.wav,notification,Notification two-note,0.820
+notification_03.wav,notification,Notification two-note,0.820
+notification_04.wav,notification,Notification two-note,0.820
+notification_05.wav,notification,Notification two-note,0.820
+notification_06.wav,notification,Notification two-note,0.820
+notification_07.wav,notification,Notification two-note,0.820
+notification_08.wav,notification,Notification two-note,0.820
+message_sent_01.wav,message_sent,Message sent swoosh-pop,0.230
+message_sent_02.wav,message_sent,Message sent swoosh-pop,0.230
+message_sent_03.wav,message_sent,Message sent swoosh-pop,0.230
+message_sent_04.wav,message_sent,Message sent swoosh-pop,0.230
+message_received_01.wav,message_received,Message received,0.570
+message_received_02.wav,message_received,Message received,0.570
+message_received_03.wav,message_received,Message received,0.570
+message_received_04.wav,message_received,Message received,0.570
+pop_01.wav,pop,Bubble pop,0.070
+pop_02.wav,pop,Bubble pop,0.070
+pop_03.wav,pop,Bubble pop,0.070
+pop_04.wav,pop,Bubble pop,0.070
+pop_05.wav,pop,Bubble pop,0.070
+pop_06.wav,pop,Bubble pop,0.070
+swipe_01.wav,swipe,Swipe / page transition,0.180
+swipe_02.wav,swipe,Swipe / page transition,0.200
+swipe_03.wav,swipe,Swipe / page transition,0.220
+swipe_04.wav,swipe,Swipe / page transition,0.240
+whoosh_01.wav,whoosh,Whoosh / modal open,0.350
+whoosh_02.wav,whoosh,Whoosh / modal open,0.350
+whoosh_03.wav,whoosh,Whoosh / modal open,0.350
+whoosh_04.wav,whoosh,Whoosh / modal open,0.350
+lock_01.wav,lock,Lock,0.145
+lock_02.wav,lock,Lock,0.145
+lock_03.wav,lock,Lock,0.145
+unlock_01.wav,unlock,Unlock,0.205
+unlock_02.wav,unlock,Unlock,0.205
+unlock_03.wav,unlock,Unlock,0.205
+typing_tick_01.wav,typing_tick,Keyboard / typing tick,0.018
+typing_tick_02.wav,typing_tick,Keyboard / typing tick,0.018
+typing_tick_03.wav,typing_tick,Keyboard / typing tick,0.018
+typing_tick_04.wav,typing_tick,Keyboard / typing tick,0.018
+scroll_tick_01.wav,scroll_tick,Scroll / picker tick,0.014
+scroll_tick_02.wav,scroll_tick,Scroll / picker tick,0.014
+scroll_tick_03.wav,scroll_tick,Scroll / picker tick,0.014
+scroll_tick_04.wav,scroll_tick,Scroll / picker tick,0.014
+delete_01.wav,delete,Delete / trash,0.220
+delete_02.wav,delete,Delete / trash,0.220
+delete_03.wav,delete,Delete / trash,0.220
+delete_04.wav,delete,Delete / trash,0.220
+undo_01.wav,undo,Undo / restore,0.160
+undo_02.wav,undo,Undo / restore,0.160
+undo_03.wav,undo,Undo / restore,0.160
+achievement_01.wav,achievement,Achievement / reward,1.150
+achievement_02.wav,achievement,Achievement / reward,1.150
+achievement_03.wav,achievement,Achievement / reward,1.150
+achievement_04.wav,achievement,Achievement / reward,1.150
+level_complete_01.wav,level_complete,Level complete / task done,1.410
+level_complete_02.wav,level_complete,Level complete / task done,1.410
+level_complete_03.wav,level_complete,Level complete / task done,1.410
+countdown_tick_01.wav,countdown_tick,Countdown / timer tick,0.050
+countdown_tick_02.wav,countdown_tick,Countdown / timer tick,0.050
+countdown_tick_03.wav,countdown_tick,Countdown / timer tick,0.050
+loading_loop_01.wav,loading_loop,Loading pulse (1 s seamless loop),1.000
+loading_loop_02.wav,loading_loop,Loading pulse (1 s seamless loop),1.000
+loading_loop_03.wav,loading_loop,Loading pulse (1 s seamless loop),1.000
+ambient_pad_loop_01.wav,ambient_pad_loop,Ambient pad (2 s seamless loop),2.000
+ambient_pad_loop_02.wav,ambient_pad_loop,Ambient pad (2 s seamless loop),2.000
+ambient_pad_loop_03.wav,ambient_pad_loop,Ambient pad (2 s seamless loop),2.000

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beamline</title>
+<meta name="description" content="Beamline: bend a laser through mirrors, light every crystal, hit the target. 40 levels. Free to play in the browser.">
+<meta name="theme-color" content="#0b0f1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0f1a'/%3E%3Cpath d='M4 16h12l6-6' stroke='%2353f1d6' stroke-width='3' fill='none'/%3E%3Ccircle cx='24' cy='8' r='3' fill='%23ffd166'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Single dark look by design: a lit beam on a dark board. */
+:root{--bg:#0b0f1a;--panel:#121a2b;--line:#1f2b45;--fg:#e9f0ff;--muted:#8a98b8;--beam:#53f1d6;--gold:#ffd166;--hot:#ff5d8f;--mirror:#9fb3ff;
+  --display:"Chakra Petch","Segoe UI",system-ui,sans-serif;--mono:"Space Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);-webkit-font-smoothing:antialiased;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.logo{font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+.logo i{display:inline-block;width:22px;height:3px;background:var(--beam);box-shadow:0 0 10px var(--beam);vertical-align:middle;margin-right:8px;border-radius:2px}
+.hud{margin-left:auto;display:flex;gap:14px;font:14px var(--mono);color:var(--muted)}
+.hud b{color:var(--fg)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 16px;min-height:0}
+canvas{max-width:100%;max-height:100%;touch-action:manipulation;border-radius:12px;background:var(--panel);box-shadow:0 0 0 1px var(--line),0 30px 60px -30px #000}
+.bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+button{font:700 14px var(--display);letter-spacing:.04em;text-transform:uppercase;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer}
+button.primary{background:var(--beam);color:#06231f;border-color:transparent;box-shadow:0 0 18px -4px var(--beam)}
+button.gold{background:var(--gold);color:#2b1d00;border-color:transparent}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.hint{font:13px var(--mono);color:var(--muted);text-align:center;max-width:46ch}
+.overlay{position:fixed;inset:0;background:rgba(5,8,16,.86);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay[hidden]{display:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:420px;width:100%;text-align:center;display:grid;gap:12px}
+.card h2{margin:0;font-size:26px;letter-spacing:.04em;text-transform:uppercase}
+.card p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
+.stars{font-size:30px;letter-spacing:4px;color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-height:52vh;overflow:auto;padding:2px}
+.grid button{padding:10px 0;font:700 15px var(--mono);display:grid;gap:2px}
+.grid button small{font-size:10px;color:var(--gold);letter-spacing:1px}
+.grid button.locked{opacity:.35}
+.grid button.cur{border-color:var(--beam)}
+.price{font:700 22px var(--mono);color:var(--gold)}
+a.buy{display:inline-block;text-decoration:none;font:700 14px var(--display);letter-spacing:.04em;text-transform:uppercase;background:var(--gold);color:#2b1d00;border-radius:10px;padding:12px 16px}
+.tip{font:12px var(--mono);color:var(--muted)}
+.tip a{color:var(--beam)}
+@media (max-width:480px){header{padding:8px 12px}.logo{font-size:17px}.hud{gap:10px;font-size:12px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo"><i></i>Beamline</div>
+    <div class="hud"><span>LVL <b id="h-level">1</b></span><span>MIRRORS <b id="h-mirrors">0/0</b></span><span>★ <b id="h-stars">0</b></span></div>
+  </header>
+  <main>
+    <canvas id="c" width="540" height="540" aria-label="Puzzle board"></canvas>
+    <div class="hint" id="hint">Tap a cell to place a mirror. Tap again to flip it, again to remove it. Light every crystal and hit the target.</div>
+    <div class="bar">
+      <button id="b-levels">Levels</button>
+      <button id="b-reset">Reset</button>
+      <button id="b-undo">Undo</button>
+      <button id="b-sound">Sound: on</button>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="ov-win" hidden><div class="card">
+  <h2>Beam complete</h2>
+  <div class="stars" id="win-stars">★★★</div>
+  <p id="win-text"></p>
+  <div class="bar"><button id="win-replay">Replay</button><button class="primary" id="win-next">Next level</button></div>
+</div></div>
+
+<div class="overlay" id="ov-levels" hidden><div class="card">
+  <h2>Levels</h2>
+  <p id="lv-summary"></p>
+  <div class="grid" id="lv-grid"></div>
+  <div class="bar"><button id="lv-zen">Zen mode</button><button class="primary" id="lv-close">Close</button></div>
+</div></div>
+
+<div class="overlay" id="ov-wall" hidden><div class="card">
+  <h2>Level 21 is in the full game</h2>
+  <p>You cleared the free 20. The full edition has all 40 levels, Zen mode (endless generated puzzles), and runs offline from one file.</p>
+  <div class="price">A$5 · one-time</div>
+  <a class="buy" id="buy" href="https://jackson106.gumroad.com/l/beamline" target="_blank" rel="noopener">Get the full game</a>
+  <p class="tip">Already own it? Open the file you downloaded. · Just want to say thanks? The same link takes tips.</p>
+  <div class="bar"><button id="wall-close">Back to levels</button></div>
+</div></div>
+
+<div class="overlay" id="ov-done" hidden><div class="card">
+  <h2>All 40 cleared</h2>
+  <p id="done-text"></p>
+  <div class="bar"><button class="primary" id="done-zen">Play Zen mode</button><button id="done-close">Close</button></div>
+</div></div>
+
+<script>
+(function(){
+'use strict';
+const FULL = false;
+const FREE_LEVELS = 20, TOTAL = 40;
+const KEY = 'beamline.v1';
+
+// ---------- seeded RNG ----------
+function rng(seed){ let a = seed >>> 0; return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ---------- level generation (built from a known solution, so every level is solvable) ----------
+// Cell types: 0 empty, 1 block, 2 crystal, 3 target. Mirrors live in a separate map: 1 = '/', 2 = '\'.
+// Emitter sits outside the grid on an edge, firing inward. Directions: 0 right, 1 down, 2 left, 3 up.
+const DX=[1,0,-1,0], DY=[0,1,0,-1];
+function reflect(dir, m){ // '/' : right->up, up->right, left->down, down->left ; '\' : right->down, down->right, left->up, up->left
+  if(m===1) return [3,2,1,0][dir];
+  return [1,0,3,2][dir];
+}
+function spec(n){ // difficulty curve
+  const size = n<=5?5 : n<=12?6 : n<=20?7 : n<=30?8 : 9;
+  const mirrors = Math.min(2 + Math.floor((n-1)/4), 8);
+  const crystals = n<=3?0 : n<=10?1 : n<=22?2 : 3;
+  const blocks = n<=6?0 : n<=15?2 : n<=28?4 : 6;
+  return {size, mirrors, crystals, blocks};
+}
+function trace(level, mirrors){
+  // returns {path:[[x,y]...], lit:Set(crystals idx), hitTarget:bool}
+  const {size, cells, emitter} = level;
+  let x=emitter.x, y=emitter.y, dir=emitter.dir; const path=[]; const lit=new Set(); let hit=false; let guard=0;
+  while(guard++<400){
+    x+=DX[dir]; y+=DY[dir];
+    if(x<0||y<0||x>=size||y>=size) break;
+    const t=cells[y][x];
+    path.push([x,y,dir]);
+    if(t===1) break;
+    if(t===3){ hit=true; break; }
+    if(t===2) lit.add(y*size+x);
+    const m=mirrors[y*size+x]; if(m) dir=reflect(dir,m);
+  }
+  return {path, lit, hitTarget:hit};
+}
+function makeLevel(n, seedOverride){
+  for(let s=0;s<12;s++){ const L=genLevel(n, (seedOverride!==undefined? seedOverride : 1000+n*7919)+s*101); if(L) return L; }
+  return null;
+}
+function genLevel(n, seed){
+  const sp=spec(n); const r=rng(seed);
+  for(let attempt=0; attempt<600; attempt++){
+    const size=sp.size; const cells=Array.from({length:size},()=>Array(size).fill(0)); const sol={};
+    // emitter on a random edge
+    const side=Math.floor(r()*4); let ex,ey,dir;
+    const k=Math.floor(r()*size);
+    if(side===0){ex=-1;ey=k;dir=0;} else if(side===1){ex=k;ey=-1;dir=1;} else if(side===2){ex=size;ey=k;dir=2;} else {ex=k;ey=size;dir=3;}
+    // walk the beam, dropping mirrors at random distances; collect the visited path
+    let x=ex,y=ey,d=dir; const visited=new Set(); const pathCells=[]; let placed=0; let ok=true;
+    let steps=0;
+    while(placed<sp.mirrors && steps<200){
+      steps++;
+      // how far to travel before the next mirror
+      // longest run available before a wall or an already-used cell
+      let avail=0; { let ax=x, ay=y; while(true){ ax+=DX[d]; ay+=DY[d]; if(ax<0||ay<0||ax>=size||ay>=size||visited.has(ay*size+ax)) break; avail++; } }
+      if(avail<1){ ok=false; break; }
+      const run=1+Math.floor(r()*Math.min(avail, Math.max(1,size-2)));
+      let moved=0;
+      while(moved<run){ x+=DX[d]; y+=DY[d]; visited.add(y*size+x); pathCells.push([x,y]); moved++; }
+      // place a mirror here, choosing the type that keeps the beam inside the grid if possible
+      const m = r()<0.5?1:2; const nd=reflect(d,m); const nx=x+DX[nd], ny=y+DY[nd];
+      const m2 = m===1?2:1; const nd2=reflect(d,m2);
+      let use=m, useD=nd;
+      if(nx<0||ny<0||nx>=size||ny>=size){ use=m2; useD=nd2; }
+      sol[y*size+x]=use; d=useD; placed++;
+    }
+    if(!ok) continue;
+    // continue to the edge; target goes on the last cell before leaving
+    let tx=x,ty=y; let last=null; let tail=0;
+    while(true){ const nx=tx+DX[d], ny=ty+DY[d]; if(nx<0||ny<0||nx>=size||ny>=size) break; if(visited.has(ny*size+nx)) { last=null; break; } tx=nx; ty=ny; visited.add(ty*size+tx); pathCells.push([tx,ty]); last=[tx,ty]; tail++; }
+    if(!last || tail<1) continue;
+    if(sol[ty*size+tx]) continue;
+    cells[ty][tx]=3;
+    // crystals on the path (not on mirrors, not the target)
+    const free=pathCells.filter(([px,py])=>!sol[py*size+px] && cells[py][px]===0);
+    if(free.length<sp.crystals) continue;
+    for(let i=0;i<sp.crystals;i++){ const idx=Math.floor(r()*free.length); const [cx,cy]=free.splice(idx,1)[0]; cells[cy][cx]=2; }
+    // blocks off the path
+    let placedBlocks=0, tries=0;
+    while(placedBlocks<sp.blocks && tries<200){ tries++; const bx=Math.floor(r()*size), by=Math.floor(r()*size); if(visited.has(by*size+bx)||cells[by][bx]!==0) continue; cells[by][bx]=1; placedBlocks++; }
+    const level={n, size, cells, emitter:{x:ex,y:ey,dir}, par:sp.mirrors, solution:sol};
+    // must not be solvable with zero mirrors, and the solution must work
+    const z=trace(level,{}); if(z.hitTarget && z.lit.size===sp.crystals) continue;
+    const s=trace(level,sol); if(!(s.hitTarget && s.lit.size===sp.crystals)) continue;
+    return level;
+  }
+  return null;
+}
+
+// ---------- state ----------
+function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&s.stars) return s; }catch(e){} return {stars:{}, sound:true, level:1}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+let S=load();
+let L=null, M={}, history=[], zen=null, won=false;
+
+// ---------- audio ----------
+let AC=null;
+function audio(){ try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); }catch(e){} }
+function tone(freqs, dur, type, gain){ if(!S.sound||!AC) return; const t0=AC.currentTime; freqs.forEach((f,i)=>{ const o=AC.createOscillator(), g=AC.createGain(); o.type=type||'sine'; o.frequency.value=f; const a=t0+i*0.07; g.gain.setValueAtTime(0,a); g.gain.linearRampToValueAtTime(gain||0.18,a+0.01); g.gain.exponentialRampToValueAtTime(0.001,a+dur); o.connect(g).connect(AC.destination); o.start(a); o.stop(a+dur+0.05); }); }
+const sfx={ place:()=>tone([880],0.09,'triangle',0.12), flip:()=>tone([660],0.08,'triangle',0.12), remove:()=>tone([330],0.1,'triangle',0.1), win:()=>tone([523,659,784,1047],0.5,'sine',0.2), crystal:()=>tone([1318],0.15,'sine',0.1) };
+
+// ---------- rendering ----------
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+function fit(){ const main=document.querySelector('main'); const w=Math.min(main.clientWidth-8, main.clientHeight-130, 640); const px=Math.max(260, Math.floor(w)); cv.style.width=px+'px'; cv.style.height=px+'px'; const dpr=Math.min(window.devicePixelRatio||1,2); cv.width=px*dpr; cv.height=px*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); cv._px=px; draw(); }
+window.addEventListener('resize',fit);
+function draw(){
+  if(!L) return; const px=cv._px||540, size=L.size, pad=18, cs=(px-pad*2)/size;
+  ctx.clearRect(0,0,px,px);
+  // grid
+  ctx.strokeStyle='#1c2742'; ctx.lineWidth=1;
+  for(let i=0;i<=size;i++){ ctx.beginPath(); ctx.moveTo(pad+i*cs,pad); ctx.lineTo(pad+i*cs,pad+size*cs); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pad,pad+i*cs); ctx.lineTo(pad+size*cs,pad+i*cs); ctx.stroke(); }
+  const res=trace(L,M);
+  // beam
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  const pts=[]; const ex=pad+(L.emitter.x+0.5)*cs, ey=pad+(L.emitter.y+0.5)*cs; pts.push([ex,ey]);
+  res.path.forEach(([x,y])=>pts.push([pad+(x+0.5)*cs, pad+(y+0.5)*cs]));
+  if(res.path.length){ const [lx,ly,ld]=res.path[res.path.length-1]; const t=L.cells[ly][lx]; if(t!==1&&t!==3){ pts.push([pad+(lx+0.5+DX[ld]*0.5)*cs, pad+(ly+0.5+DY[ld]*0.5)*cs]); } }
+  for(const [w,a] of [[cs*0.32,0.10],[cs*0.14,0.35],[cs*0.05,1]]){ ctx.strokeStyle=`rgba(83,241,214,${a})`; ctx.lineWidth=w; ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.stroke(); }
+  // cells
+  for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+    const t=L.cells[y][x], cx=pad+(x+0.5)*cs, cy=pad+(y+0.5)*cs;
+    if(t===1){ ctx.fillStyle='#2a3553'; roundRect(cx-cs*0.42,cy-cs*0.42,cs*0.84,cs*0.84,6); ctx.fill(); ctx.strokeStyle='#3b4a70'; ctx.lineWidth=2; ctx.stroke(); }
+    if(t===2){ const lit=res.lit.has(y*size+x); ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.PI/4); ctx.fillStyle=lit?'#ffd166':'#4a4330'; if(lit){ ctx.shadowColor='#ffd166'; ctx.shadowBlur=18; } roundRect(-cs*0.22,-cs*0.22,cs*0.44,cs*0.44,4); ctx.fill(); ctx.restore(); }
+    if(t===3){ ctx.beginPath(); ctx.arc(cx,cy,cs*0.3,0,Math.PI*2); ctx.strokeStyle=res.hitTarget?'#53f1d6':'#ff5d8f'; ctx.lineWidth=3; if(res.hitTarget){ ctx.shadowColor='#53f1d6'; ctx.shadowBlur=16; } ctx.stroke(); ctx.shadowBlur=0; ctx.beginPath(); ctx.arc(cx,cy,cs*0.12,0,Math.PI*2); ctx.fillStyle=res.hitTarget?'#53f1d6':'#ff5d8f'; ctx.fill(); }
+    const m=M[y*size+x]; if(m){ ctx.strokeStyle='#9fb3ff'; ctx.lineWidth=4; ctx.shadowColor='#9fb3ff'; ctx.shadowBlur=8; ctx.beginPath(); if(m===1){ ctx.moveTo(cx-cs*0.3,cy+cs*0.3); ctx.lineTo(cx+cs*0.3,cy-cs*0.3); } else { ctx.moveTo(cx-cs*0.3,cy-cs*0.3); ctx.lineTo(cx+cs*0.3,cy+cs*0.3); } ctx.stroke(); ctx.shadowBlur=0; }
+  }
+  // emitter
+  ctx.save(); ctx.translate(ex,ey); ctx.rotate(L.emitter.dir*Math.PI/2); ctx.fillStyle='#53f1d6'; ctx.shadowColor='#53f1d6'; ctx.shadowBlur=14; ctx.beginPath(); ctx.moveTo(-cs*0.22,-cs*0.2); ctx.lineTo(cs*0.22,0); ctx.lineTo(-cs*0.22,cs*0.2); ctx.closePath(); ctx.fill(); ctx.restore();
+  // HUD
+  const used=Object.keys(M).length;
+  document.getElementById('h-level').textContent = zen? 'ZEN' : L.n;
+  document.getElementById('h-mirrors').textContent = used+'/'+L.par;
+  document.getElementById('h-stars').textContent = totalStars();
+  return res;
+}
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function totalStars(){ return Object.values(S.stars).reduce((a,b)=>a+b,0); }
+
+// ---------- interaction ----------
+function cellAt(ev){ const r=cv.getBoundingClientRect(); const px=cv._px||540, pad=18, cs=(px-pad*2)/L.size; const x=Math.floor((ev.clientX-r.left-pad)/cs), y=Math.floor((ev.clientY-r.top-pad)/cs); if(x<0||y<0||x>=L.size||y>=L.size) return null; return [x,y]; }
+cv.addEventListener('click',ev=>{ if(!L||won) return; audio(); const c=cellAt(ev); if(!c) return; const [x,y]=c; if(L.cells[y][x]!==0) return; const k=y*L.size+x; const before={...M};
+  if(!M[k]){ if(Object.keys(M).length>=L.par){ hint('Out of mirrors. Flip or remove one.'); return; } M[k]=1; sfx.place(); }
+  else if(M[k]===1){ M[k]=2; sfx.flip(); } else { delete M[k]; sfx.remove(); }
+  history.push(before); if(history.length>50) history.shift();
+  const res=draw(); check(res); });
+function hint(t){ document.getElementById('hint').textContent=t; }
+function check(res){
+  const crystals=L.cells.flat().filter(v=>v===2).length;
+  if(res.hitTarget && res.lit.size===crystals){ won=true; sfx.win(); const used=Object.keys(M).length; const stars= used<=L.par?3 : used<=L.par+1?2 : 1;
+    if(!zen){ S.stars[L.n]=Math.max(S.stars[L.n]||0,stars); save(); }
+    document.getElementById('win-stars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars);
+    document.getElementById('win-text').textContent = (zen?'Zen puzzle':'Level '+L.n)+' cleared with '+used+' mirror'+(used===1?'':'s')+' (par '+L.par+').';
+    document.getElementById('win-next').textContent = zen? 'Next puzzle' : (L.n>=TOTAL? 'Finish' : 'Next level');
+    setTimeout(()=>{ document.getElementById('ov-win').hidden=false; },350);
+  } else if(res.lit.size && res.lit.size===crystals && !res.hitTarget){ hint('Every crystal is lit. Now reach the target.'); }
+}
+function startLevel(n){
+  zen=null; document.getElementById('ov-win').hidden=true; document.getElementById('ov-done').hidden=true;
+  if(!FULL && n>FREE_LEVELS){ document.getElementById('ov-wall').hidden=false; return; }
+  if(n>TOTAL) n=TOTAL; L=makeLevel(n); M={}; history=[]; won=false; S.level=n; save();
+  hint(n===1?'Tap a cell to place a mirror. Tap again to flip it, again to remove it. Light every crystal and hit the target.':'Level '+n+' · '+L.par+' mirrors · '+L.cells.flat().filter(v=>v===2).length+' crystals');
+  document.getElementById('ov-win').hidden=true; fit();
+}
+function startZen(){ if(!FULL){ document.getElementById('ov-wall').hidden=false; return; } const n=25+Math.floor(Math.random()*16); zen=Date.now(); L=makeLevel(n, (Date.now()%100000)+n); if(!L) L=makeLevel(n); M={}; history=[]; won=false; hint('Zen · endless generated puzzles · '+L.par+' mirrors'); document.getElementById('ov-win').hidden=true; document.getElementById('ov-levels').hidden=true; document.getElementById('ov-done').hidden=true; fit(); }
+document.getElementById('b-reset').addEventListener('click',()=>{ if(!L) return; M={}; history=[]; won=false; draw(); });
+document.getElementById('b-undo').addEventListener('click',()=>{ if(!history.length||won) return; M=history.pop(); draw(); });
+document.getElementById('b-sound').addEventListener('click',e=>{ S.sound=!S.sound; save(); e.target.textContent='Sound: '+(S.sound?'on':'off'); audio(); });
+document.getElementById('win-replay').addEventListener('click',()=>{ if(zen) startZen(); else startLevel(L.n); });
+document.getElementById('win-next').addEventListener('click',()=>{ if(zen){ startZen(); return; } if(L.n>=TOTAL){ document.getElementById('ov-win').hidden=true; document.getElementById('done-text').textContent='Every level cleared with '+totalStars()+' of '+(TOTAL*3)+' stars. Zen mode never runs out.'; document.getElementById('ov-done').hidden=false; return; } startLevel(L.n+1); });
+document.getElementById('b-levels').addEventListener('click',()=>openLevels());
+document.getElementById('lv-close').addEventListener('click',()=>{ document.getElementById('ov-levels').hidden=true; });
+document.getElementById('lv-zen').addEventListener('click',startZen);
+document.getElementById('wall-close').addEventListener('click',()=>{ document.getElementById('ov-wall').hidden=true; openLevels(); });
+document.getElementById('done-zen').addEventListener('click',startZen);
+document.getElementById('done-close').addEventListener('click',()=>{ document.getElementById('ov-done').hidden=true; });
+function openLevels(){
+  const g=document.getElementById('lv-grid'); g.innerHTML='';
+  const unlocked=highestUnlocked();
+  for(let n=1;n<=TOTAL;n++){ const b=document.createElement('button'); const st=S.stars[n]||0; const locked=n>unlocked; const paid=!FULL&&n>FREE_LEVELS; b.className=(locked?'locked ':'')+(L&&L.n===n&&!zen?'cur':''); b.innerHTML=`${n}<small>${paid?'FULL':st?'★'.repeat(st):'&nbsp;'}</small>`; b.disabled=locked&&!paid; b.addEventListener('click',()=>{ document.getElementById('ov-levels').hidden=true; startLevel(n); }); g.appendChild(b); }
+  document.getElementById('lv-summary').textContent = totalStars()+' / '+(TOTAL*3)+' stars · '+(FULL?'Full edition':'Free edition: levels 1–'+FREE_LEVELS);
+  document.getElementById('lv-zen').textContent = FULL?'Zen mode':'Zen mode (full)';
+  document.getElementById('ov-levels').hidden=false;
+}
+function highestUnlocked(){ let h=1; for(let n=1;n<=TOTAL;n++){ if(S.stars[n]) h=n+1; } return Math.min(h,TOTAL); }
+document.getElementById('b-sound').textContent='Sound: '+(S.sound?'on':'off');
+
+// expose for tests
+window.Beamline={ makeLevel, trace, spec, get level(){return L;}, get mirrors(){return M;}, state:()=>S, FULL, FREE_LEVELS, TOTAL };
+startLevel(Math.min(S.level||1, FULL?TOTAL:FREE_LEVELS));
+})();
+</script>
+</body>
+</html>
