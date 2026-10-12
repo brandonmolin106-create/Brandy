@@ -1,0 +1,946 @@
+[
+ {
+  "id": "1.1",
+  "module": "Positioning",
+  "title": "The one-liner, ten ways",
+  "prompt": "Act as a launch copywriter who has written store pages for 200 indie products. Using the brief, write 10 one-line descriptions of {{PRODUCT}} (max 15 words each). Vary the angle: outcome, feeling, contrast with the usual option, the hook, the audience's words, a number, a dare, a question, a before/after, a plain statement. Rank them 1–10 by how likely a cold {{AUDIENCE}} is to click, and explain the top 3 in one sentence each.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.2",
+  "module": "Positioning",
+  "title": "Who actually buys this",
+  "prompt": "Act as a product marketer. From the brief, describe three distinct buyer segments for {{PRODUCT}}. For each: a name, what they were doing five minutes before they found it, the sentence they'd say to a friend about it, the objection that stops them, and the one proof that answers the objection. Then pick the primary segment for launch and say why in two sentences.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.3",
+  "module": "Positioning",
+  "title": "The pain, in their words",
+  "prompt": "Act as a researcher who reads forums for a living. For {{AUDIENCE}}, write 12 verbatim-style sentences they might post about {{PAIN}} (Reddit, Discord, X). Plain language, no marketing words. Mark the 3 that would make the best headline hooks and rewrite each as a headline under 10 words.",
+  "variables": [
+   "AUDIENCE",
+   "PAIN"
+  ]
+ },
+ {
+  "id": "1.4",
+  "module": "Positioning",
+  "title": "Hook test",
+  "prompt": "Act as a sceptical editor. Here is the hook: \"{{HOOK}}\". Score it 1–10 on: surprising, specific, believable, demonstrable in a 6-second clip. For any score under 7, rewrite the hook to fix it. Give 5 alternative hooks drawn from the brief, each demonstrable in 6 seconds, and pick the strongest.",
+  "variables": [
+   "HOOK"
+  ]
+ },
+ {
+  "id": "1.5",
+  "module": "Positioning",
+  "title": "Differentiation table",
+  "prompt": "Act as a competitive analyst. List the 5 options {{AUDIENCE}} already uses instead of {{PRODUCT}} (including \"do nothing\" and \"free alternative\"). Build a table: option, what it costs them (money and time), where it fails them, how {{PRODUCT}} is different in one concrete clause. Finish with one sentence that states the difference without naming competitors, for use on the store page.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.6",
+  "module": "Positioning",
+  "title": "Name check",
+  "prompt": "Act as a naming consultant. Evaluate the name \"{{PRODUCT}}\" for: pronounceability, searchability (would it get lost among common words?), domain/handle likelihood, meaning to {{AUDIENCE}}, and collision with known brands. Score each 1–5. If total is under 18, propose 8 alternatives in the same spirit with a one-line rationale each. Do not propose names with licensed or trademarked words.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.7",
+  "module": "Positioning",
+  "title": "Tagline pairs",
+  "prompt": "Act as a copywriter. Write 8 headline + sub-headline pairs for {{PRODUCT}}. Headline under 8 words, a promise. Sub-headline one sentence: who it's for and what changes. No adjectives that can't be proven by looking at the product. Mark which pair fits each platform in {{PLATFORMS}}.",
+  "variables": [
+   "PLATFORMS",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.8",
+  "module": "Positioning",
+  "title": "Proof inventory",
+  "prompt": "Act as a fact-checker. From the brief and anything I paste below, list every concrete, verifiable fact about {{PRODUCT}} (numbers, counts, durations, formats, compatibility, licence terms). Turn the strongest 6 into one-line proof points for a store page. Flag any claim in my draft copy that is not backed by a fact in the list.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.9",
+  "module": "Positioning",
+  "title": "The \"why now\"",
+  "prompt": "Act as a strategist. Write three short \"why now\" angles for launching {{PRODUCT}} this month: one tied to a season, event or deadline the audience has; one tied to a shift in tools or platforms; one tied to the price or offer. Each under 40 words. Say which one to lead with on X and which on the store page.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.10",
+  "module": "Positioning",
+  "title": "Feature to benefit",
+  "prompt": "Act as a copy editor. I'll paste a feature list. Rewrite each feature as a benefit sentence that starts with what the user gets, then the feature in parentheses. Cut any feature that doesn't change what the user can do. Return as a bullet list ordered by how much {{AUDIENCE}} cares.",
+  "variables": [
+   "AUDIENCE"
+  ]
+ },
+ {
+  "id": "1.11",
+  "module": "Positioning",
+  "title": "Objection wall",
+  "prompt": "Act as the most sceptical member of {{AUDIENCE}}. List the 10 objections you'd have before paying {{PRICE}} for {{PRODUCT}}. For each, write the one-sentence answer and name where it belongs: headline, proof point, FAQ, screenshot caption, or \"fix the product\".",
+  "variables": [
+   "AUDIENCE",
+   "PRICE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "1.12",
+  "module": "Positioning",
+  "title": "Elevator pitch, three lengths",
+  "prompt": "Act as a founder pitching at a meetup. Write the pitch for {{PRODUCT}} in three lengths: 10 words, 30 words, 90 words. Each must include the audience, the hook and the price. The 90-word version ends with the exact link text I should say out loud.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.1",
+  "module": "Store page",
+  "title": "Full store page draft",
+  "prompt": "Act as a conversion copywriter for indie products. Using the brief and templates/store-page-template.md section order, write the complete store page for {{PRODUCT}} for {{PLATFORMS}}: headline, sub-headline, three proof points, 150-word body, \"what you get\" bullets (nouns first), FAQ (price, refunds, platform, updates, licence), closing line and button text with the price. Voice: {{VOICE}}. No claims without a fact behind them.",
+  "variables": [
+   "PLATFORMS",
+   "PRODUCT",
+   "VOICE"
+  ]
+ },
+ {
+  "id": "2.2",
+  "module": "Store page",
+  "title": "Gumroad description, HTML",
+  "prompt": "Act as a Gumroad seller. Turn the store page into a Gumroad description in clean HTML: <p> and <ul> only, bold the first sentence, bullets for what's included, a \"Try it first\" line if a free version exists, a 30-day guarantee line, and a launch-code line. Under 300 words. Output the HTML only.",
+  "variables": []
+ },
+ {
+  "id": "2.3",
+  "module": "Store page",
+  "title": "Steam short + about",
+  "prompt": "Act as a Steam page specialist. Write the Steam short description (under 300 characters, hook first) and the \"About this game\" section (3 paragraphs, each starting with a bold 4–6 word feature line) for {{PRODUCT}}. End with a 5-bullet feature list. Include one sentence on length/replayability and one on accessibility options if any.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.4",
+  "module": "Store page",
+  "title": "itch.io page",
+  "prompt": "Act as an itch.io seller. Write the itch page for {{PRODUCT}}: a 2-sentence intro, controls block, \"what's in the free version / full version\" table, a 4-item FAQ, and the exact text for the \"Buy now\" button and the pay-what-you-want suggested price line. Keep it under 250 words; itch readers skim.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.5",
+  "module": "Store page",
+  "title": "App Store / Play listing",
+  "prompt": "Act as an ASO writer. For {{PRODUCT}}, write: app name (30 chars), subtitle (30 chars), promotional text (170 chars), description (first 3 lines must stand alone, 4 short paragraphs total), and 10 keyword phrases ranked by search intent for {{AUDIENCE}}. No competitor names.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.6",
+  "module": "Store page",
+  "title": "What-you-get bullets",
+  "prompt": "Act as an editor who hates fluff. Write the \"What you get\" list for {{PRODUCT}}: 6–8 bullets, each starting with a noun and a number where one exists, under 12 words, no adjectives. Then write a one-line \"What it is not\" to pre-empt refunds.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.7",
+  "module": "Store page",
+  "title": "FAQ generator",
+  "prompt": "Act as a support lead. Write 8 FAQ entries for {{PRODUCT}} covering: what it is, platform/compatibility, how to install or use, what the free version includes, licence and commercial use, updates, refunds, and the question {{AUDIENCE}} asks that most sellers forget. Answers under 40 words, plain, no hedging.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.8",
+  "module": "Store page",
+  "title": "Screenshot captions",
+  "prompt": "Act as a store-page designer. I'll paste descriptions of 5–8 screenshots. For each, write a caption under 8 words that names the benefit shown, not the UI element, and suggest an order that tells a story from hook to depth.",
+  "variables": []
+ },
+ {
+  "id": "2.9",
+  "module": "Store page",
+  "title": "Guarantee and licence block",
+  "prompt": "Act as a plain-language legal writer. Write a 3-sentence money-back guarantee and a 5-line personal-use licence for {{PRODUCT}} ({{TYPE}}) suitable for a store page footer. Cover: what buyers may do, what they may not, team size, updates, refund window.",
+  "variables": [
+   "PRODUCT",
+   "TYPE"
+  ]
+ },
+ {
+  "id": "2.10",
+  "module": "Store page",
+  "title": "Page critique",
+  "prompt": "Act as a conversion reviewer. I'll paste my store page. Score it 1–10 on: hook clarity in the first 2 lines, proof density, scannability, objection coverage, call-to-action strength. For every score under 8, quote the exact words at fault and rewrite them. Return the fully revised page.",
+  "variables": []
+ },
+ {
+  "id": "2.11",
+  "module": "Store page",
+  "title": "Short description variants",
+  "prompt": "Act as a copywriter. Write 6 short descriptions for {{PRODUCT}} under 160 characters each, for platform cards and link previews. Each must contain the type, the hook and the audience. Mark the best one for search and the best one for social.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "2.12",
+  "module": "Store page",
+  "title": "Localisation brief",
+  "prompt": "Act as a localisation manager. For {{PRODUCT}}'s store page, list the 6 lines that must be translated first for a launch in Spanish, Portuguese, German, Japanese and Simplified Chinese, the idioms in my copy that won't translate, and plain-English rewrites of those lines. Keep the hook intact.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "3.1",
+  "module": "Trailer and screenshots",
+  "title": "30-second trailer script",
+  "prompt": "Act as a trailer editor for indie games and apps. Write a 30-second trailer script for {{PRODUCT}}: a table with columns Time, Shot (what's on screen), Text overlay (under 6 words), Sound. Rules: the hook is on screen by second 2, no logo before second 25, one text overlay per shot, end on the store name and price. Add a 6-second cut-down for social at the end.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "3.2",
+  "module": "Trailer and screenshots",
+  "title": "Shot list",
+  "prompt": "Act as a producer. From the brief and the trailer script, list every shot I need to capture: shot number, what to show, duration, capture settings (resolution, fps, UI on/off), and the single thing that must be visible in frame. Group by scene so I capture them in one session.",
+  "variables": []
+ },
+ {
+  "id": "3.3",
+  "module": "Trailer and screenshots",
+  "title": "GIF moments",
+  "prompt": "Act as a social editor. List the 8 most satisfying 3–6 second moments in {{PRODUCT}} to capture as GIFs, ranked by how well they show {{HOOK}} with no sound and no context. For each: what happens, where to start and stop, and the caption under 8 words.",
+  "variables": [
+   "HOOK",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "3.4",
+  "module": "Trailer and screenshots",
+  "title": "Screenshot plan",
+  "prompt": "Act as a store-page designer. Plan 6 screenshots for {{PRODUCT}} that tell a story: hook, depth, variety, progression, polish, social proof or scale. For each: what's on screen, what to crop out, caption, and whether it needs a text overlay. Specify the platform's required sizes for {{PLATFORMS}}.",
+  "variables": [
+   "PLATFORMS",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "3.5",
+  "module": "Trailer and screenshots",
+  "title": "Thumbnail text",
+  "prompt": "Act as a thumbnail designer. Write 10 options for the text on {{PRODUCT}}'s thumbnail or capsule image: max 3 words, readable at 100 px wide, no punctuation. Say which 2 to A/B test and what background each needs.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "3.6",
+  "module": "Trailer and screenshots",
+  "title": "Trailer voiceover",
+  "prompt": "Act as a VO scriptwriter. Write a 30-second voiceover for {{PRODUCT}} in the voice {{VOICE}}: 70–80 words, first line is the hook, one sentence of what you do, one sentence of what's inside, close with the platform and price. Mark breaths with \"/\". Then write a 12-word version for a 6-second cut.",
+  "variables": [
+   "PRODUCT",
+   "VOICE"
+  ]
+ },
+ {
+  "id": "3.7",
+  "module": "Trailer and screenshots",
+  "title": "Music brief",
+  "prompt": "Act as a music supervisor. Write a brief for the trailer music for {{PRODUCT}}: genre, tempo range, mood in 3 words, where the drop should land (second), what to avoid, and 5 search phrases for a royalty-free library. Add a one-line prompt for an AI music tool if I'd rather generate it.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "3.8",
+  "module": "Trailer and screenshots",
+  "title": "Trailer critique",
+  "prompt": "Act as a trailer editor. I'll describe my trailer shot by shot with timestamps. Tell me: where the hook actually appears, every second that could be cut, any text that fights the picture, and the 3 changes that would most improve click-through. Return a revised shot table.",
+  "variables": []
+ },
+ {
+  "id": "3.9",
+  "module": "Trailer and screenshots",
+  "title": "Vertical cut",
+  "prompt": "Act as a short-form editor. Convert the trailer script into a 15-second vertical (9:16) cut for X, TikTok and Shorts: what to crop, which 3 shots survive, on-screen text per shot under 5 words, and the first-frame text that stops the scroll.",
+  "variables": []
+ },
+ {
+  "id": "3.10",
+  "module": "Trailer and screenshots",
+  "title": "Press kit assets list",
+  "prompt": "Act as a PR assistant. List every asset the press kit for {{PRODUCT}} needs with exact specs: logo (formats, sizes), key art, 6 screenshots, 3 GIFs, trailer link, fact sheet fields, bio, contact. Write the fact sheet now from the brief.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.1",
+  "module": "Devlog and content",
+  "title": "Devlog post",
+  "prompt": "Act as an indie developer who writes well. Write a 500-word devlog post about [topic] for {{PRODUCT}}, voice {{VOICE}}. Structure: the problem in the first two sentences, what I tried, what worked (with one concrete detail or number), what I'd do differently, and a soft close with the store or wishlist link. No \"excited to announce\". Title in under 9 words.",
+  "variables": [
+   "PRODUCT",
+   "VOICE"
+  ]
+ },
+ {
+  "id": "4.2",
+  "module": "Devlog and content",
+  "title": "Build-in-public update",
+  "prompt": "Act as a build-in-public writer. From these notes: [paste], write a 120-word progress update for X or LinkedIn: one win, one struggle, one number, one question to the audience. No hashtags in the body; suggest 3 at the end.",
+  "variables": []
+ },
+ {
+  "id": "4.3",
+  "module": "Devlog and content",
+  "title": "Newsletter issue",
+  "prompt": "Act as a newsletter editor. Write issue [n] of my newsletter for {{AUDIENCE}} about {{PRODUCT}}: subject line (under 45 chars) + preview text, a 90-word opener that gives value before mentioning the product, a 3-item middle (tip, behind the scenes, link), and a one-line CTA. Total under 350 words.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.4",
+  "module": "Devlog and content",
+  "title": "\"How I made it\" post",
+  "prompt": "Act as a technical writer for a general audience. Write an 800-word \"how I made {{PRODUCT}}\" post: the tools, the one hard problem and how it was solved (with a snippet or diagram description), the numbers (time, size, count), and what the reader can steal for their own project. End with the link.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.5",
+  "module": "Devlog and content",
+  "title": "Content calendar, 4 weeks",
+  "prompt": "Act as a content strategist. Build a 4-week content calendar for {{PRODUCT}} across X, one devlog platform, and email: 3 X posts a week, 1 devlog a week, 1 email every 2 weeks. Each slot: topic, format, hook line, asset needed. Weeks 1–2 pre-launch, 3 launch, 4 post-launch.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.6",
+  "module": "Devlog and content",
+  "title": "Repurpose one post into five",
+  "prompt": "Act as a content repurposer. I'll paste one devlog post. Turn it into: an X thread (5 posts), a 60-second video script, a Reddit post with a non-promotional title, a LinkedIn post, and 3 newsletter bullets. Keep facts identical across all five.",
+  "variables": []
+ },
+ {
+  "id": "4.7",
+  "module": "Devlog and content",
+  "title": "Devlog titles",
+  "prompt": "Act as an editor. Write 15 devlog titles for {{PRODUCT}} that a stranger would click: specific, with a number or a tension, under 9 words, no clickbait that the post can't pay off. Group by theme: process, problem solved, numbers, opinion.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.8",
+  "module": "Devlog and content",
+  "title": "Tutorial post",
+  "prompt": "Act as a tutorial writer. Write a step-by-step tutorial that uses {{PRODUCT}} to accomplish [task] for {{AUDIENCE}}: prerequisites, 6–10 numbered steps with the expected result after each, one troubleshooting block, and a closing \"what to try next\". Under 900 words.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.9",
+  "module": "Devlog and content",
+  "title": "Behind-the-numbers post",
+  "prompt": "Act as a transparent founder. From these figures: [paste], write a 400-word \"numbers\" post: what was spent (time, money), what came in, the surprising ratio, the lesson, and the one thing I'll change. Include a small plain-text table.",
+  "variables": []
+ },
+ {
+  "id": "4.10",
+  "module": "Devlog and content",
+  "title": "Comparison post (fair)",
+  "prompt": "Act as an honest reviewer. Write a 600-word comparison of {{PRODUCT}} against the two most common alternatives for {{AUDIENCE}}, with a table (price, what's included, licence, best for). Say plainly where each alternative wins. End with who should not buy {{PRODUCT}}.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "4.11",
+  "module": "Devlog and content",
+  "title": "Changelog to story",
+  "prompt": "Act as a release-notes writer. Turn this changelog: [paste] into update notes people enjoy reading: a 2-sentence headline on the biggest change, grouped bullets (new, improved, fixed) in user language, and one line on what's next. Under 250 words.",
+  "variables": []
+ },
+ {
+  "id": "4.12",
+  "module": "Devlog and content",
+  "title": "Devlog critique",
+  "prompt": "Act as a blunt editor. I'll paste a devlog draft. Cut every sentence that doesn't teach, show or move the story. Flag jargon. Suggest a stronger first line and a stronger last line. Return the edited version and a word count before/after.",
+  "variables": []
+ },
+ {
+  "id": "5.1",
+  "module": "X / Twitter",
+  "title": "Launch thread",
+  "prompt": "Act as an X ghostwriter for indie creators. Write the launch thread for {{PRODUCT}}: 6 posts, each under 280 characters (count links as 23). Post 1 is the hook plus the media description; posts 2–5 each show one thing with a described GIF or screenshot; post 6 has the link, price and launch code. Voice {{VOICE}}. No hashtags except two in post 6.",
+  "variables": [
+   "PRODUCT",
+   "VOICE"
+  ]
+ },
+ {
+  "id": "5.2",
+  "module": "X / Twitter",
+  "title": "Teaser cadence",
+  "prompt": "Act as a launch planner. Write 3 teaser posts for the week before launch, each under 280 chars, each standing alone: T-7 the hook with no link, T-5 a 6-second GIF description and one number, T-3 a \"coming [day]\" post with the price. Add the reply I should pin under each.",
+  "variables": []
+ },
+ {
+  "id": "5.3",
+  "module": "X / Twitter",
+  "title": "Pinned post",
+  "prompt": "Act as a profile strategist. Write the pinned post for @[handle] during launch: what {{PRODUCT}} is in one line, the free or demo link, the paid link with price, and a reason to follow. Under 280 chars. Then write the bio line (under 160 chars) to match.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "5.4",
+  "module": "X / Twitter",
+  "title": "Reply hooks",
+  "prompt": "Act as a community manager. Write 10 reply templates for comments on launch posts: \"what engine/tool?\", \"how long did it take?\", \"is there a demo?\", \"price in USD?\", \"does it work on [platform]?\", \"looks like [other product]\", praise, a bug report, \"too expensive\", and silence (a reply to my own post to bump it). Each under 200 chars, voice {{VOICE}}.",
+  "variables": [
+   "VOICE"
+  ]
+ },
+ {
+  "id": "5.5",
+  "module": "X / Twitter",
+  "title": "Quote-post reactions",
+  "prompt": "Act as a social editor. I'll paste 5 reactions from players or users. For each, write a quote-post under 200 chars that adds something (context, a thank-you, a detail) rather than just \"wow thanks\". Skip any that would read as bragging.",
+  "variables": []
+ },
+ {
+  "id": "5.6",
+  "module": "X / Twitter",
+  "title": "Numbers post",
+  "prompt": "Act as a transparent founder. From these launch numbers: [paste], write one X post under 280 chars with the headline figure, one surprise, and one lesson, and a 4-post thread version with a small table in post 2.",
+  "variables": []
+ },
+ {
+  "id": "5.7",
+  "module": "X / Twitter",
+  "title": "Daily post ideas, 30",
+  "prompt": "Act as a content strategist. Give me 30 X post ideas for the month around {{PRODUCT}} for {{AUDIENCE}}: 10 show the product, 10 teach something the audience wants regardless of the product, 10 are opinions or questions that start replies. Each idea is one line with the hook written out.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "5.8",
+  "module": "X / Twitter",
+  "title": "Hook lines",
+  "prompt": "Act as a copywriter. Write 20 first lines for X posts about {{PRODUCT}}, each under 12 words, no emojis, no \"excited\". Mix: a number, a contrast, a confession, a question, a dare, a tiny story. Rank the top 5.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "5.9",
+  "module": "X / Twitter",
+  "title": "Reply-guy strategy",
+  "prompt": "Act as a growth lead. List 8 kinds of posts by others where a helpful reply from me would naturally lead to {{PRODUCT}} (e.g. someone asking for X). For each: the search phrase to find them, the reply template under 200 chars that helps first and mentions the product only if relevant.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "5.10",
+  "module": "X / Twitter",
+  "title": "Launch day schedule",
+  "prompt": "Act as a launch coordinator. Write the X schedule for launch day in my timezone [tz]: 8 time slots with what to post (thread, GIF, reply round, quote-posts, numbers at end of day), and the one metric to check at each slot.",
+  "variables": []
+ },
+ {
+  "id": "5.11",
+  "module": "X / Twitter",
+  "title": "Post critique",
+  "prompt": "Act as a blunt X editor. I'll paste 5 draft posts. For each: say whether a stranger would stop scrolling, cut it to the strongest version under 200 chars, and say if it needs media.",
+  "variables": []
+ },
+ {
+  "id": "5.12",
+  "module": "X / Twitter",
+  "title": "Last-call post",
+  "prompt": "Act as a copywriter. Write 3 versions of the \"launch price ends tonight\" post for {{PRODUCT}}, under 240 chars each, no false scarcity (the code really does end), with the link and the price after.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.1",
+  "module": "Reddit and communities",
+  "title": "Subreddit map",
+  "prompt": "Act as a community researcher. For {{PRODUCT}} and {{AUDIENCE}}, list 10 subreddits where a post could land: name, approximate size, what the mods allow (self-promo rules as you understand them, flag if unsure), the post format that works there (devlog, showcase, question, free resource), and the best day/time in US hours. Mark the 3 to post on launch day.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.2",
+  "module": "Reddit and communities",
+  "title": "Reddit launch post (non-promotional title)",
+  "prompt": "Act as a Redditor who has launched before. Write a launch post for r/[sub] about {{PRODUCT}}: a title that states what I made and one honest detail (no \"check out\", no exclamation marks), a 150-word body that leads with the problem and what I learned, the link at the end, and a first comment I post myself with the details and price. Voice: plain.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.3",
+  "module": "Reddit and communities",
+  "title": "Devlog-style post",
+  "prompt": "Act as a developer writing for r/gamedev or r/webdev. Write a 400-word post about one technical or design problem from {{PRODUCT}} and how I solved it. Include one concrete snippet or number. Mention the product by name once, in the last line, with no link in the body (link goes in a comment).",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.4",
+  "module": "Reddit and communities",
+  "title": "Free resource post",
+  "prompt": "Act as a generous creator. Write a post that gives {{AUDIENCE}} something free and useful related to {{PRODUCT}} (a template, a checklist, a sample), with the resource described in full in the post. The product is mentioned only as \"where this came from\" in one sentence at the end.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.5",
+  "module": "Reddit and communities",
+  "title": "Discord drop",
+  "prompt": "Act as a community member, not a marketer. Write a 60-word message for a Discord #showcase or #share channel about {{PRODUCT}}: what it is, one thing I'm proud of, the free link if there is one, a question for the channel. No @everyone, no emojis spam.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.6",
+  "module": "Reddit and communities",
+  "title": "Show HN",
+  "prompt": "Act as a Hacker News regular. Write a \"Show HN\" title (under 80 chars, format \"Show HN: {{PRODUCT}} – what it is\") and a first comment (under 200 words) that explains why I built it, how it works technically in 3 sentences, what's free, what's paid, and what feedback I want.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.7",
+  "module": "Reddit and communities",
+  "title": "Product Hunt",
+  "prompt": "Act as a Product Hunt launcher. Write for {{PRODUCT}}: tagline (under 60 chars), description (under 260 chars), the maker's first comment (under 250 words: story, what's inside, the launch offer, a question), and 5 topics to tag.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.8",
+  "module": "Reddit and communities",
+  "title": "Comment replies",
+  "prompt": "Act as a community manager. Write replies for 8 common Reddit comments on a launch post: \"looks like [X]\", \"why not free?\", \"does it work on Linux/Android?\", \"any discount?\", a detailed critique, a bug report, a request for a feature, and plain praise. Under 60 words each, no defensiveness.",
+  "variables": []
+ },
+ {
+  "id": "6.9",
+  "module": "Reddit and communities",
+  "title": "Forum long-form post",
+  "prompt": "Act as a forum veteran (TIGSource, itch community, a niche forum for {{AUDIENCE}}). Write a 600-word introduction post for {{PRODUCT}}: who I am in one line, what it is, three screenshots described with captions, what's free, what's paid, what I want feedback on. Formatting: short paragraphs, bold section labels.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "6.10",
+  "module": "Reddit and communities",
+  "title": "Post timing plan",
+  "prompt": "Act as a launch coordinator. Build a community posting plan for launch week for {{PRODUCT}}: which post (from this module) goes where, on which day, at what time, with at least 2 hours between posts on the same platform, and which ones need a mod message first.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "7.1",
+  "module": "Press and creators",
+  "title": "Press list builder",
+  "prompt": "Act as a PR researcher. Describe the 5 kinds of outlets and creators most likely to cover {{PRODUCT}} for {{AUDIENCE}} (e.g. niche newsletters, YouTube reviewers at 5k–50k subs, podcast hosts). For each kind: how to find 4 of them (exact search phrases), what they need from me, and the one-line reason I'd give for why them.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "7.2",
+  "module": "Press and creators",
+  "title": "Press email (personalised)",
+  "prompt": "Act as a PR writer who gets replies. Using templates/press-email-template.md, write the announcement email for [name] at [outlet], who recently [covered/wrote X]. Under 150 words, subject line under 50 chars, the hook in sentence two, key and press kit links, no pressure close. Voice {{VOICE}}.",
+  "variables": [
+   "VOICE"
+  ]
+ },
+ {
+  "id": "7.3",
+  "module": "Press and creators",
+  "title": "Creator pitch",
+  "prompt": "Act as a creator-relations manager. Write a DM-length pitch (under 90 words) to a YouTuber or streamer who covers {{AUDIENCE}}'s interests: why their audience, what the clip-worthy moment is ({{HOOK}}), the key, and an offer to make a custom build or asset if useful.",
+  "variables": [
+   "AUDIENCE",
+   "HOOK"
+  ]
+ },
+ {
+  "id": "7.4",
+  "module": "Press and creators",
+  "title": "Press kit page",
+  "prompt": "Act as a web copywriter. Write the press kit page for {{PRODUCT}}: fact sheet (name, developer, release date, platforms, price, links), a 100-word description, a 40-word description, 5 key features, the hook in one sentence, asset list with download labels, contact, and a short bio.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "7.5",
+  "module": "Press and creators",
+  "title": "Follow-up sequence",
+  "prompt": "Act as a PR writer. Write a 3-touch follow-up sequence after the press email: day 4 (new asset or detail, under 60 words), launch day (it's out, key reminder, under 50 words), day 10 (numbers or a player story, under 70 words). Each must give something new, never just \"checking in\".",
+  "variables": []
+ },
+ {
+  "id": "7.6",
+  "module": "Press and creators",
+  "title": "Key distribution plan",
+  "prompt": "Act as a launch manager. Plan key or review-copy distribution for {{PRODUCT}}: how many keys, who gets them (press, creators, communities, giveaways), how to track who received what, and the message template for each group. Include a note on avoiding key resellers.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "7.7",
+  "module": "Press and creators",
+  "title": "Interview answers",
+  "prompt": "Act as a media trainer. Write my answers to the 10 questions press and podcasters ask indie creators (origin, hardest part, what's different, who it's for, price reasoning, what's next, tools, advice, a mistake, where to get it). Each under 80 words, voice {{VOICE}}, quotable first sentence.",
+  "variables": [
+   "VOICE"
+  ]
+ },
+ {
+  "id": "7.8",
+  "module": "Press and creators",
+  "title": "Award and festival list",
+  "prompt": "Act as a festival scout. List 8 awards, showcases, jams or festivals where {{PRODUCT}} ({{TYPE}}) could be submitted, with what they look for, typical deadlines by month, fee if any, and a one-line fit note. Flag any I should skip and why.",
+  "variables": [
+   "PRODUCT",
+   "TYPE"
+  ]
+ },
+ {
+  "id": "7.9",
+  "module": "Press and creators",
+  "title": "Collab offer",
+  "prompt": "Act as a partnerships lead. Write 3 collaboration offers to other creators who serve {{AUDIENCE}}: a bundle, a cross-promo post swap, and a guest piece. Each under 120 words with the specific benefit to them stated before mine.",
+  "variables": [
+   "AUDIENCE"
+  ]
+ },
+ {
+  "id": "7.10",
+  "module": "Press and creators",
+  "title": "Coverage thank-you",
+  "prompt": "Act as a gracious founder. Write 3 thank-you messages for coverage: a public quote-post (under 200 chars), a private DM (under 80 words), and an email (under 100 words) that also offers an exclusive for next time.",
+  "variables": []
+ },
+ {
+  "id": "8.1",
+  "module": "Pricing and offers",
+  "title": "Price ladder",
+  "prompt": "Act as a pricing analyst for digital products. Using templates/pricing-worksheet.md and these comparables: [paste 5 with prices], propose for {{PRODUCT}}: a free tier (what's in, what's out), a launch price, a full price, and a bundle price with another product of mine. Show the net per sale after platform fees for {{PLATFORMS}}. Justify each number in one sentence.",
+  "variables": [
+   "PLATFORMS",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "8.2",
+  "module": "Pricing and offers",
+  "title": "Launch discount design",
+  "prompt": "Act as a promotions planner. Design the launch offer for {{PRODUCT}}: discount %, duration or buyer cap, the code name, where it appears (page, posts, emails), and the exact copy for the page badge, the X post and the email line. Explain why this beats both \"no discount\" and \"50% off\".",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "8.3",
+  "module": "Pricing and offers",
+  "title": "Pay-what-you-want vs fixed",
+  "prompt": "Act as a marketplace analyst. For {{PRODUCT}} on {{PLATFORMS}}, compare pay-what-you-want with a minimum, fixed price, and fixed price with a free demo. For each: expected effect on volume, average price, reviews and support load. Recommend one and the minimum/anchor numbers.",
+  "variables": [
+   "PLATFORMS",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "8.4",
+  "module": "Pricing and offers",
+  "title": "Bundle logic",
+  "prompt": "Act as a merchandiser. I have these products: [paste names and prices]. Propose 2 bundles with {{PRODUCT}}: contents, bundle price (60–75% of combined), the one-line pitch, and which to show on the store page of each product.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "8.5",
+  "module": "Pricing and offers",
+  "title": "Price increase plan",
+  "prompt": "Act as a pricing analyst. Write the plan for raising {{PRODUCT}} from launch price to full price: trigger (sales count and ratings), the date to announce, the announcement post under 200 chars, and how to honour buyers who purchased in the last 48 hours.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "8.6",
+  "module": "Pricing and offers",
+  "title": "Regional pricing",
+  "prompt": "Act as a global pricing specialist. For {{PRODUCT}} at {{PRICE}}, suggest prices for 10 countries using purchasing-power adjustment, and the copy for a regional discount code line on Gumroad or itch. Note which platforms do this automatically.",
+  "variables": [
+   "PRICE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "8.7",
+  "module": "Pricing and offers",
+  "title": "Objection: \"too expensive\"",
+  "prompt": "Act as a sales coach. Write 5 ways to answer \"too expensive\" for {{PRODUCT}} without discounting: reframe to time saved, compare to the usual alternative, point to the free tier, show the guarantee, or agree and say who it is for. Each under 50 words, voice {{VOICE}}.",
+  "variables": [
+   "PRODUCT",
+   "VOICE"
+  ]
+ },
+ {
+  "id": "8.8",
+  "module": "Pricing and offers",
+  "title": "Break-even and goal",
+  "prompt": "Act as a finance-minded founder. From these inputs: hours spent [n], hourly value [n], fixed costs [n], net per sale [n], write the break-even sales number, a realistic 30-day goal with three scenarios (quiet, normal, a post lands) and the one action that most changes the outcome.",
+  "variables": []
+ },
+ {
+  "id": "9.1",
+  "module": "Launch week",
+  "title": "Seven-day plan",
+  "prompt": "Act as a launch coordinator. Fill templates/launch-week-calendar.md for {{PRODUCT}} with concrete posts, emails and tasks for each slot, in my timezone [tz], using only the channels I have: [list]. Each cell under 15 words. Add a \"skip if behind\" mark on the lowest-value slots.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "9.2",
+  "module": "Launch week",
+  "title": "Launch-day post set",
+  "prompt": "Act as a copywriter. Write the complete launch-day set for {{PRODUCT}}: X launch thread (6 posts), 3 tailored Reddit posts with non-promotional titles, 1 Discord message, 1 email (subject + 120 words), 1 LinkedIn post. All with the link, the price and the launch code. Voice {{VOICE}}.",
+  "variables": [
+   "PRODUCT",
+   "VOICE"
+  ]
+ },
+ {
+  "id": "9.3",
+  "module": "Launch week",
+  "title": "Launch email",
+  "prompt": "Act as an email copywriter. Write the launch email for {{PRODUCT}}: subject (under 45 chars) + preview text, 100-word body that opens with the hook, a 3-bullet what's inside, the launch offer, one link, a one-line PS with the free or demo link. Then a plain-text version.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "9.4",
+  "module": "Launch week",
+  "title": "Support macros",
+  "prompt": "Act as a support lead. Write 10 canned replies for launch week: download not working, refund request, licence question, \"does it work with [X]\", feature request, bug report acknowledgement, \"when is the update\", thank-you for a review, key not working, and a polite no. Each under 70 words.",
+  "variables": []
+ },
+ {
+  "id": "9.5",
+  "module": "Launch week",
+  "title": "Bug triage rules",
+  "prompt": "Act as a release manager. Write the triage rules for launch week for {{PRODUCT}}: severity levels with examples, who-fixes-when, what gets a public note, the template for the public \"known issues\" post, and the rule for when to push a hotfix versus wait.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "9.6",
+  "module": "Launch week",
+  "title": "Review ask",
+  "prompt": "Act as a customer-success writer. Write the message asking buyers of {{PRODUCT}} for a rating or review, sent on day 3: subject, 60-word body, the exact link text, and a one-line version for the product's own UI or README. No bribes, no guilt.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "9.7",
+  "module": "Launch week",
+  "title": "Live metrics checklist",
+  "prompt": "Act as an analyst. List the 8 numbers to check on launch day for {{PRODUCT}} on {{PLATFORMS}}, where to find each, what \"good\" looks like for a new seller, and the one action if each is low.",
+  "variables": [
+   "PLATFORMS",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "9.8",
+  "module": "Launch week",
+  "title": "Mid-week pivot",
+  "prompt": "Act as a launch strategist. It's day 3 and the numbers are: [paste]. Diagnose which stage is leaking (reach, clicks, page conversion, price) and give the 3 highest-leverage moves for the remaining 4 days, with the copy for any post or email needed.",
+  "variables": []
+ },
+ {
+  "id": "9.9",
+  "module": "Launch week",
+  "title": "Last-call sequence",
+  "prompt": "Act as a copywriter. Write the 48-hour \"launch offer ends\" sequence for {{PRODUCT}}: an X post, a Reddit comment update, and an email (subject + 80 words). Honest scarcity only. Include the exact end time in [tz].",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "9.10",
+  "module": "Launch week",
+  "title": "Day-7 numbers post",
+  "prompt": "Act as a transparent founder. From these week-one numbers: [paste], write the public \"one week of {{PRODUCT}}\" post for X (under 280 chars) and the 400-word devlog version with a table, what worked, what didn't, and what's next.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.1",
+  "module": "Post-launch",
+  "title": "Retro",
+  "prompt": "Act as a product coach. Run a launch retro for {{PRODUCT}} from these facts: [paste numbers, what was posted where, what happened]. Output: what moved the numbers (ranked), what cost time and moved nothing, three things to repeat, three to drop, and the single experiment for the next launch.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.2",
+  "module": "Post-launch",
+  "title": "Update roadmap from feedback",
+  "prompt": "Act as a product manager. I'll paste user feedback and reviews. Cluster them into themes with counts, rank by impact × ease, and propose the first content or feature update for {{PRODUCT}} with a one-paragraph scope and a release-notes headline.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.3",
+  "module": "Post-launch",
+  "title": "Update announcement",
+  "prompt": "Act as a release writer. Write the announcement for {{PRODUCT}} v[1.1]: X post under 240 chars, email (subject + 90 words), and store-page \"What's new\" block. Lead with the change users asked for most.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.4",
+  "module": "Post-launch",
+  "title": "Sale timing",
+  "prompt": "Act as a marketplace analyst. For {{PRODUCT}} on {{PLATFORMS}}, list the sale events over the next 6 months worth joining, the discount depth that fits a product at {{PRICE}}, how often to go on sale without training buyers to wait, and the copy for the sale badge.",
+  "variables": [
+   "PLATFORMS",
+   "PRICE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.5",
+  "module": "Post-launch",
+  "title": "Evergreen content",
+  "prompt": "Act as a content strategist. List 10 evergreen pieces (posts, videos, pages) that would keep sending {{AUDIENCE}} to {{PRODUCT}} for a year: title, format, the search phrase it targets, and the one line that links to the product without being an ad.",
+  "variables": [
+   "AUDIENCE",
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.6",
+  "module": "Post-launch",
+  "title": "Testimonial harvest",
+  "prompt": "Act as a marketing ops person. Write the message asking happy buyers for a short testimonial (under 60 words), the 3 questions to ask so the answers are usable, and the format to display quotes on the store page with permission wording.",
+  "variables": []
+ },
+ {
+  "id": "10.7",
+  "module": "Post-launch",
+  "title": "Cross-sell",
+  "prompt": "Act as a merchandiser. For buyers of {{PRODUCT}}, write the post-purchase message (shown in the download area or receipt) that thanks them, gives one tip, and mentions one related product of mine with a code. Under 90 words.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.8",
+  "module": "Post-launch",
+  "title": "Vol. 2 decision",
+  "prompt": "Act as a product strategist. Given {{PRODUCT}}'s results: [paste], decide between a Vol. 2, a major free update, a bundle, or moving on. Lay out the expected effort, revenue range and risk for each, and recommend one in two sentences.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.9",
+  "module": "Post-launch",
+  "title": "Refund reply",
+  "prompt": "Act as a support lead. Write the refund reply for {{PRODUCT}}: grant it without argument, ask one optional question about why, mention the free version if there is one, and leave the door open. Under 70 words.",
+  "variables": [
+   "PRODUCT"
+  ]
+ },
+ {
+  "id": "10.10",
+  "module": "Post-launch",
+  "title": "Twelve-month plan",
+  "prompt": "Act as a solo-founder planner. Build a 12-month plan for {{PRODUCT}} after launch: one line per month (content, update, sale, outreach), two measurable goals per quarter, and the rule for when to stop investing in it.",
+  "variables": [
+   "PRODUCT"
+  ]
+ }
+]

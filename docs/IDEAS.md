@@ -16,3 +16,4 @@ move the findings to `docs/TRENDS.md`.
 | TMNT Story Mode world | | | dropped | Licensed IP. Cannot be sold. Free release only, if ever. |
 | LoopDay Pro: routine & habit tracker, one HTML file (`products/loopday/`) | subscription-weary productivity/fitness people | A$9 | built | Free web version public via htmlpreview; Pro on Gumroad, unpublished pending email confirm. |
 | Beamline: laser & mirror puzzle game, 40 levels + Zen (`products/beamline/`) | casual puzzle players, browser-game fans | A$5 | built | Free 20 levels public via htmlpreview; full edition on Gumroad, unpublished pending email confirm. |
+| Indie Launch Prompt Kit: 106 prompts + 5 templates (`products/indie-launch-prompt-kit/`) | solo devs, small studios, asset creators about to launch | A$29 | built | On Gumroad, unpublished pending email confirm. |

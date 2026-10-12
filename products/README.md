@@ -10,3 +10,4 @@ SEO, customer plan and X assets in `gumroad/`. Rules and the backlog live in `do
 | `clean-ui-sound-kit/` | https://jackson106.gumroad.com/l/clean-ui-sound-kit | Created, A$12, unpublished pending email confirm |
 | `loopday/` | https://jackson106.gumroad.com/l/loopday | Created, A$9, unpublished pending email confirm. Free version live: https://htmlpreview.github.io/?https://raw.githubusercontent.com/brandonmolin106-create/Brandy/claude/gracious-archimedes-tk01xr/products/loopday/examples/LoopDay-free.html |
 | `beamline/` | https://jackson106.gumroad.com/l/beamline | Created, A$5, unpublished pending email confirm. Free 20 levels live: https://htmlpreview.github.io/?https://raw.githubusercontent.com/brandonmolin106-create/Brandy/claude/gracious-archimedes-tk01xr/products/beamline/build/free/index.html |
+| `indie-launch-prompt-kit/` | https://jackson106.gumroad.com/l/indie-launch-prompt-kit | Created, A$29, unpublished pending email confirm |
