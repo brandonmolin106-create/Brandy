@@ -23,7 +23,7 @@ https://htmlpreview.github.io/?https://raw.githubusercontent.com/brandonmolin106
 
 #indiegame #browsergame
 ---
-# Post 0 — teaser (Gumroad not public yet; free link only)
+# Post 0 — teaser (posted 2026-10-12: https://x.com/jacksonf5l/status/2109641635747258511)
 New game from Jacksons world: Beamline 🔦
 
 Tap to drop mirrors, bend the laser through every crystal, hit the target. 40 levels that get mean. No ads, no install, plays on your phone.

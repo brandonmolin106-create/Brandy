@@ -26,7 +26,7 @@ https://htmlpreview.github.io/?https://raw.githubusercontent.com/brandonmolin106
 
 #buildinpublic #privacy #habits
 ---
-# Post 0 — teaser (only if the Gumroad listing is not public yet; still carries the free link)
+# Post 0 — teaser (posted 2026-10-12: https://x.com/jacksonf5l/status/2109641546270228614)
 New from Jacksons world: LoopDay 🔁
 
 A habit + routine tracker that's one file. Streaks, heat maps, routines with a step timer and chimes. No account, no subscription, your data stays on your phone.
