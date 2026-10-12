@@ -23,7 +23,8 @@ If the user already named a product, skip the opener and go straight to Step 2.
 
 Best-selling Gumroad categories right now: Notion/Obsidian templates, Canva template packs, AI prompt packs, code boilerplates/starter kits (SaaS, Next.js, Chrome extensions), spreadsheet/finance trackers, Minecraft mods/worlds/texture packs and game assets, design asset packs (icons, fonts, UI kits), ebooks/guides for a specific niche, music/sound packs, resume/career kits.
 
-Pricing sweet spot is usually **$19–$49**. Software/tools can go higher (**$29–$99**). Offer a Basic + Complete tier when there's a natural "more files / commercial license / source code" split.
+Pricing sweet spot is usually **$19–$49**. Software/tools can go higher (**$29–$99**). The store is in AUD; a
+brand-new store with no reviews should launch at the low end (A$12–19) and raise after the first ratings. Offer a Basic + Complete tier when there's a natural "more files / commercial license / source code" split.
 
 ## Workflow (every time)
 
@@ -74,8 +75,41 @@ For every product, produce:
 2. **Captions**: 3 posts in `x/captions.md`, separated by `---` lines. Each one ≤ 280 characters including the Gumroad link and 2–4 hashtags. First post is the launch post; second is a feature/demo; third is a reply-style "why I built this".
 3. **Posting**: run `scripts/post_to_x.py --image <banner> --caption-file <captions.md>`. It uploads the image from disk and posts via the X API v2. It needs `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` (setup in `X-SETUP.md`). If those are set, post automatically. If they are NOT set, say so plainly and hand over the caption + banner path instead. Never claim a post went live unless the script printed a post URL.
 
-### Step 7 — Ship
-Commit everything, push, open a draft PR. Final message: product name, price, path to the zip, Gumroad listing path, and whether the X post went out (with its URL) or is waiting on credentials.
+### Step 7 — Put it on the store (Gumroad API, no asking)
+The store is Jacksons world (https://jackson106.gumroad.com, AUD). API details and the token live in the
+`jacksons-world-store` skill; keep the token in a private scratchpad file, never in the repo or a command line.
+1. `GET /products` first. If a product with the same `custom_permalink` already exists, PUT to it instead of creating a duplicate.
+2. `POST /products` with `name`, `price` in cents (A$14 = 1400), `custom_permalink`, and `description` as HTML from `listing.md`.
+3. `POST /products/:id/offer_codes` with `name=LAUNCH30`, `amount_off=30`, `offer_type=percent`, `max_purchase_count=50`.
+4. `PUT /products/:id/enable` to publish. If Gumroad answers "You have to confirm your email address", that is the store
+   owner's inbox (see the store skill); tell Brandon once, keep going, and retry enable when he says "confirmed".
+5. `GET /products/:id` and record `published`, `formatted_price`, `short_url` in the final message. Real numbers only.
+6. The API ignores file uploads and covers. The zip in `dist/` and the square banner must be attached in the Gumroad
+   dashboard. Say exactly which product and which file, every time.
+The product link is always `https://jackson106.gumroad.com/l/<custom_permalink>`. It goes in the listing, all three
+emails, the customer plan, and every X post.
+
+### Step 8 — Post to X with the link
+- This session's environment may be stale: env vars load at session start. If `x_setup.py` says keys are MISSING here,
+  do NOT stop. Spawn a helper session on the same branch (`create_session` with `source_revision` = this branch) with a
+  prompt that runs `x_setup.py` and then `post_to_x.py`, printing output only (no `send_message`, it blocks on a
+  permission). Read its transcript with `list_events` and copy the post URL from the `POSTED.` line.
+- If the product is **published**: post Post 1 from `captions.md` with the landscape banner. It carries the store link.
+- If the product is **not yet published**: post the teaser (no link, "link the second it goes live"), then post Post 1
+  as soon as `published` is true. Never post a buy link that lands on an unpublished page.
+- Record every live post URL in `gumroad/x/captions.md` under the caption it came from.
+
+### Step 9 — Ship
+Commit everything (never `__pycache__`, never tokens), push, open or update the draft PR. Final message is a table:
+product name and price, zip path, Gumroad link and whether it is public, what (if anything) Brandon must click, and the
+X post URL. If the X post did not go out, say exactly why. Never say "live" or "posted" without a URL from the API.
+
+## Hard rules
+- **Original work only.** Nothing built on someone else's characters, brands or trademarks goes up for money
+  (no TMNT, no Nintendo, no Marvel). One licensed listing can get the whole store removed. If the user asks for one,
+  say so and build the closest original thing instead.
+- **Complete or nothing.** No TODOs, no placeholders, every file in the box tested. Preview lengths, counts and prices
+  in the copy must match what is actually in the zip. Check them with a script, not by eye.
 
 ## Honesty rule
 Be brutally honest about weak ideas. If a product idea has no buyer, say who won't buy it and why, with numbers (e.g. "that subreddit has 4k members and 2 posts a week — that's not a market"). Never ship something half-baked just to say it's done.
