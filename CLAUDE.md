@@ -28,7 +28,10 @@ do you want to build today, or should I recommend the highest-potential ones rig
 ## Instagram posting (automatic when credentials exist)
 - Script: `.claude/skills/gumroad-product-builder/scripts/post_to_instagram.py` (Instagram Graph API).
 - Needs env vars `IG_USER_ID` and `IG_ACCESS_TOKEN` (Business/Creator account linked to a Facebook Page).
-  Setup steps are in the script header. Put the token in the cloud environment's secrets, never in git.
+  Click-by-click setup: `.claude/skills/gumroad-product-builder/INSTAGRAM-SETUP.md`. Given only the token,
+  `scripts/ig_setup.py` finds the IG_USER_ID and checks permissions. Secrets go in the cloud environment, never git.
+- At the start of any product launch, check whether both env vars are set. If they are, post. If not, remind
+  Brandon once that the setup guide exists, then hand over the caption + banner path.
 - Banner images must be at a public HTTPS URL. Cheapest option: commit the PNG and use the raw GitHub URL.
 - If the env vars are missing, do NOT pretend a post went out. Hand Brandon the caption + banner path.
 
