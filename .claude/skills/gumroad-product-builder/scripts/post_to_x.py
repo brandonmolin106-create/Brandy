@@ -24,6 +24,12 @@ import xapi  # noqa: E402
 MAX_CHARS = 280
 
 
+def x_length(text: str) -> int:
+    """X counts every URL as 23 characters (t.co), whatever its real length."""
+    import re
+    return len(re.sub(r'https?://\S+', 'x' * 23, text))
+
+
 def first_caption(path: str) -> str:
     """Take the first caption block from captions.md (blocks separated by a '---' line)."""
     with open(path, encoding="utf-8") as f:
@@ -47,8 +53,9 @@ def main() -> int:
     args = ap.parse_args()
 
     caption = args.caption if args.caption else first_caption(args.caption_file)
-    if len(caption) > MAX_CHARS:
-        raise SystemExit(f"Caption is {len(caption)} chars; X max is {MAX_CHARS}. Trim it.")
+    weighted = x_length(caption)
+    if weighted > MAX_CHARS:
+        raise SystemExit(f"Caption is {weighted} chars as X counts it (links = 23); max is {MAX_CHARS}. Trim it.")
     if args.image and not os.path.isfile(args.image):
         raise SystemExit(f"Image not found: {args.image}")
 
