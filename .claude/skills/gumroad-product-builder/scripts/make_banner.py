@@ -56,33 +56,40 @@ def render(size, title, subtitle, price, studio, cta, out_path):
     # accent bar
     draw.rectangle([(0, 0), (w, 18)], fill=(255, 200, 40))
 
-    y = int(h * 0.18)
-    title_font = load_font(int(w * 0.085))
-    for line in textwrap.wrap(title, width=16):
-        y += draw_centered(draw, line, y, title_font, (255, 255, 255), w) + 18
+    # Scale type off the short edge so square, portrait and landscape all lay out cleanly.
+    base = min(w, h)
+    title_font = load_font(int(base * 0.085))
+    sub_font = load_font(int(base * 0.045))
+    price_font = load_font(int(base * 0.09))
+    cta_font = load_font(int(base * 0.040))
+    studio_font = load_font(int(base * 0.030))
 
-    y += 30
-    sub_font = load_font(int(w * 0.045))
-    for line in textwrap.wrap(subtitle, width=30):
-        y += draw_centered(draw, line, y, sub_font, (220, 220, 235), w) + 12
+    def wrap_for(text, font):
+        # approx chars that fit in 88% of the width at this font size
+        avg = font.size * 0.58
+        return textwrap.wrap(text, width=max(8, int(w * 0.88 / avg)))
 
-    # price pill
-    price_font = load_font(int(w * 0.09))
+    y = int(h * 0.14)
+    for line in wrap_for(title, title_font):
+        y += draw_centered(draw, line, y, title_font, (255, 255, 255), w) + int(base * 0.015)
+
+    y += int(base * 0.03)
+    for line in wrap_for(subtitle, sub_font):
+        y += draw_centered(draw, line, y, sub_font, (220, 220, 235), w) + int(base * 0.01)
+
+    # price pill, placed below whatever text came before it
     bbox = draw.textbbox((0, 0), price, font=price_font)
     pw, ph = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    py = int(h * 0.62)
-    pad = 36
+    pad = int(base * 0.03)
+    py = max(y + int(base * 0.05), int(h * 0.56))
     draw.rounded_rectangle(
         [((w - pw) / 2 - pad, py - pad / 2), ((w + pw) / 2 + pad, py + ph + pad)],
-        radius=40,
+        radius=int(base * 0.04),
         fill=(255, 200, 40),
     )
     draw.text(((w - pw) / 2, py), price, font=price_font, fill=(20, 15, 40))
 
-    cta_font = load_font(int(w * 0.045))
-    draw_centered(draw, cta, int(h * 0.80), cta_font, (255, 255, 255), w)
-
-    studio_font = load_font(int(w * 0.032))
+    draw_centered(draw, cta, int(h * 0.82), cta_font, (255, 255, 255), w)
     draw_centered(draw, studio, int(h * 0.92), studio_font, (180, 180, 200), w)
 
     img.save(out_path, "PNG")

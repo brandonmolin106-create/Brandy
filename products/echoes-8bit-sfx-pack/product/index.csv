@@ -1,0 +1,137 @@
+file,category,description,seconds
+jump_01.wav,jump,"Player jump, rising blip",0.180
+jump_02.wav,jump,"Player jump, rising blip",0.200
+jump_03.wav,jump,"Player jump, rising blip",0.220
+jump_04.wav,jump,"Player jump, rising blip",0.180
+jump_05.wav,jump,"Player jump, rising blip",0.200
+jump_06.wav,jump,"Player jump, rising blip",0.220
+jump_07.wav,jump,"Player jump, rising blip",0.180
+jump_08.wav,jump,"Player jump, rising blip",0.200
+land_01.wav,land,Landing thud,0.120
+land_02.wav,land,Landing thud,0.120
+land_03.wav,land,Landing thud,0.120
+land_04.wav,land,Landing thud,0.120
+coin_01.wav,coin,Coin / pickup two-note chime,0.290
+coin_02.wav,coin,Coin / pickup two-note chime,0.290
+coin_03.wav,coin,Coin / pickup two-note chime,0.290
+coin_04.wav,coin,Coin / pickup two-note chime,0.290
+coin_05.wav,coin,Coin / pickup two-note chime,0.290
+coin_06.wav,coin,Coin / pickup two-note chime,0.290
+coin_07.wav,coin,Coin / pickup two-note chime,0.290
+coin_08.wav,coin,Coin / pickup two-note chime,0.290
+gem_01.wav,gem,Gem / rare pickup sparkle,0.430
+gem_02.wav,gem,Gem / rare pickup sparkle,0.430
+gem_03.wav,gem,Gem / rare pickup sparkle,0.430
+gem_04.wav,gem,Gem / rare pickup sparkle,0.430
+gem_05.wav,gem,Gem / rare pickup sparkle,0.430
+gem_06.wav,gem,Gem / rare pickup sparkle,0.430
+powerup_01.wav,powerup,Power-up rising arpeggio,0.860
+powerup_02.wav,powerup,Power-up rising arpeggio,0.910
+powerup_03.wav,powerup,Power-up rising arpeggio,0.960
+powerup_04.wav,powerup,Power-up rising arpeggio,1.010
+powerup_05.wav,powerup,Power-up rising arpeggio,1.060
+powerup_06.wav,powerup,Power-up rising arpeggio,1.110
+hit_01.wav,hit,Melee hit / impact,0.160
+hit_02.wav,hit,Melee hit / impact,0.160
+hit_03.wav,hit,Melee hit / impact,0.160
+hit_04.wav,hit,Melee hit / impact,0.160
+hit_05.wav,hit,Melee hit / impact,0.160
+hit_06.wav,hit,Melee hit / impact,0.160
+hit_07.wav,hit,Melee hit / impact,0.160
+hit_08.wav,hit,Melee hit / impact,0.160
+hurt_01.wav,hurt,Player hurt buzz,0.300
+hurt_02.wav,hurt,Player hurt buzz,0.300
+hurt_03.wav,hurt,Player hurt buzz,0.300
+hurt_04.wav,hurt,Player hurt buzz,0.300
+hurt_05.wav,hurt,Player hurt buzz,0.300
+hurt_06.wav,hurt,Player hurt buzz,0.300
+death_01.wav,death,Player death descending,0.900
+death_02.wav,death,Player death descending,0.900
+death_03.wav,death,Player death descending,0.900
+death_04.wav,death,Player death descending,0.900
+explosion_01.wav,explosion,Explosion boom,0.700
+explosion_02.wav,explosion,Explosion boom,0.800
+explosion_03.wav,explosion,Explosion boom,0.900
+explosion_04.wav,explosion,Explosion boom,0.700
+explosion_05.wav,explosion,Explosion boom,0.800
+explosion_06.wav,explosion,Explosion boom,0.900
+explosion_07.wav,explosion,Explosion boom,0.700
+explosion_08.wav,explosion,Explosion boom,0.800
+laser_01.wav,laser,Laser zap,0.220
+laser_02.wav,laser,Laser zap,0.220
+laser_03.wav,laser,Laser zap,0.220
+laser_04.wav,laser,Laser zap,0.220
+laser_05.wav,laser,Laser zap,0.220
+laser_06.wav,laser,Laser zap,0.220
+laser_07.wav,laser,Laser zap,0.220
+laser_08.wav,laser,Laser zap,0.220
+shoot_01.wav,shoot,Short gunshot / pew,0.120
+shoot_02.wav,shoot,Short gunshot / pew,0.120
+shoot_03.wav,shoot,Short gunshot / pew,0.120
+shoot_04.wav,shoot,Short gunshot / pew,0.120
+shoot_05.wav,shoot,Short gunshot / pew,0.120
+shoot_06.wav,shoot,Short gunshot / pew,0.120
+ui_click_01.wav,ui_click,UI click,0.050
+ui_click_02.wav,ui_click,UI click,0.050
+ui_click_03.wav,ui_click,UI click,0.050
+ui_click_04.wav,ui_click,UI click,0.050
+ui_click_05.wav,ui_click,UI click,0.050
+ui_click_06.wav,ui_click,UI click,0.050
+ui_confirm_01.wav,ui_confirm,UI confirm / accept,0.140
+ui_confirm_02.wav,ui_confirm,UI confirm / accept,0.140
+ui_confirm_03.wav,ui_confirm,UI confirm / accept,0.140
+ui_confirm_04.wav,ui_confirm,UI confirm / accept,0.140
+ui_cancel_01.wav,ui_cancel,UI cancel / back,0.160
+ui_cancel_02.wav,ui_cancel,UI cancel / back,0.160
+ui_cancel_03.wav,ui_cancel,UI cancel / back,0.160
+ui_cancel_04.wav,ui_cancel,UI cancel / back,0.160
+ui_error_01.wav,ui_error,UI error buzz,0.250
+ui_error_02.wav,ui_error,UI error buzz,0.250
+ui_error_03.wav,ui_error,UI error buzz,0.250
+ui_error_04.wav,ui_error,UI error buzz,0.250
+menu_move_01.wav,menu_move,Menu cursor move,0.060
+menu_move_02.wav,menu_move,Menu cursor move,0.060
+menu_move_03.wav,menu_move,Menu cursor move,0.060
+menu_move_04.wav,menu_move,Menu cursor move,0.060
+level_up_01.wav,level_up,Level-up fanfare,1.220
+level_up_02.wav,level_up,Level-up fanfare,1.220
+level_up_03.wav,level_up,Level-up fanfare,1.220
+level_up_04.wav,level_up,Level-up fanfare,1.220
+win_01.wav,win,Win jingle,1.000
+win_02.wav,win,Win jingle,1.000
+win_03.wav,win,Win jingle,1.000
+lose_01.wav,lose,Lose jingle,1.040
+lose_02.wav,lose,Lose jingle,1.040
+lose_03.wav,lose,Lose jingle,1.040
+door_01.wav,door,Door open / close,0.350
+door_02.wav,door,Door open / close,0.350
+door_03.wav,door,Door open / close,0.350
+door_04.wav,door,Door open / close,0.350
+teleport_01.wav,teleport,Teleport / warp,0.600
+teleport_02.wav,teleport,Teleport / warp,0.600
+teleport_03.wav,teleport,Teleport / warp,0.600
+teleport_04.wav,teleport,Teleport / warp,0.600
+footstep_01.wav,footstep,Footstep,0.090
+footstep_02.wav,footstep,Footstep,0.090
+footstep_03.wav,footstep,Footstep,0.090
+footstep_04.wav,footstep,Footstep,0.090
+footstep_05.wav,footstep,Footstep,0.090
+footstep_06.wav,footstep,Footstep,0.090
+footstep_07.wav,footstep,Footstep,0.090
+footstep_08.wav,footstep,Footstep,0.090
+splash_01.wav,splash,Water splash,0.400
+splash_02.wav,splash,Water splash,0.400
+splash_03.wav,splash,Water splash,0.400
+splash_04.wav,splash,Water splash,0.400
+alarm_01.wav,alarm,Alarm / siren,0.800
+alarm_02.wav,alarm,Alarm / siren,0.800
+alarm_03.wav,alarm,Alarm / siren,0.800
+heartbeat_01.wav,heartbeat,Heartbeat (loopable),0.810
+heartbeat_02.wav,heartbeat,Heartbeat (loopable),0.810
+engine_loop_01.wav,engine_loop,Engine hum (1s seamless loop),1.000
+engine_loop_02.wav,engine_loop,Engine hum (1s seamless loop),1.000
+engine_loop_03.wav,engine_loop,Engine hum (1s seamless loop),1.000
+drone_loop_01.wav,drone_loop,Ambient drone (2s seamless loop),2.000
+drone_loop_02.wav,drone_loop,Ambient drone (2s seamless loop),2.000
+drone_loop_03.wav,drone_loop,Ambient drone (2s seamless loop),2.000
+drone_loop_04.wav,drone_loop,Ambient drone (2s seamless loop),2.000
