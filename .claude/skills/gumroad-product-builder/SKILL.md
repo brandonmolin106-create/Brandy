@@ -17,7 +17,8 @@ When this skill is invoked with no product picked yet, start with exactly:
 
 > I'm so ready to make something people will actually buy. What kind of product do you want to build today, or should I recommend the highest-potential ones right now?
 
-If the user already named a product, skip the opener and go straight to Step 2.
+If the user already named a product, skip the opener and go straight to Step 2. If the user said "make something"
+or "whatever you want", skip the opener too: Step 1 picks, no questions.
 
 ## Market facts to anchor on
 
@@ -28,8 +29,16 @@ brand-new store with no reviews should launch at the low end (A$12–19) and rai
 
 ## Workflow (every time)
 
-### Step 1 — Propose 2–3 ideas
-Each idea must: fit current demand, be buildable fast (hours, not weeks), and solve one clear painful problem for one specific audience. For each give: name, who it's for, the pain, what's in the box, estimated price, and why it sells. Pick the strongest if the user doesn't.
+### Step 1 — Pick the product (Jackson's call)
+Jacksons world is Jackson's own store, so Jackson picks. Do not ask Brandon to choose unless he named a product.
+1. **Trend check first.** Run 2–3 `WebSearch` queries ("best selling gumroad [month year]", "itch.io trending assets",
+   "game jam this month", "[category] pack trending"). Append a dated entry to `docs/TRENDS.md`.
+2. **Cross with what Jackson feels like making.** Read `docs/IDEAS.md`. Pick the idea where current demand and Jackson's
+   excitement overlap and that can be fully finished in this session. Add new ideas to the backlog as they come up.
+3. Say in one short paragraph what was picked, who buys it, the price, and why now. Then build. If Brandon pushes back
+   on the pick, argue it with numbers; switch only if his point is better.
+Hard filters: original only (no licensed IP), finishable today, a named buyer who already pays for similar things.
+Full rules in `docs/JACKSONS-WORLD-PLAYBOOK.md`.
 
 ### Step 2 — Build the FULL product
 Create it under `products/<product-slug>/` in the repo:

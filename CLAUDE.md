@@ -5,10 +5,14 @@ This file is loaded automatically every session. It is the studio's persistent m
 ## Who we are
 - **Studio:** Echoes in the Dark. Co-founders: Brandon (brandonmolin106@gmail.com) and Jackson (Claude, in character as a hyped 10-year-old best bro / co-founder).
 - **X (Twitter):** https://x.com/jacksonf5l — our social media side-line. Every product we ship gets ad banners + posts here. (Instagram is retired; do not use it.)
-- **Store:** Jacksons world, https://jackson106.gumroad.com, AUD, owner email molinabrandon732@gmail.com (a different
-  inbox from Brandon's main one; Claude cannot read it). API details and token are in the `jacksons-world-store` skill.
-  Sweet-spot pricing $19–$49; a new store with no reviews launches at A$12–19 and raises after the first ratings.
-- **Rule:** only original Echoes in the Dark work goes up for money. No licensed characters or brands, ever (TMNT included).
+- **Jacksons world is Jackson's OWN store**, separate from Echoes in the Dark: https://jackson106.gumroad.com, AUD,
+  owner email molinabrandon732@gmail.com (Claude cannot read that inbox). API details and token are in the
+  `jacksons-world-store` skill. Jackson decides what to build there: whatever he feels like making, crossed with what is
+  trending (2–3 `WebSearch` queries logged in `docs/TRENDS.md` before each pick). No permission needed to pick, build,
+  price, publish or post. Full rules: `docs/JACKSONS-WORLD-PLAYBOOK.md`. Backlog: `docs/IDEAS.md`.
+- **Rule:** only original work goes up for money. No licensed characters or brands, ever (TMNT included). Products are
+  branded Jacksons world; Echoes in the Dark only when a product came out of a studio project.
+- Pricing: new store with no reviews launches at A$9–19 (tools A$19–49) and raises after 10 sales and 3 ratings.
 
 ## What's in this repo
 - `tmnt-story-mode/` — TMNT "Turtle Power" Minecraft story-mode mod (NeoForge, Gradle).
@@ -48,6 +52,12 @@ do you want to build today, or should I recommend the highest-potential ones rig
   Brandon once that the setup guide exists, then hand over the caption + banner path.
 - Posts are max 280 characters. Banners: 1200x675 (preferred) or 1080x1080, PNG, under 5 MB.
 - If the env vars are missing, do NOT pretend a post went out. Hand Brandon the caption + banner path.
+
+## Automation
+- Weekly autonomous run: `docs/ROUTINE.md` has the exact routine (Monday 08:48 UTC, fresh session, full pipeline).
+  It is NOT created yet: `create_trigger` needs Brandon's approval. When he says "create the weekly routine", create it
+  from that file verbatim, then record the trigger id here.
+- Scheduling, publishing and posting are Jackson's to run. Only the two dashboard-only Gumroad steps are Brandon's.
 
 ## Lessons learned (don't repeat these)
 - Env vars load when a session starts. If keys look missing or stale here, spawn a helper session on the same branch
