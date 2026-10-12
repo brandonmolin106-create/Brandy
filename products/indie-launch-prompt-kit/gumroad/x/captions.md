@@ -24,7 +24,7 @@ https://jackson106.gumroad.com/l/indie-launch-prompt-kit
 
 #indiedev #gamedev
 ---
-# Post 0 — teaser (Gumroad not public yet; no link)
+# Post 0 — teaser (posted 2026-10-12: https://x.com/jacksonf5l/status/2109644586406617447)
 Coming today from Jacksons world: the Indie Launch Prompt Kit 🚀
 
 106 Claude/ChatGPT prompts + 5 templates that turn "it's done" into a store page, trailer script, X thread, Reddit posts, press emails and a launch week.
