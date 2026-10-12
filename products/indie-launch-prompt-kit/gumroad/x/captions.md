@@ -1,5 +1,5 @@
 # Post 1 — launch
-New on Jacksons world: the Indie Launch Prompt Kit 🚀
+New on Jacksons world: Indie Launch Prompt Kit 🚀
 
 106 Claude/ChatGPT prompts + 5 templates that turn "it's done" into a store page, trailer script, X thread, Reddit posts, press emails and a launch week.
 
