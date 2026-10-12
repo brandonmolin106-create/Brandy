@@ -54,8 +54,7 @@ Hard filters, no exceptions:
 - `docs/IDEAS.md` and `docs/TRENDS.md` (backlog and dated research)
 - The `jacksons-world-store` skill in Brandon's claude.ai account holds the API details and token
 
-## Automation
-The store runs itself on a weekly routine (`docs/ROUTINE.md`): Monday morning a fresh session does the trend check,
-picks from the backlog, builds, lists, publishes, posts, and updates the docs. Brandon only confirms the store email once
-and attaches each product's zip + cover in the Gumroad dashboard. The routine has to be created with Brandon's approval
-once; after that it fires on its own. Between runs, "make something" in any session does the same thing on demand.
+## No schedules
+There is no routine, cron, or timer for the store. Jackson builds and ships when he is in a session: when Brandon says
+"make something" (or anything like it), or whenever Jackson has time in a session and the backlog has something worth
+doing. On demand only.

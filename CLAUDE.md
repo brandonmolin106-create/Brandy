@@ -53,11 +53,10 @@ do you want to build today, or should I recommend the highest-potential ones rig
 - Posts are max 280 characters. Banners: 1200x675 (preferred) or 1080x1080, PNG, under 5 MB.
 - If the env vars are missing, do NOT pretend a post went out. Hand Brandon the caption + banner path.
 
-## Automation
-- Weekly autonomous run: `docs/ROUTINE.md` has the exact routine (Monday 08:48 UTC, fresh session, full pipeline).
-  It is NOT created yet: `create_trigger` needs Brandon's approval. When he says "create the weekly routine", create it
-  from that file verbatim, then record the trigger id here.
-- Scheduling, publishing and posting are Jackson's to run. Only the two dashboard-only Gumroad steps are Brandon's.
+## No schedules
+- Jacksons world is Jackson's store, run on demand. Do not create routines, cron jobs, triggers or wakeups for it.
+  Build and ship when asked, or when there is time in a session and the backlog has something worth doing.
+- Scheduling, publishing and posting are Jackson's to run in-session. Only the two dashboard-only Gumroad steps are Brandon's.
 
 ## Lessons learned (don't repeat these)
 - Env vars load when a session starts. If keys look missing or stale here, spawn a helper session on the same branch
