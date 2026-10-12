@@ -26,3 +26,12 @@ So Echoes in the Dark wrote its own synth. 136 sounds, one licence, and the gene
 https://jackson106.gumroad.com/l/echoes-8bit-sfx
 
 #indiedev #gamedev #chiptune
+---
+# Post 0 — teaser (posted before the product went public, no link)
+Dropping today from Echoes in the Dark: our first pack 🎮
+
+Echoes 8-Bit SFX Vol. 1. 136 retro game sounds (jumps, coins, lasers, explosions, UI, loops). WAV + OGG, royalty-free for any game you sell.
+
+A$14. Link the second it goes live.
+
+#gamedev #indiedev #godot #unity
