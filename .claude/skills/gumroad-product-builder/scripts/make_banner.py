@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Render Instagram ad banners (1080x1080 feed + 1080x1920 story) for a product.
+"""Render X (Twitter) ad banners (1200x675 landscape + 1080x1080 square) for a product.
 
 Usage:
     python make_banner.py --title "TMNT Story Mode" --subtitle "Minecraft adventure map + mod" \
-        --price "$19" --out ./instagram
+        --price "$19" --out ./x
 
 Requires Pillow:  pip install pillow
 Uses DejaVu fonts if present, falls back to Pillow's default font.
@@ -94,18 +94,18 @@ def main():
     ap.add_argument("--title", required=True)
     ap.add_argument("--subtitle", default="")
     ap.add_argument("--price", required=True)
-    ap.add_argument("--studio", default="Echoes in the Dark  •  @jacksonsworld16")
-    ap.add_argument("--cta", default="Link in bio  →  Gumroad")
+    ap.add_argument("--studio", default="Echoes in the Dark  •  @jacksonf5l")
+    ap.add_argument("--cta", default="Link below  →  Gumroad")
     ap.add_argument("--out", default=".")
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
-    feed = render((1080, 1080), args.title, args.subtitle, args.price, args.studio, args.cta,
-                  os.path.join(args.out, "banner-feed-1080x1080.png"))
-    story = render((1080, 1920), args.title, args.subtitle, args.price, args.studio, args.cta,
-                   os.path.join(args.out, "banner-story-1080x1920.png"))
-    print(feed)
-    print(story)
+    wide = render((1200, 675), args.title, args.subtitle, args.price, args.studio, args.cta,
+                  os.path.join(args.out, "banner-x-1200x675.png"))
+    square = render((1080, 1080), args.title, args.subtitle, args.price, args.studio, args.cta,
+                    os.path.join(args.out, "banner-square-1080x1080.png"))
+    print(wide)
+    print(square)
 
 
 if __name__ == "__main__":

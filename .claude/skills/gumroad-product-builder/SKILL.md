@@ -1,6 +1,6 @@
 ---
 name: gumroad-product-builder
-description: Build complete, sellable digital products for Gumroad end to end — propose ideas, build the full product (code/templates/files, README, demos), write the Gumroad listing (title, descriptions, pricing tiers, tags, FAQ, guarantee), create launch marketing (3-email sequence, SEO keywords, content angle), a customer-finding plan (specific subreddits + Instagram), and Instagram ad/banner copy + images for @jacksonsworld16. Use whenever the user asks to make a product to sell, a Gumroad listing, a digital download, a template pack, a tool to sell, or says "what should we sell", "make me something that sells", "/gumroad", or "product".
+description: Build complete, sellable digital products for Gumroad end to end — propose ideas, build the full product (code/templates/files, README, demos), write the Gumroad listing (title, descriptions, pricing tiers, tags, FAQ, guarantee), create launch marketing (3-email sequence, SEO keywords, content angle), a customer-finding plan (specific subreddits + X), and X (Twitter) ad/banner copy + images posted as @jacksonf5l. Use whenever the user asks to make a product to sell, a Gumroad listing, a digital download, a template pack, a tool to sell, or says "what should we sell", "make me something that sells", "/gumroad", or "product".
 ---
 
 # Gumroad Product Builder
@@ -43,10 +43,10 @@ products/<slug>/
     emails.md          # 3-email launch sequence
     seo.md             # keywords + long-form content angle
     customers.md       # exact places to find buyers
-    instagram/
-      captions.md      # 3+ post captions with hashtags
-      banner-*.png     # 1080x1080 and 1080x1920 banners
-      post_to_instagram.py  # copy from this skill's scripts/ folder
+    x/
+      captions.md      # 3+ posts, each ≤ 280 chars, with hashtags
+      banner-x-1200x675.png
+      banner-square-1080x1080.png
   CHANGELOG.md
 ```
 
@@ -66,16 +66,16 @@ Rules: complete, working, professional quality. No placeholders, no "TODO". Test
 - 5–10 SEO keywords and one long-form content angle (`seo.md`): blog post / YouTube video title + outline
 
 ### Step 5 — Customer-finding plan (`customers.md`)
-Exact places, not vague ones: named subreddits with rough member counts, Discord servers, Facebook groups, forums, and Instagram at https://www.instagram.com/jacksonsworld16/ — with a first post/comment draft for each.
+Exact places, not vague ones: named subreddits with rough member counts, Discord servers, Facebook groups, forums, and X at https://x.com/jacksonf5l — with a first post/comment draft for each.
 
-### Step 6 — Instagram ads & banners (the social side-hustle)
+### Step 6 — X (Twitter) ads & banners (the social side-hustle)
 For every product, produce:
-1. **Banners**: a 1080x1080 feed image and a 1080x1920 story image. Generate them with the Canva or Higgsfield tools if available in the session; otherwise render with Pillow using `scripts/make_banner.py` from this skill (bold headline, price, "link in bio", studio name).
-2. **Captions**: 3 captions in `instagram/captions.md` — hook line, 2–3 lines of benefit, CTA "link in bio", 15–25 relevant hashtags.
-3. **Posting**: copy `scripts/post_to_instagram.py` next to the captions. It publishes via the Instagram Graph API and needs `IG_USER_ID` and `IG_ACCESS_TOKEN` env vars (Instagram Business/Creator account linked to a Facebook Page). If those env vars are set, run it and post automatically. If they are NOT set, say so plainly and give the user the ready-to-paste caption + banner path instead. Never claim a post went live unless the script returned a media id.
+1. **Banners**: a 1200x675 landscape image (X's native card size) and a 1080x1080 square. Generate them with the Canva or Higgsfield tools if available in the session; otherwise render with Pillow using `scripts/make_banner.py` from this skill (bold headline, price, studio name, @jacksonf5l).
+2. **Captions**: 3 posts in `x/captions.md`, separated by `---` lines. Each one ≤ 280 characters including the Gumroad link and 2–4 hashtags. First post is the launch post; second is a feature/demo; third is a reply-style "why I built this".
+3. **Posting**: run `scripts/post_to_x.py --image <banner> --caption-file <captions.md>`. It uploads the image from disk and posts via the X API v2. It needs `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` (setup in `X-SETUP.md`). If those are set, post automatically. If they are NOT set, say so plainly and hand over the caption + banner path instead. Never claim a post went live unless the script printed a post URL.
 
 ### Step 7 — Ship
-Commit everything, push, open a draft PR. Final message: product name, price, path to the zip, Gumroad listing path, and whether Instagram posts went out or are waiting on credentials.
+Commit everything, push, open a draft PR. Final message: product name, price, path to the zip, Gumroad listing path, and whether the X post went out (with its URL) or is waiting on credentials.
 
 ## Honesty rule
 Be brutally honest about weak ideas. If a product idea has no buyer, say who won't buy it and why, with numbers (e.g. "that subreddit has 4k members and 2 posts a week — that's not a market"). Never ship something half-baked just to say it's done.
