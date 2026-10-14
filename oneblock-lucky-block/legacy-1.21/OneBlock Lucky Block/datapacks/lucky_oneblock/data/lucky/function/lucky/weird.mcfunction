@@ -1,0 +1,16 @@
+execute store result score #r ob.rng run random value 1..100
+execute if score #r ob.rng matches 1..10 run function lucky:event/weird/chicken_rain
+execute if score #r ob.rng matches 11..18 run function lucky:event/weird/rainbow_sheep
+execute if score #r ob.rng matches 19..28 run function lucky:event/weird/fireworks
+execute if score #r ob.rng matches 29..36 run function lucky:event/weird/pumpkin_head
+execute if score #r ob.rng matches 37..42 run function lucky:event/weird/blindness
+execute if score #r ob.rng matches 43..50 run function lucky:event/weird/zoomies
+execute if score #r ob.rng matches 51..56 run function lucky:event/weird/tiny_slimes
+execute if score #r ob.rng matches 57..62 run function lucky:event/weird/dj
+execute if score #r ob.rng matches 63..68 run function lucky:event/weird/bats
+execute if score #r ob.rng matches 69..73 run function lucky:event/weird/giant
+execute if score #r ob.rng matches 74..79 run function lucky:event/weird/villager_rave
+execute if score #r ob.rng matches 80..84 run function lucky:event/weird/frogs
+execute if score #r ob.rng matches 85..90 run function lucky:event/weird/snow_day
+execute if score #r ob.rng matches 91..95 run function lucky:event/weird/pig_parade
+execute if score #r ob.rng matches 96..100 run function lucky:event/weird/bees
