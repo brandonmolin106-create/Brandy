@@ -81,6 +81,18 @@ and sometimes their gun.
 Windows one-click: double-click `download/Play-Echo-Strike.bat`. It installs the mod loader, the
 mod, and adds an "Echo Strike" profile to the Minecraft Launcher.
 
+## Downloads (in `download/`)
+
+| File | What it is |
+|---|---|
+| `Play-Echo-Strike.bat` | Windows one-click: installs the mod loader, the mod, the arena world, adds the launcher profile |
+| `Echo-Strike-AllInOne.zip` | `mods/` + `saves/` + `resourcepacks/`: unzip over `.minecraft` (any OS) |
+| `echostrike-1.0.0.jar` | just the mod |
+| `Echo-Strike-World.zip` | just the arena world, with the resource pack embedded as `resources.zip` |
+| `Echo-Strike-ResourcePack.zip` | the mod's art as a plain resource pack (textures, 3D gun models, names). Art only: the mod jar is still required for the guns to exist |
+
+Rebuild them with `python3 installer/build_echostrike_bundle.py` then `python3 installer/build_echostrike_installer.py` from the repo root.
+
 ## The shipped world
 
 `download/Echo-Strike-World.zip` (and the one-click installer) carry a normal-terrain world with

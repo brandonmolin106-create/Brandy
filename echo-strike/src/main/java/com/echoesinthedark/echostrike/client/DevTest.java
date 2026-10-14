@@ -59,6 +59,18 @@ public final class DevTest {
         if (!ENABLED || event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
         MinecraftServer server = mc.getSingleplayerServer();
+        if (mc.player == null && mc.screen instanceof net.minecraft.client.gui.screens.ConfirmScreen confirm) {
+            // e.g. "use this world's resource pack?" or the experimental-settings warning: press the
+            // first (positive) button so the scripted run can continue.
+            for (net.minecraft.client.gui.components.events.GuiEventListener child : confirm.children()) {
+                if (child instanceof net.minecraft.client.gui.components.Button button) {
+                    EchoStrike.LOGGER.info("DEVTEST pressed '{}' on: {}", button.getMessage().getString(), confirm.getTitle().getString());
+                    button.onPress();
+                    break;
+                }
+            }
+            return;
+        }
         if (mc.player == null || server == null || mc.level == null) return;
         if (startDelay > 0) {
             startDelay--;
