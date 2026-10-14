@@ -8,7 +8,18 @@ whatever you pull, and at 800 blocks the **Ender Dragon** shows up for the final
 No mods. Everything runs on a vanilla datapack packed inside the world, plus a tiny built-in
 resource pack that makes the Lucky Block look like a Lucky Block.
 
-## Install (2 minutes)
+## Install the easy way (double-click)
+
+- **Windows:** download `Install OneBlock Lucky Block - Windows.bat` and double-click it. If
+  Windows shows "protected your PC", click **More info** then **Run anyway** (it is a plain
+  script; you can open it in Notepad). It copies the world into your saves folder and opens the
+  Minecraft Launcher. Click Play, then Singleplayer, and the world is at the top.
+- **Mac:** download `Install OneBlock Lucky Block - Mac.zip`, unzip it, double-click the
+  `.command` file (right-click, Open the first time). Same thing: installs, then opens Minecraft.
+
+Both installers carry the whole world inside them, so they work offline.
+
+## Install by hand (2 minutes)
 
 1. Download `OneBlock_Lucky_Block.zip` from this folder and unzip it. You get a folder called
    `OneBlock Lucky Block`.
@@ -78,6 +89,8 @@ Cheats are already enabled in the world for the admin commands.
 
 ```
 oneblock-lucky-block/
+  Install OneBlock Lucky Block - Windows.bat   <- double-click installer (world inside)
+  Install OneBlock Lucky Block - Mac.zip       <- double-click installer for Mac
   OneBlock_Lucky_Block.zip        <- the world, ready to share or sell
   world/OneBlock Lucky Block/     <- the same world, unzipped
     level.dat                     <- void superflat world, spawn on the block, gamerules
