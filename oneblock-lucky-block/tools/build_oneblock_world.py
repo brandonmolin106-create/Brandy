@@ -3,9 +3,10 @@
 
 Run:  python3 tools/build_oneblock_world.py
 
-Produces:
-  world/OneBlock Lucky Block/      the world save (drop into .minecraft/saves)
-  OneBlock_Lucky_Block.zip         the same world, zipped for easy sharing
+Produces (1.21-format world; tools/upgrade_world.sh turns it into the shipped
+newest-format world under world/ and OneBlock_Lucky_Block.zip):
+  legacy-1.21/OneBlock Lucky Block/     the world save for Minecraft 1.21.x
+  legacy-1.21/OneBlock_Lucky_Block_1.21.zip
 
 Everything the map does lives in the datapack this script writes
 (data/lucky/function/**.mcfunction and data/lucky/loot_table/**.json).
@@ -30,8 +31,8 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 WORLD_NAME = "OneBlock Lucky Block"
-WORLD_DIR = ROOT / "world" / WORLD_NAME
-ZIP_PATH = ROOT / "OneBlock_Lucky_Block.zip"
+WORLD_DIR = ROOT / "legacy-1.21" / WORLD_NAME
+ZIP_PATH = ROOT / "legacy-1.21" / "OneBlock_Lucky_Block_1.21.zip"
 PACK_ID = "lucky_oneblock"
 DP = WORLD_DIR / "datapacks" / PACK_ID
 NS = DP / "data" / "lucky"

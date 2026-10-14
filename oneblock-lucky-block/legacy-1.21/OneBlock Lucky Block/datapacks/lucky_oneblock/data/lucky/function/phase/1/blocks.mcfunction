@@ -1,0 +1,27 @@
+execute store result score #r2 ob.rng run random value 1..121
+execute if score #r2 ob.rng matches 1..20 run setblock 0 63 0 minecraft:grass_block
+execute if score #r2 ob.rng matches 21..32 run setblock 0 63 0 minecraft:dirt
+execute if score #r2 ob.rng matches 33..46 run setblock 0 63 0 minecraft:oak_log
+execute if score #r2 ob.rng matches 47..52 run setblock 0 63 0 minecraft:birch_log
+execute if score #r2 ob.rng matches 53..56 run setblock 0 63 0 minecraft:spruce_log
+execute if score #r2 ob.rng matches 57..66 run setblock 0 63 0 minecraft:oak_leaves[persistent=true]
+execute if score #r2 ob.rng matches 67..70 run setblock 0 63 0 minecraft:birch_leaves[persistent=true]
+execute if score #r2 ob.rng matches 71..80 run setblock 0 63 0 minecraft:stone
+execute if score #r2 ob.rng matches 81..84 run setblock 0 63 0 minecraft:cobblestone
+execute if score #r2 ob.rng matches 85..89 run setblock 0 63 0 minecraft:coal_ore
+execute if score #r2 ob.rng matches 90..91 run setblock 0 63 0 minecraft:iron_ore
+execute if score #r2 ob.rng matches 92..94 run setblock 0 63 0 minecraft:hay_block
+execute if score #r2 ob.rng matches 95..97 run setblock 0 63 0 minecraft:pumpkin
+execute if score #r2 ob.rng matches 98..100 run setblock 0 63 0 minecraft:melon
+execute if score #r2 ob.rng matches 101..102 run setblock 0 63 0 minecraft:mossy_cobblestone
+execute if score #r2 ob.rng matches 103..105 run setblock 0 63 0 minecraft:clay
+execute if score #r2 ob.rng matches 106..108 run setblock 0 63 0 minecraft:sandstone
+execute if score #r2 ob.rng matches 109 run setblock 0 63 0 minecraft:bookshelf
+execute if score #r2 ob.rng matches 110 run setblock 0 63 0 minecraft:crafting_table
+execute if score #r2 ob.rng matches 111..112 run setblock 0 63 0 minecraft:podzol
+execute if score #r2 ob.rng matches 113..114 run setblock 0 63 0 minecraft:moss_block
+execute if score #r2 ob.rng matches 115 run setblock 0 63 0 minecraft:flowering_azalea_leaves[persistent=true]
+execute if score #r2 ob.rng matches 116 run setblock 0 63 0 minecraft:brown_mushroom_block
+execute if score #r2 ob.rng matches 117 run setblock 0 63 0 minecraft:red_mushroom_block
+execute if score #r2 ob.rng matches 118..119 run setblock 0 63 0 minecraft:oak_planks
+execute if score #r2 ob.rng matches 120..121 run setblock 0 63 0 minecraft:white_wool

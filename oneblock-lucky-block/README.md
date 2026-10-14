@@ -27,9 +27,12 @@ Both installers carry the whole world inside them, so they work offline.
    - **Windows:** press `Win + R`, type `%appdata%\.minecraft\saves`, Enter.
    - **Mac:** in Finder press `Cmd + Shift + G`, paste `~/Library/Application Support/minecraft/saves`.
    - **Linux:** `~/.minecraft/saves`
-3. Start **Minecraft: Java Edition 1.21 or newer** (tested on 1.21.1 and the latest 26.3) and
-   open the world from Singleplayer. If the game asks to back up or convert the world, say yes.
+3. Start **Minecraft: Java Edition** (the current release, 26.x) and open the world from
+   Singleplayer. It opens straight in, no upgrade screen.
 4. You are standing on the block. Punch it.
+
+Still on **1.21.x**? Use `legacy-1.21/OneBlock_Lucky_Block_1.21.zip` instead. Same game, saved in
+the older world format (that one shows a "create a backup?" screen on newer versions; just say yes).
 
 Works in LAN multiplayer too: Open to LAN, friends join, everyone shares the one block.
 
@@ -91,14 +94,27 @@ Cheats are already enabled in the world for the admin commands.
 oneblock-lucky-block/
   Install OneBlock Lucky Block - Windows.bat   <- double-click installer (world inside)
   Install OneBlock Lucky Block - Mac.zip       <- double-click installer for Mac
-  OneBlock_Lucky_Block.zip        <- the world, ready to share or sell
+  OneBlock_Lucky_Block.zip        <- the world (newest save format), ready to share or sell
   world/OneBlock Lucky Block/     <- the same world, unzipped
-    level.dat                     <- void superflat world, spawn on the block, gamerules
+    level.dat, data/, dimensions/ <- void superflat world, spawn on the block, gamerules
     icon.png                      <- lucky block icon in the world list
-    resources.zip                 <- built-in texture pack (lucky block texture + names)
+    resourcepacks/resources.zip   <- built-in texture pack (lucky block texture + names)
     datapacks/lucky_oneblock/     <- the whole game: 113 functions, 16 loot tables
-  tools/build_oneblock_world.py   <- generates everything above
+  legacy-1.21/                    <- the same world in 1.21.x format + its zip
+  screenshots/                    <- real in-game screenshots (26.3 client)
+  tools/build_oneblock_world.py   <- generates the world and the datapack
+  tools/upgrade_world.sh          <- re-saves it in the newest format with a vanilla server
+  tools/build_installers.py       <- bakes the zip into the double-click installers
 ```
+
+## Screenshots
+
+Taken in a real Minecraft 26.3 client with the world installed.
+
+![the block](screenshots/01_the_block.png)
+![lucky block](screenshots/03_lucky_block.png)
+![phase 2](screenshots/06_phase_2.png)
+![the dragon](screenshots/08_the_dragon.png)
 
 ## Changing the game
 
@@ -110,9 +126,11 @@ pip install nbtlib pillow
 python3 tools/build_oneblock_world.py
 ```
 
-It rewrites the `world/` folder and the zip. The datapack uses only vanilla commands, so it keeps
-working across game updates: the world was booted on both a 1.21.1 and a 26.3 vanilla server and
-every event, loot table and the boss fight were exercised from the console.
+That rewrites `legacy-1.21/`. Then `tools/upgrade_world.sh <java 25> <26.x server.jar>` re-saves it
+into `world/` and `OneBlock_Lucky_Block.zip`, and `python3 tools/build_installers.py` rebuilds the
+installers. The datapack uses only vanilla commands, so it keeps working across game updates: the
+world was booted on both 1.21.1 and 26.3 vanilla servers with every event, loot table and the boss
+fight exercised from the console, and then played in a real 26.3 client (see screenshots).
 
 ## Credits
 
