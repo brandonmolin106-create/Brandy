@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+logoFile="echostrike_logo.png"
+credits="An Echoes in the Dark original. Inspired by the feel of fast mobile shooters; all code, art and names are our own."
+description='''${mod_description}'''
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

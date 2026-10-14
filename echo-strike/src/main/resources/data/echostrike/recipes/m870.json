@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "WWR",
+    " S "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "W": {
+      "item": "minecraft:oak_planks"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "echostrike:m870",
+    "count": 1
+  }
+}
