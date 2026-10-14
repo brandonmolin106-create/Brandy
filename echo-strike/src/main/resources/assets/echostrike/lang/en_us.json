@@ -1,0 +1,37 @@
+{
+  "itemGroup.echostrike": "Echo Strike",
+  "key.categories.echostrike": "Echo Strike",
+  "key.echostrike.reload": "Reload",
+
+  "item.echostrike.g18": "G18",
+  "item.echostrike.deagle": "Desert Eagle",
+  "item.echostrike.mp5": "MP5",
+  "item.echostrike.ump45": "UMP45",
+  "item.echostrike.vector": "Vector",
+  "item.echostrike.ak47": "AK-47",
+  "item.echostrike.m4a1": "M4A1",
+  "item.echostrike.m870": "M870",
+  "item.echostrike.awm": "AWM",
+  "item.echostrike.m249": "M249",
+  "item.echostrike.combat_knife": "Combat Knife",
+  "item.echostrike.light_ammo": "Light Ammo",
+  "item.echostrike.heavy_ammo": "Heavy Ammo",
+  "item.echostrike.shotgun_shells": "Shotgun Shells",
+  "item.echostrike.sniper_rounds": "Sniper Rounds",
+  "item.echostrike.frag_grenade": "Frag Grenade",
+  "item.echostrike.medkit": "Medkit",
+  "item.echostrike.armor_plate": "Armor Plate",
+  "item.echostrike.strike_helmet": "Strike Helmet",
+  "item.echostrike.strike_vest": "Strike Vest",
+  "item.echostrike.operative_spawn_egg": "Operative Spawn Egg",
+
+  "entity.echostrike.operative": "Operative",
+  "entity.echostrike.frag_grenade": "Frag Grenade",
+
+  "death.attack.bullet": "%1$s was shot",
+  "death.attack.bullet.player": "%1$s was shot by %2$s",
+  "death.attack.bullet.item": "%1$s was shot by %2$s using %3$s",
+  "death.attack.headshot": "%1$s took one to the head",
+  "death.attack.headshot.player": "%1$s was headshot by %2$s",
+  "death.attack.headshot.item": "%1$s was headshot by %2$s using %3$s"
+}
